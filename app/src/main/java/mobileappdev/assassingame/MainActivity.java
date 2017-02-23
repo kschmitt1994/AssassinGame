@@ -1,5 +1,6 @@
 package mobileappdev.assassingame;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,18 +24,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /*Button joinGameButton = (Button)findViewById(R.id.create_game);
-        joinGameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createGame();
-            }
-        });*/
     }
 
     private void createGame() {
-        Log.i(TAG, "We are inside Create Game screen.");
-
+        Log.i(TAG, "Inside Create Game screen.");
+        startActivity(new Intent(MainActivity.this, CreateGameActivity.class));
     }
 
     @Override
