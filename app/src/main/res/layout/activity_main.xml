@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_centerHorizontal="true"
+    android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,37 +10,27 @@
         android:id="@+id/create_game"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/create_game"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"/>
+        android:text="@string/create_game"/>
 
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/join_game"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"/>
+        android:text="@string/join_game"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/stats"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"/>
+        android:text="@string/stats"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/settings"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="200dp"/>
+        android:text="@string/settings"/>
 
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/logout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="250dp" />
-</RelativeLayout>
+        android:text="@string/logout"/>
+</LinearLayout>
