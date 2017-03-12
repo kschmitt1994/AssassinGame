@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 public class LogInActivity extends AppCompatActivity {
 
@@ -18,7 +19,7 @@ public class LogInActivity extends AppCompatActivity {
 
         Log.i(TAG, "OnCreate method is invoked.");
 
-        Button signUpButton = (Button) findViewById(R.id.signUpButton);
+        Button signUpButton = (Button) findViewById(R.id.login_signUpButton);
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -26,10 +27,17 @@ public class LogInActivity extends AppCompatActivity {
             }
         });
 
-        Button signInButton = (Button) findViewById(R.id.loginButton);
+        Button signInButton = (Button) findViewById(R.id.login_loginButton);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                EditText emailValue = (EditText) findViewById(R.id.login_emailEditText);
+                String email = emailValue.getText().toString();
+
+                EditText passwordValue = (EditText) findViewById(R.id.login_passwordEditText);
+                String password = passwordValue.getText().toString();
+
                 startActivity(new Intent(LogInActivity.this, MainActivity.class));
             }
         });
