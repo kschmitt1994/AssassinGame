@@ -21,7 +21,7 @@
 
         <activity android:name=".MainActivity" />
 
-        <activity android:name=".CreateGameActivity"
+        <activity android:name=".NewGameActivity"
             android:label="@string/new_game">
         </activity>
 
@@ -30,7 +30,7 @@
         </activity>
 
         <activity android:name=".InvitePlayersActivity"
-            android:parentActivityName=".CreateGameActivity">
+            android:parentActivityName=".NewGameActivity">
         </activity>
 
         <activity android:name=".GameBoardActivity"
@@ -38,6 +38,11 @@
         </activity>
 
         <activity android:name=".PlayBoardActivity"
+            android:configChanges="orientation"
+            >
+        </activity>
+
+        <activity android:name=".ChatActivity"
             android:configChanges="orientation"
             >
         </activity>

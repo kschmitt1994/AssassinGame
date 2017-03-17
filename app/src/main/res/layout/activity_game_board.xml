@@ -65,11 +65,11 @@
             android:text="@string/cancel" />
 
         <Button
-            android:id="@+id/start_game"
+            android:id="@+id/create_game"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/start_game" />
+            android:text="@string/create_game" />
     </LinearLayout>
 
 </RelativeLayout>

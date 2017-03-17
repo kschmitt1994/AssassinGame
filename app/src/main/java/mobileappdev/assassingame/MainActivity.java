@@ -8,7 +8,6 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -19,8 +18,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button createGameButton = (Button)findViewById(R.id.create_game);
-        createGameButton.setOnClickListener(new View.OnClickListener() {
+        Button newGameButton = (Button)findViewById(R.id.new_game);
+        newGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createGame();
@@ -73,9 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void createGame() {
-        startActivity(new Intent(MainActivity.this, CreateGameActivity.class));
+        startActivity(new Intent(MainActivity.this, NewGameActivity.class));
     }
-
 
 
 

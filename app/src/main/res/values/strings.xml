@@ -27,6 +27,8 @@
     <string name="players">Players</string>
     <string name="remove">Remove</string>
     <string name="new_player">Add Player</string>
+    <string name="send_invites_and_create_game">Create Game</string>
+    <string name="proceed">Proceed</string>
 
     <color name="dark_gray">#444444</color>
 </resources>

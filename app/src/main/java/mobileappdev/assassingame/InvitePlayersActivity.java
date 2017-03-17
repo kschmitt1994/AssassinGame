@@ -1,14 +1,17 @@
 package mobileappdev.assassingame;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -21,6 +24,8 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.abc);
+
+        Switch switch1 = (Switch)findViewById(R.id.switch1);
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.frameLayout);
@@ -57,11 +62,12 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
     }
 
     private void sendInvite() {
-        LinkedList<Player> players = Game.getInstance(getApplicationContext()).getPlayers();
+        DatabaseHandler databaseHandler = new DatabaseHandler(this, Game.getInstance().getGameName());
+        List<Player> players = databaseHandler.getAllPlayers();
         for (Player player : players) {
-            // TODO: 3/14/2017 Send Invites
+            FirebaseHelper.sendInvite(player);
         }
-
+        startActivity(new Intent(InvitePlayersActivity.this, GameBoardActivity.class));
     }
 
     @Override

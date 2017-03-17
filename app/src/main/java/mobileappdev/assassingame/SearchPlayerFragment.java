@@ -10,8 +10,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by Ajit Ku. Sahoo on 3/13/2017.
+ * @author: Ajit Ku. Sahoo
+ * @Date: 3/13/2017
  */
 
 public class SearchPlayerFragment extends Fragment {
@@ -57,13 +61,25 @@ public class SearchPlayerFragment extends Fragment {
     }
 
     private void resetSearchPlayer() {
-        Game.getInstance(getActivity()).setSearchedPlayer(null);
+        Game.getInstance().setSearchedPlayer(null);
     }
 
-    private void searchPlayer(String player, boolean byEmail) {
+    private void searchPlayer(String playerInfo, boolean byEmail) {
         // TODO: 3/13/2017 searchLogic
+        if (byEmail) {
+            FirebaseHelper.getPlayer(playerInfo);
+        } else {
+            List<String> allPlayerNames = FirebaseHelper.getAllPlayerNames();
+            ArrayList<String> matchingNames = new ArrayList<>();
+            for (String name : allPlayerNames) {
+                if (name.contains(playerInfo))
+                    matchingNames.add(name); // TODO: 3/17/2017 should add email??
+            }
+        }
         Player dummyPlayer = Player.getDummyPlayer();
-        Game.getInstance(getActivity()).setSearchedPlayer(dummyPlayer);
+        ArrayList<Player> searchedPlayers = new ArrayList<>();
+        searchedPlayers.add(dummyPlayer);
+        Game.getInstance().setSearchedPlayer(searchedPlayers);
         mListener.updateSearchResult();
     }
 }

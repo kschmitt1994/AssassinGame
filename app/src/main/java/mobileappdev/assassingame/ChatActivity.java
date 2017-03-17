@@ -7,5 +7,5 @@ import android.support.v7.app.AppCompatActivity;
  * @Date: 3/15/2017
  */
 
-class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity {
 }

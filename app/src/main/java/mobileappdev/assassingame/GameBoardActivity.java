@@ -11,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 /**
@@ -25,8 +26,19 @@ public class GameBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_board);
 
-        ((TextView)findViewById(R.id.game_title))
-                .setText(Game.getInstance(getApplicationContext()).getGameName());
+        ((TextView)findViewById(R.id.game_title)).setText(Game.getInstance().getGameName());
+        Switch publicSwitch = (Switch) findViewById(R.id.switch1);
+        publicSwitch.setChecked(Game.getInstance().isPublic());
+        publicSwitch.setEnabled(false);
+        publicSwitch.setClickable(false);
+        publicSwitch.setFocusable(false);
+        publicSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Game.getInstance().setPublic(((Switch)v).isChecked());
+            }
+        });
+
         FragmentManager fm = getSupportFragmentManager();
 
         Fragment fragment2 = fm.findFragmentById(R.id.fragment_game_players);
@@ -37,11 +49,11 @@ public class GameBoardActivity extends AppCompatActivity {
                     .commit();
         }
 
-        Button startButton = (Button) findViewById(R.id.start_game);
-        startButton.setOnClickListener(new View.OnClickListener() {
+        Button createGameButton = (Button) findViewById(R.id.create_game);
+        createGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startGame();
+                createGame();
             }
         });
     }
@@ -65,7 +77,7 @@ public class GameBoardActivity extends AppCompatActivity {
         }
     }
 
-    private void startGame() {
+    private void createGame() {
         startActivity(new Intent(GameBoardActivity.this, PlayBoardActivity.class));
 
     }
