@@ -1,5 +1,6 @@
 package mobileappdev.assassingame;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public class InvitedPlayersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_invited_players, container, false);
         mInvitedPlayersRecyclerView = (RecyclerView) view.findViewById(R.id.player_recycler_view);
         mInvitedPlayersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mDatabaseHandler = new DatabaseHandler(this.getActivity(), "ABC");
+        mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
         mPlayers = mDatabaseHandler.getAllPlayers();
         updateUI();
         return view;
@@ -51,6 +51,7 @@ public class InvitedPlayersFragment extends Fragment {
     private class IPHolder extends RecyclerView.ViewHolder {
         private TextView mNameTextView;
         private Button mRemoveButton;
+
         IPHolder(View itemView) {
             super(itemView);
             mNameTextView = (TextView) itemView.findViewById(R.id.player_name);
@@ -98,5 +99,11 @@ public class InvitedPlayersFragment extends Fragment {
         public int getItemCount() {
             return mPlayers.size();
         }
-}
+    }
+
+    public int getNoOfPlayersInGame() {
+        return mPlayers.size();
+    }
+
+
 }

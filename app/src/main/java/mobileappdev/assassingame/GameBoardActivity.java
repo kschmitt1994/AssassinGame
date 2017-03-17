@@ -1,5 +1,6 @@
 package mobileappdev.assassingame;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,7 +20,11 @@ import android.widget.TextView;
  * @Date: 3/14/2017
  */
 
-public class GameBoardActivity extends AppCompatActivity {
+public class GameBoardActivity extends AppCompatActivity implements InvitedPlayerListChangeListener {
+
+    private static final int MINIMUM_PLAYERS_NEEDED = 4;
+    private Button mCreateGameButton;
+    private InvitedPlayersFragment mFragment2;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,16 +46,17 @@ public class GameBoardActivity extends AppCompatActivity {
 
         FragmentManager fm = getSupportFragmentManager();
 
-        Fragment fragment2 = fm.findFragmentById(R.id.fragment_game_players);
-        if (fragment2 == null) {
-            fragment2 = new InvitedPlayersFragment();
+        mFragment2 = (InvitedPlayersFragment) fm.findFragmentById(R.id.fragment_game_players);
+        if (mFragment2 == null) {
+            mFragment2 = new InvitedPlayersFragment();
             fm.beginTransaction()
-                    .add(R.id.fragment_game_players, fragment2)
+                    .add(R.id.fragment_game_players, mFragment2)
                     .commit();
         }
 
-        Button createGameButton = (Button) findViewById(R.id.create_game);
-        createGameButton.setOnClickListener(new View.OnClickListener() {
+        mCreateGameButton = (Button) findViewById(R.id.create_game);
+        mCreateGameButton.setEnabled(getNoOfPlayersInGame(this) >= MINIMUM_PLAYERS_NEEDED);
+        mCreateGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createGame();
@@ -79,6 +85,14 @@ public class GameBoardActivity extends AppCompatActivity {
 
     private void createGame() {
         startActivity(new Intent(GameBoardActivity.this, PlayBoardActivity.class));
+    }
 
+    @Override
+    public void update() {
+        mCreateGameButton.setEnabled(mFragment2.getNoOfPlayersInGame() >= MINIMUM_PLAYERS_NEEDED);
+    }
+
+    public int getNoOfPlayersInGame(Context context) {
+        return new DatabaseHandler(context, Game.getInstance().getGameName()).getPlayersCount();
     }
 }

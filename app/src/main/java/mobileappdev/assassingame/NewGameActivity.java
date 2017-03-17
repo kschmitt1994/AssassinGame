@@ -3,6 +3,8 @@ package mobileappdev.assassingame;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,26 +21,43 @@ import java.util.List;
 
 public class NewGameActivity extends AppCompatActivity {
 
+    private EditText mGameTitleET;
+    private Button mProceedButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_game);
 
-        final EditText gameTitleET = (EditText)findViewById(R.id.game_title_TF);
+        mGameTitleET = (EditText)findViewById(R.id.game_title_TF);
+        mGameTitleET.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mProceedButton.setEnabled(s.toString().trim().length() != 0);
+            }
+        });
+
         final RadioButton selectedRadioButton = getSelectedRadioButton();
 
-        Button invitePlayersButton = (Button)findViewById(R.id.invite_players_button);
-        invitePlayersButton.setOnClickListener(new View.OnClickListener() {
+        mProceedButton = (Button)findViewById(R.id.invite_players_button);
+        mProceedButton.setEnabled(false);
+        mProceedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!validGameName(gameTitleET.getText().toString())) {
+                String gameName = mGameTitleET.getText().toString().trim();
+                if (!validGameName(gameName)) {
 //                    gameTitleET.setTextColor(Color.RED);
                     return;
                 }
 
-                Intent intent = new Intent(NewGameActivity.this, InvitePlayersActivity.class);
-                Game.getInstance().setPublic(selectedRadioButton.getText().toString().contains("Public"));
-                startActivity(intent);
+                Game gameInstance = Game.getInstance();
+                gameInstance.setGameName(gameName);
+                gameInstance.setPublic(selectedRadioButton.getText().toString().contains("Public"));
+
+                startActivity(new Intent(NewGameActivity.this, InvitePlayersActivity.class));
             }
         });
 
@@ -71,7 +90,8 @@ public class NewGameActivity extends AppCompatActivity {
     private boolean validGameName(String gameName) {
         List<String> allGameNames = FirebaseHelper.getAllGameNames();
         if (allGameNames.contains(gameName)) {
-            Toast.makeText(this, "Game already exists. Please Choose a different name..", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Game already exists. Please Choose a different name..",
+                    Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;

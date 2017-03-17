@@ -54,8 +54,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Upgrading database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        //db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYERS);
+//         Drop older table if existed
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYERS);
 
         // Create tables again
         onCreate(db);
@@ -115,15 +115,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
-        cursor.close();
+//        cursor.close();
         return playerList;
     }
 
-    public int getContactsCount() {
+    public int getPlayersCount() {
         String countQuery = "SELECT  * FROM " + TABLE_PLAYERS;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.close();
+//        cursor.close();
         return cursor.getCount();
     }
 

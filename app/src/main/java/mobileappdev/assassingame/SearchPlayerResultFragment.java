@@ -32,7 +32,7 @@ public class SearchPlayerResultFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDatabaseHandler = new DatabaseHandler(this.getActivity(), "ABC"); // TODO: 3/16/2017 retrieve game name from the bundle
+        mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
     }
 
     @Override
@@ -61,7 +61,8 @@ public class SearchPlayerResultFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //                instance.addPlayer(searchedPlayer);
                 String playerName = (String) parent.getAdapter().getItem(position);
-                Toast.makeText(getActivity(), playerName + " was clicked", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), playerName + " is added!", Toast.LENGTH_LONG).show();
+                // TODO:Ajit add actual player to database
                 Game instance = Game.getInstance();
                 Player searchedPlayer = instance.getSearchedPlayer().get(0);
                 mDatabaseHandler.addPlayer(searchedPlayer);
@@ -69,7 +70,7 @@ public class SearchPlayerResultFragment extends Fragment {
 //                mAdapter.notifyDataSetChanged();
                 view.setClickable(false);
                 view.setFocusable(false);
-                mListener.playerInvited();
+                mListener.update();
             }
         });
 
@@ -86,7 +87,7 @@ public class SearchPlayerResultFragment extends Fragment {
 //                instance.addPlayer(searchedPlayer);
                 mDatabaseHandler.addPlayer(searchedPlayer);
                 addButton.setEnabled(false);
-                mListener.playerInvited();
+                mListener.update();
             }
         });
 */

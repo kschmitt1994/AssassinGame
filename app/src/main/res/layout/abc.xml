@@ -23,7 +23,14 @@
         android:layout_marginLeft="17dp"
         android:layout_marginStart="17dp"
         android:layout_marginTop="5dp"
-        android:text="Search Results" />
+        android:text="@string/search_results" />
+
+    <android.support.v4.widget.Space
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="?android:attr/listDivider"
+        android:visibility="visible"/>
+
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -44,7 +51,13 @@
         android:layout_alignStart="@+id/frameLayout2"
         android:layout_below="@+id/frameLayout2"
         android:layout_marginTop="5dp"
-        android:text="@string/players" />
+        android:text="@string/players_to_invite" />
+
+    <android.support.v4.widget.Space
+        android:layout_height="match_parent"
+        android:layout_width="1dp"
+        android:background="?android:attr/listDivider"/>
+
 
     <FrameLayout
         android:layout_width="match_parent"

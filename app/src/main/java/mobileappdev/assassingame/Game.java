@@ -47,4 +47,8 @@ public class Game {
     public void setSearchedPlayer(List<Player> searchedPlayer) {
         mSearchedPlayer = searchedPlayer;
     }
+
+    public void setGameName(String gameName) {
+        mGameName = gameName;
+    }
 }

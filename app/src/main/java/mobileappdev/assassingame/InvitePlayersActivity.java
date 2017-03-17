@@ -25,8 +25,6 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
         super.onCreate(savedInstanceState);
         setContentView(R.layout.abc);
 
-        Switch switch1 = (Switch)findViewById(R.id.switch1);
-
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.frameLayout);
         if (fragment == null) {
@@ -79,7 +77,7 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
     }
 
     @Override
-    public void playerInvited() {
+    public void update() {
         InvitedPlayersFragment fragment =
                 (InvitedPlayersFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.frameLayout3);

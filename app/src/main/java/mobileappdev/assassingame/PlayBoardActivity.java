@@ -171,6 +171,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         CameraUpdate update = CameraUpdateFactory.newLatLngBounds(bounds, margin);
         googleMap.animateCamera(update);
 
+
         googleMap.addMarker(new MarkerOptions().position(itemPoint).title("Smith").snippet("Assassin"));
         LatLng secMarker = new LatLng(itemPoint.latitude + 0.00004, itemPoint.longitude + 0.00003);
         googleMap.addMarker(new MarkerOptions().position(secMarker).title("Kenny")
@@ -179,6 +180,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     }
 
     private void updateMarkers() {
+        Log.d("Ajit", "I am moving....");
 
     }
 

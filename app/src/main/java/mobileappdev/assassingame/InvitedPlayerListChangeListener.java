@@ -5,5 +5,5 @@ package mobileappdev.assassingame;
  */
 
 interface InvitedPlayerListChangeListener {
-    void playerInvited();
+    void update();
 }
