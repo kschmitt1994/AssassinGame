@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "422111695889",
+    "firebase_url": "https://assassingame-85405.firebaseio.com",
+    "project_id": "assassingame-85405",
+    "storage_bucket": "assassingame-85405.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422111695889:android:5a8bbb902c788b24",
+        "android_client_info": {
+          "package_name": "mobileappdev.assassingame"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "422111695889-lgckrei61tm99nq2gk4cojin7tuqr854.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "mobileappdev.assassingame",
+            "certificate_hash": "9e210455dc56d17d2e92191aea3111fc87efd2a0"
+          }
+        },
+        {
+          "client_id": "422111695889-sq568kr7dggp1196npk674fcm417850m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlVt2ZswCboTLoBKk-Wcjv5m5BvGPNP-g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "422111695889-sq568kr7dggp1196npk674fcm417850m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
