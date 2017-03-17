@@ -8,11 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,20 +22,25 @@ public class InvitedPlayersFragment extends Fragment {
 
     private RecyclerView mInvitedPlayersRecyclerView;
     private IPAdapter mIPAdapter;
+    private DatabaseHandler mDatabaseHandler;
+    private List<Player> mPlayers;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_invited_players, container, false);
         mInvitedPlayersRecyclerView = (RecyclerView) view.findViewById(R.id.player_recycler_view);
         mInvitedPlayersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mDatabaseHandler = new DatabaseHandler(this.getActivity(), "ABC");
+        mPlayers = mDatabaseHandler.getAllPlayers();
         updateUI();
         return view;
     }
 
     private void updateUI() {
-        Game instance = Game.getInstance(getActivity());
-        LinkedList<Player> players = instance.getPlayers();
-        mIPAdapter = new IPAdapter(players);
+//        Game instance = Game.getInstance(getActivity());
+//        LinkedList<Player> players = instance.getPlayers();
+        mPlayers = mDatabaseHandler.getAllPlayers();
+        mIPAdapter = new IPAdapter(mPlayers);
         mInvitedPlayersRecyclerView.setAdapter(mIPAdapter);
     }
 
@@ -48,25 +50,26 @@ public class InvitedPlayersFragment extends Fragment {
 
     private class IPHolder extends RecyclerView.ViewHolder {
         private TextView mNameTextView;
-        private Button mCheckBox;
-        private int mPosition;
+        private Button mRemoveButton;
         IPHolder(View itemView) {
             super(itemView);
             mNameTextView = (TextView) itemView.findViewById(R.id.player_name);
-            mCheckBox = (Button) itemView.findViewById(R.id.checkBox);
-            mCheckBox.setOnClickListener(new View.OnClickListener() {
+            mRemoveButton = (Button) itemView.findViewById(R.id.checkBox);
+            mRemoveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    removePlayer(mPosition);
+                    removePlayer(getAdapterPosition());
                 }
             });
         }
     }
 
     private void removePlayer(int position) {
-        Game instance = Game.getInstance(getActivity());
-        LinkedList<Player> players = instance.getPlayers();
-        players.remove(position);
+//        Game instance = Game.getInstance(getActivity());
+//        LinkedList<Player> players = instance.getPlayers();
+//        Player player = players.get(position);
+        mDatabaseHandler.deletePlayer(mPlayers.get(position).getEmailID());
+        mPlayers.remove(position);
         updateUI();
     }
 
@@ -88,8 +91,7 @@ public class InvitedPlayersFragment extends Fragment {
         public void onBindViewHolder(IPHolder holder, int position) {
             Player player = mPlayers.get(position);
             holder.mNameTextView.setText(player.getName());
-            holder.mCheckBox.setEnabled(true);
-            holder.mPosition = position;
+            holder.mRemoveButton.setEnabled(true);
         }
 
         @Override

@@ -66,7 +66,7 @@ public class GameBoardActivity extends AppCompatActivity {
     }
 
     private void startGame() {
-
+        startActivity(new Intent(GameBoardActivity.this, PlayBoardActivity.class));
 
     }
 }

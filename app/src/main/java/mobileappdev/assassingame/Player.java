@@ -13,11 +13,11 @@ public class Player {
     private Character mCharacterType;
     private Location mLocation;
 
-    public Player(String name, String emailID, boolean alive) {
+    public Player(String emailID, String name, Character character, boolean alive) {
         mName = name;
         mEmailID = emailID;
         mAlive = alive;
-        mCharacterType = Character.CITIZEN;
+        mCharacterType = character;
         mLocation = null;
     }
 
@@ -54,8 +54,9 @@ public class Player {
     }
 
     private static int counter = 0;
+
     public static Player getDummyPlayer() {
         ++counter;
-        return new Player("Ajit " + counter, "abc" + counter + "@xyz.com", true);
+        return new Player("abc" + counter + "@xyz.com", "Ajit " + counter, Character.CITIZEN, true);
     }
 }

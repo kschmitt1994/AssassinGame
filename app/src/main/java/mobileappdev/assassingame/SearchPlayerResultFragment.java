@@ -17,10 +17,13 @@ import android.widget.TextView;
 public class SearchPlayerResultFragment extends Fragment {
 
     private InvitedPlayerListChangeListener mListener;
+    private DatabaseHandler mDatabaseHandler;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabaseHandler = new DatabaseHandler(this.getActivity(), "ABC"); // TODO: 3/16/2017 retrieve game name from the bundle
     }
 
     @Override
@@ -50,7 +53,8 @@ public class SearchPlayerResultFragment extends Fragment {
 
                 Game instance = Game.getInstance(getActivity());
                 Player searchedPlayer = instance.getSearchedPlayer();
-                instance.addPlayer(searchedPlayer);
+//                instance.addPlayer(searchedPlayer);
+                mDatabaseHandler.addPlayer(searchedPlayer);
                 addButton.setEnabled(false);
                 mListener.playerInvited();
             }

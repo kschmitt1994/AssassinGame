@@ -5,5 +5,20 @@ package mobileappdev.assassingame;
  */
 
 public enum Character {
-    ASSASSIN, CITIZEN, DETECTIVE, DOCTOR
+    ASSASSIN, CITIZEN, DETECTIVE, DOCTOR;
+
+    public static Character getCharacterFrom(String string) {
+        switch (string) {
+            case "CITIZEN" :
+                return CITIZEN;
+            case "ASSASSIN":
+                return ASSASSIN;
+            case "DETECTIVE":
+                return DETECTIVE;
+            case "DOCTOR":
+                return DOCTOR;
+            default:
+                throw new RuntimeException("No such Character in the game");
+        }
+    }
 }
