@@ -1,14 +1,25 @@
 package mobileappdev.assassingame;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LogInActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     private static final String TAG = "Assassin_Game";
 
@@ -18,6 +29,23 @@ public class LogInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_log_in);
 
         Log.i(TAG, "OnCreate method is invoked.");
+
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
 
         Button signUpButton = (Button) findViewById(R.id.login_signUpButton);
         signUpButton.setOnClickListener(new View.OnClickListener() {
@@ -38,15 +66,33 @@ public class LogInActivity extends AppCompatActivity {
                 EditText passwordValue = (EditText) findViewById(R.id.login_passwordEditText);
                 String password = passwordValue.getText().toString();
 
-                startActivity(new Intent(LogInActivity.this, MainActivity.class));
+                signIn(email, password);
             }
         });
+    }
+
+    private void signIn(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d("FB", "signInWithEmail:onComplete:" + task.isSuccessful());
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithEmail:failed", task.getException());
+                            Toast.makeText(LogInActivity.this, "Sign in failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            startActivity(new Intent(LogInActivity.this, MainActivity.class));
+                        }
+                    }
+                });
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
         Log.i(TAG, "Start method is invoked.");
 
     }
@@ -54,6 +100,9 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
         Log.i(TAG, "Stop method is invoked.");
     }
 
