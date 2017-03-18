@@ -65,20 +65,15 @@ public class SearchPlayerFragment extends Fragment {
     }
 
     private void searchPlayer(String playerInfo, boolean byEmail) {
-        // TODO: 3/13/2017 searchLogic
+        List<Player> searchedPlayers;
         if (byEmail) {
-            FirebaseHelper.getPlayer(playerInfo);
+            Player player = FirebaseHelper.getPlayerByEmailID(playerInfo);
+            searchedPlayers = new ArrayList<>();
+            searchedPlayers.add(player);
         } else {
-            List<String> allPlayerNames = FirebaseHelper.getAllPlayerNames();
-            ArrayList<String> matchingNames = new ArrayList<>();
-            for (String name : allPlayerNames) {
-                if (name.contains(playerInfo))
-                    matchingNames.add(name); // TODO: 3/17/2017 should add email??
-            }
+            searchedPlayers = FirebaseHelper.getPlayerListContainingUserName(playerInfo);
         }
-        Player dummyPlayer = Player.getDummyPlayer();
-        ArrayList<Player> searchedPlayers = new ArrayList<>();
-        searchedPlayers.add(dummyPlayer);
+
         Game.getInstance().setSearchedPlayer(searchedPlayers);
         mListener.updateSearchResult();
     }

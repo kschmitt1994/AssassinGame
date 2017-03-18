@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -41,6 +40,7 @@ public class InvitedPlayersFragment extends Fragment {
         mInvitedPlayersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
         mPlayers = mDatabaseHandler.getAllPlayers();
+        mMyReceiver = new MyReceiver();
         updateUI();
         return view;
     }
@@ -60,20 +60,7 @@ public class InvitedPlayersFragment extends Fragment {
                 return;
             TextView nameTextView = viewHolder.mNameTextView;
             InvitationStatus invitationStatus = map.get(nameTextView.getText().toString()).getInvitationStatus();
-            switch (invitationStatus) {
-                case INVITED:
-                    nameTextView.setTextColor(Color.BLUE);
-                    break;
-                case ACCEPTED:
-                    nameTextView.setTextColor(Color.GREEN);
-                    break;
-                case UNDEFINED:
-                    nameTextView.setTextColor(Color.BLACK);
-                    break;
-                case DECLINED:
-                    nameTextView.setTextColor(Color.RED);
-                    break;
-            }
+            updateInvitationStatusOnGUI(nameTextView, invitationStatus);
         }
     }
 
@@ -83,20 +70,24 @@ public class InvitedPlayersFragment extends Fragment {
         if (player == null)
             return;
         InvitationStatus invitationStatus = player.getInvitationStatus();
-            switch (invitationStatus) {
-                case INVITED:
-                    textView.setTextColor(Color.BLUE);
-                    break;
-                case ACCEPTED:
-                    textView.setTextColor(Color.GREEN);
-                    break;
-                case UNDEFINED:
-                    textView.setTextColor(Color.BLACK);
-                    break;
-                case DECLINED:
-                    textView.setTextColor(Color.RED);
-                    break;
-            }
+        updateInvitationStatusOnGUI(textView, invitationStatus);
+    }
+
+    private void updateInvitationStatusOnGUI(TextView textView, InvitationStatus invitationStatus) {
+        switch (invitationStatus) {
+            case INVITED:
+                textView.setTextColor(Color.BLUE);
+                break;
+            case ACCEPTED:
+                textView.setTextColor(Color.GREEN);
+                break;
+            case UNDEFINED:
+                textView.setTextColor(Color.BLACK);
+                break;
+            case DECLINED:
+                textView.setTextColor(Color.RED);
+                break;
+        }
     }
 
     public void update() {
@@ -179,21 +170,23 @@ public class InvitedPlayersFragment extends Fragment {
         getActivity().unregisterReceiver(mMyReceiver);
     }
 
-    private class MyReceiver extends BroadcastReceiver {
+    public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getAction();
-            Log.i("Receiver", "Broadcast received: " + action);
+            Log.i("Receiver", "Invitation Response received. Action: " + action);
 
+            //TODO: 3/18/2017 need to broadcast a msg with INVITE_RESPONSE action when a response is received through Firebase
             if (action.equals(BroadcastHelper.INVITE_RESPONSE)) {
                 String userName = intent.getExtras().getString(BroadcastHelper.USER_NAME);
                 String response = intent.getExtras().getString(BroadcastHelper.STATUS);
                 mDatabaseHandler.updatePlayerInviationStatus(userName, InvitationStatus.getStatusFrom(response));
+
                 for (int i = 0; i < mIPAdapter.getItemCount(); i++) {
                     IPHolder viewHolder = (IPHolder)mInvitedPlayersRecyclerView.findViewHolderForLayoutPosition(i);
                     if (viewHolder.mNameTextView.getText().equals(userName)) {
-                        viewHolder.mNameTextView.setTextColor(Color.GREEN);
+                        updateInvitationStatusOnGUI(viewHolder.mNameTextView, InvitationStatus.getStatusFrom(response));
                         break;
                     }
                 }

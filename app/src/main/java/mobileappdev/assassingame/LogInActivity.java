@@ -66,8 +66,9 @@ public class LogInActivity extends AppCompatActivity {
                 EditText passwordValue = (EditText) findViewById(R.id.login_passwordEditText);
                 String password = passwordValue.getText().toString();
 
-                signIn(email, password); //// TODO: 3/17/2017 uncomment this line and remove below line
-//                startActivity(new Intent(LogInActivity.this, MainActivity.class));
+//                InvitationRequestReceiver.addNotification(getApplicationContext(), intent);
+//                signIn(email, password); //// TODO: 3/17/2017 uncomment this line and remove below line
+                startActivity(new Intent(LogInActivity.this, MainActivity.class));
             }
         });
     }

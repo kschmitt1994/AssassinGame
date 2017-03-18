@@ -155,8 +155,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String countQuery = "SELECT  * FROM " + TABLE_PLAYERS;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
+        int count = cursor.getCount();
         cursor.close();
-        return cursor.getCount();
+        return count;
     }
 
     public synchronized int updatePlayerInviationStatus(String userName, InvitationStatus status) {

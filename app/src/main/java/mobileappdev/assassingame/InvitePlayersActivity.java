@@ -7,11 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Switch;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -19,6 +14,7 @@ import java.util.List;
  */
 
 public class InvitePlayersActivity extends AppCompatActivity implements SearchOpListener, InvitedPlayerListChangeListener {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +46,16 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
                     .commit();
         }
 
-        Button sendInvitesButton = (Button) findViewById(R.id.button);
-        sendInvitesButton.setOnClickListener(new View.OnClickListener() {
+        Button proceedButton = (Button) findViewById(R.id.proceed1);
+        proceedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendInvite();
+                proceed();
             }
         });
     }
 
-    private void sendInvite() {
+    private void proceed() {
         startActivity(new Intent(InvitePlayersActivity.this, GameBoardActivity.class));
     }
 

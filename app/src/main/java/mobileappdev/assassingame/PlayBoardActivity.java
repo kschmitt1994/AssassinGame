@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -35,6 +36,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,12 +51,15 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private LocationManager mLocationManager;
     private Location mLocation;
     private GoogleMap mGoogleMap;
-    private Player mPlayer;
+    private Player mMyself;
+    private boolean isAdminOfGame = false;
+
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 500; // .5 sec
 
     private MyReceiver mMyReceiver;
+    private List<String> mPlayers;
     private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
 
 
@@ -62,6 +67,13 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_board);
+        mMyReceiver = new MyReceiver();
+        if (getIntent().getBooleanExtra("admin", false))
+            isAdminOfGame = true;
+
+        if (getIntent().getBooleanExtra("gamestarted", false)) {
+            mPlayers = FirebaseHelper.getAllPlayerNames();
+        }
 
         checkForLocationServices(PlayBoardActivity.this);
         Log.d("Ajit", "!@(!*$^!(#^(!*#&$(!*#^$(!&#$&!#$^");
@@ -102,15 +114,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
                         }
 
-                    }
-                    catch(SecurityException e){
+                    } catch (SecurityException e) {
 
                     }
                 }
             }
             // if GPS Enabled get lat/long using GPS Services
             if (checkGPS) {
-                Toast.makeText(this,"GPS",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "GPS", Toast.LENGTH_SHORT).show();
                 if (loc == null) {
                     try {
                         mLocationManager.requestLocationUpdates(
@@ -170,14 +181,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         LatLng itemPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLng myPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLngBounds bounds = new LatLngBounds.Builder()
-                                              .include(itemPoint)
-                                              .include(myPoint)
-                                              .build();
+                .include(itemPoint)
+                .include(myPoint)
+                .build();
         final int margin = getResources().getDimensionPixelSize(R.dimen.map_inset_margin);
         CameraUpdate update = CameraUpdateFactory.newLatLngBounds(bounds, margin);
         googleMap.animateCamera(update);
 
-
+        // TODO: 3/18/2017 get all the locations from the game from firebase and show markers
         MarkerOptions marker = new MarkerOptions().position(itemPoint).title("Smith").snippet("Assassin");
         mMarkerMap.put("Smith", marker);
         googleMap.addMarker(marker);
@@ -189,8 +200,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         googleMap.setOnMarkerClickListener(this);
     }
 
-    private void updateMarkers() {
+    private void updateMarkers(String userName, Location location) {
         Log.d("Ajit", "I am moving....");
+        MarkerOptions markerOptions = mMarkerMap.get(userName);
+        markerOptions.position(new LatLng(location.getLatitude(), location.getLongitude()));
 
     }
 
@@ -225,7 +238,22 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     @Override
     public void onLocationChanged(Location location) {
         // TODO: 3/15/2017 broadcast the location to all the players
-        updateMarkers();
+        updateMarkers(null, location);
+        Criteria criteria = new Criteria();
+        LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        String provider = mLocationManager.getBestProvider(criteria, false);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mLocation = mLocationManager.getLastKnownLocation(provider);
+        FirebaseHelper.sendLocation(mLocation);
     }
 
     @Override
@@ -245,8 +273,15 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mMyReceiver, new IntentFilter(BroadcastHelper.LOCATION_RECEIVED));
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(mMyReceiver);
     }
 
 
@@ -275,7 +310,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     /**
      * Function to show settings alert dialog
      * On pressing Settings button will lauch Settings Options
-     * */
+     */
     public static void showSettingsAlert(final Context context) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
@@ -345,7 +380,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             }
         } else {
             Log.d("Ajit", "Inside checkPermission#LastElseBlock. Requesting Runtime permission");
-            location =  mLocationManager.getLastKnownLocation(provider);
+            location = mLocationManager.getLastKnownLocation(provider);
         }
 
         return location;
@@ -372,7 +407,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
 
-
         }
     }
 
@@ -390,13 +424,18 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         // TODO: 3/17/2017 check if Assassin wins
     }
 
-    private class MyReceiver extends BroadcastReceiver {
+    public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateMarkers();
-//            MainActivity mainActivity = ((MyApplication) context.getApplicationContext()).mainActivity;
-//            mainActivity.getReceivedBroadcast.append("broadcast: "+intent.getAction()+"\n");
+            String action = intent.getAction();
+            if (action.equals(BroadcastHelper.LOCATION_RECEIVED)) {
+//                updateMarkers();
 
+            } else if (action.equals(BroadcastHelper.INVITE_RESPONSE)) {
+                String userName = intent.getExtras().getString(BroadcastHelper.USER_NAME);
+                if (FirebaseHelper.isGameStarted(Game.getInstance().getGameName()))
+                    mPlayers.add(userName);
+            }
         }
     }
 }

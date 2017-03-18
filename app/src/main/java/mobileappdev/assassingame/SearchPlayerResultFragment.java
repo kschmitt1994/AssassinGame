@@ -65,12 +65,16 @@ public class SearchPlayerResultFragment extends Fragment {
                 // TODO:Ajit add actual player to database
                 Game instance = Game.getInstance();
                 Player searchedPlayer = instance.getSearchedPlayer().get(0);
+                // TODO: Ajit we can get below player by iterating over searchedPlayer list which contains result from firebase during search
+                Player player = FirebaseHelper.getPlayerListContainingUserName(playerName).get(0);//it's unique. size(list) = 1
                 mDatabaseHandler.addPlayer(searchedPlayer);
+                FirebaseHelper.sendInvite(searchedPlayer); //send invite to the player who got added
 //                mAdapter.remove(searchedPlayer.getName());
 //                mAdapter.notifyDataSetChanged();
                 view.setClickable(false);
                 view.setFocusable(false);
                 mListener.update();
+
             }
         });
 
