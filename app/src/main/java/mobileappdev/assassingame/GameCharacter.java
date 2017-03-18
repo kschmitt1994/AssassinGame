@@ -4,10 +4,10 @@ package mobileappdev.assassingame;
  * Created by Ajit Ku. Sahoo on 3/14/2017.
  */
 
-public enum Character {
+public enum GameCharacter {
     ASSASSIN, CITIZEN, DETECTIVE, DOCTOR;
 
-    public static Character getCharacterFrom(String string) {
+    public static GameCharacter getCharacterFrom(String string) {
         switch (string) {
             case "CITIZEN" :
                 return CITIZEN;
@@ -18,7 +18,7 @@ public enum Character {
             case "DOCTOR":
                 return DOCTOR;
             default:
-                throw new RuntimeException("No such Character in the game");
+                throw new RuntimeException("No such GameCharacter in the game");
         }
     }
 }

@@ -1,6 +1,7 @@
 package mobileappdev.assassingame;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,6 +34,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author: Ajit Ku. Sahoo
  * @Date: 3/15/2017
@@ -49,7 +53,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 500; // .5 sec
-    private boolean canGetLocation;
+
+    private MyReceiver mMyReceiver;
+    private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,7 +86,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             if (!checkGPS && !checkNetwork) {
                 Toast.makeText(this, "No Service Provider Available", Toast.LENGTH_SHORT).show();
             } else {
-                this.canGetLocation = true;
                 // First get location from Network Provider
                 if (checkNetwork) {
                     Toast.makeText(this, "Network", Toast.LENGTH_SHORT).show();
@@ -172,10 +178,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         googleMap.animateCamera(update);
 
 
-        googleMap.addMarker(new MarkerOptions().position(itemPoint).title("Smith").snippet("Assassin"));
+        MarkerOptions marker = new MarkerOptions().position(itemPoint).title("Smith").snippet("Assassin");
+        mMarkerMap.put("Smith", marker);
+        googleMap.addMarker(marker);
         LatLng secMarker = new LatLng(itemPoint.latitude + 0.00004, itemPoint.longitude + 0.00003);
-        googleMap.addMarker(new MarkerOptions().position(secMarker).title("Kenny")
-                .snippet("Doctor").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        MarkerOptions marker1 = new MarkerOptions().position(secMarker).title("Kenny")
+                .snippet("Doctor").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        googleMap.addMarker(marker1);
+        mMarkerMap.put("Kenny", marker1);
         googleMap.setOnMarkerClickListener(this);
     }
 
@@ -371,7 +381,22 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
         if (marker.getSnippet().equals("Citizen") || marker.getSnippet().equals("Doctor")) {
             marker.setVisible(false);
+            doesGameEnd();
         }
         return false;
+    }
+
+    private void doesGameEnd() {
+        // TODO: 3/17/2017 check if Assassin wins
+    }
+
+    private class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateMarkers();
+//            MainActivity mainActivity = ((MyApplication) context.getApplicationContext()).mainActivity;
+//            mainActivity.getReceivedBroadcast.append("broadcast: "+intent.getAction()+"\n");
+
+        }
     }
 }

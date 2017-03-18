@@ -29,11 +29,13 @@ public class FirebaseHelper {
     }
 
     public static void getPlayer(String emailID) {
-
+        //// TODO: 3/17/2017
     }
 
 
     public static List<String> getAllPlayerNames() {
+
+        // TODO: 3/17/2017 return actual list
         return new ArrayList<>();
     }
 

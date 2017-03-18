@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
     <Button
-        android:id="@+id/remove_button"
+        android:id="@+id/status_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -17,10 +17,10 @@
         android:id="@+id/player_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/remove_button"
-        android:layout_alignBottom="@+id/remove_button"
-        android:layout_toLeftOf="@+id/remove_button"
-        android:layout_toStartOf="@+id/remove_button"
+        android:layout_alignBaseline="@+id/status_button"
+        android:layout_alignBottom="@+id/status_button"
+        android:layout_toLeftOf="@+id/status_button"
+        android:layout_toStartOf="@+id/status_button"
         android:padding="4dp"
         android:paddingLeft="30dp"
         android:paddingStart="30dp"

@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -23,12 +25,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Database Name
     private static String DATABASE_NAME;
     // Contacts table name
-    private static final String TABLE_PLAYERS = "players";
+    private static final String TABLE_PLAYERS = "players1";
     // Contacts Table Columns names
-    private static final String KEY_EMAIL_ID = "id";
+    private static final String KEY_EMAIL_ID = "email_id";
     private static final String KEY_NAME = "name";
     private static final String KEY_IS_ALIVE = "is_alive";
     private static final String KEY_CHARACTER = "character";
+    private static final String KEY_INVITATION_STATUS = "invitation_status";
 
     public DatabaseHandler(Context context, String gameName) {
         super(context, gameName, null, DATABASE_VERSION);
@@ -41,19 +44,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // Creating Tables
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public synchronized void onCreate(SQLiteDatabase db) {
         String CREATE_PLAYERS_TABLE = "CREATE TABLE " + TABLE_PLAYERS + "("
-                + KEY_EMAIL_ID + " TEXT PRIMARY KEY,"
-                + KEY_NAME + " TEXT,"
+                + KEY_NAME + " TEXT PRIMARY KEY,"
+                + KEY_EMAIL_ID + " TEXT,"
                 + KEY_CHARACTER + " TEXT,"
-                + KEY_IS_ALIVE + " INTEGER"
+                + KEY_IS_ALIVE + " INTEGER,"
+                + KEY_INVITATION_STATUS + " TEXT"
                 + ")";
         db.execSQL(CREATE_PLAYERS_TABLE);
     }
 
     // Upgrading database
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public synchronized void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 //         Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAYERS);
 
@@ -61,43 +65,44 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addPlayer(Player player) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public synchronized void addPlayer(Player player) {
 
+        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_EMAIL_ID, player.getEmailID());
         values.put(KEY_NAME, player.getName());
-        values.put(KEY_CHARACTER, player.getCharacterType().toString());
+        values.put(KEY_EMAIL_ID, player.getEmailID());
+        values.put(KEY_CHARACTER, player.getGameCharacterType().toString());
         values.put(KEY_IS_ALIVE, player.isAlive());
+        values.put(KEY_INVITATION_STATUS, player.getInvitationStatus().toString());
 
         // Inserting Row
         db.insert(TABLE_PLAYERS, null, values);
         db.close(); // Closing database connection
     }
 
-    public Player getPlayer(String emailID) {
+    public synchronized Player getPlayer(String userName) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_PLAYERS,
-                new String[] { KEY_EMAIL_ID, KEY_NAME, KEY_CHARACTER, KEY_IS_ALIVE },
-                KEY_EMAIL_ID + " = ?",
-                new String[] { emailID }, null, null, null, null);
+                new String[] { KEY_NAME, KEY_EMAIL_ID, KEY_CHARACTER, KEY_IS_ALIVE, KEY_INVITATION_STATUS },
+                KEY_NAME + " = ?",
+                new String[] { userName }, null, null, null, null);
 
         if (cursor != null)
             cursor.moveToFirst();
 
         if (cursor == null) {
-            Log.e("Ajit", "Cursor is null for emailID :" + emailID);
+            Log.e("Ajit", "Cursor is null for userName :" + userName);
             return null;
         }
-        Player player = new Player(cursor.getString(0), cursor.getString(1),
-                Character.getCharacterFrom(cursor.getString(2)),
+        Player player = new Player(cursor.getString(1), cursor.getString(0),
+                GameCharacter.getCharacterFrom(cursor.getString(2)),
                 Integer.parseInt(cursor.getString(3)) == 1);
         cursor.close();
         return player;
     }
 
-    public List<Player> getAllPlayers() {
+    public synchronized List<Player> getAllPlayers() {
         List<Player> playerList = new LinkedList<>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_PLAYERS;
@@ -109,38 +114,66 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Player player = new Player(cursor.getString(0), cursor.getString(1),
-                        Character.getCharacterFrom(cursor.getString(2)),
-                        Integer.parseInt(cursor.getString(3)) == 1);
+                        GameCharacter.getCharacterFrom(cursor.getString(2)),
+                        Integer.parseInt(cursor.getString(3)) == 1,
+                        InvitationStatus.getStatusFrom(cursor.getString(4)));
                 playerList.add(player);
             } while (cursor.moveToNext());
         }
 
-//        cursor.close();
+        cursor.close();
         return playerList;
     }
 
-    public int getPlayersCount() {
+    public synchronized Set<String> getAllPlayerNames() {
+        return getAllName2PlayerMap().keySet();
+    }
+
+    public synchronized Map<String, Player> getAllName2PlayerMap() {
+        Map<String, Player> nameList = new HashMap<>();
+        String selectQuery = "SELECT  * FROM " + TABLE_PLAYERS;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Player player = new Player(cursor.getString(0), cursor.getString(1),
+                        GameCharacter.getCharacterFrom(cursor.getString(2)),
+                        Integer.parseInt(cursor.getString(3)) == 1,
+                        InvitationStatus.getStatusFrom(cursor.getString(4)));
+                nameList.put(cursor.getString(0), player);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return nameList;
+    }
+
+    public synchronized int getPlayersCount() {
         String countQuery = "SELECT  * FROM " + TABLE_PLAYERS;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
-//        cursor.close();
+        cursor.close();
         return cursor.getCount();
     }
 
-    public int updatePlayer(String emailID, boolean isAlive) {
+    public synchronized int updatePlayerInviationStatus(String userName, InvitationStatus status) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_IS_ALIVE, isAlive);
+        values.put(KEY_INVITATION_STATUS, status.toString());
 
         // updating row
-        return db.update(TABLE_PLAYERS, values, KEY_EMAIL_ID + " = ?",
-                new String[] {emailID});
+        return db.update(TABLE_PLAYERS, values, KEY_NAME + " = ?", new String[] {userName});
     }
 
-    public void deletePlayer(String emailID) {
+    public synchronized void deletePlayer(String userName) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_PLAYERS, KEY_EMAIL_ID + " = ?", new String[] {emailID});
+        db.delete(TABLE_PLAYERS, KEY_NAME + " = ?", new String[] {userName});
         db.close();
     }
+
+
 }

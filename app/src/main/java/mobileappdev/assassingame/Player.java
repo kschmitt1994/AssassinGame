@@ -10,15 +10,29 @@ public class Player {
     private String mName;
     private String mEmailID;
     private boolean mAlive;
-    private Character mCharacterType;
+    private GameCharacter mGameCharacterType;
     private Location mLocation;
 
-    public Player(String emailID, String name, Character character, boolean alive) {
+    private InvitationStatus mInvitationStatus;
+
+    public Player(String name, String emailID, GameCharacter gameCharacter, boolean alive) {
+        this(name, emailID, gameCharacter, alive, InvitationStatus.UNDEFINED);
+    }
+    public Player(String name, String emailID, GameCharacter gameCharacter, boolean alive, InvitationStatus status) {
         mName = name;
         mEmailID = emailID;
         mAlive = alive;
-        mCharacterType = character;
+        mGameCharacterType = gameCharacter;
         mLocation = null;
+        mInvitationStatus = status;
+    }
+
+    public InvitationStatus getInvitationStatus() {
+        return mInvitationStatus;
+    }
+
+    public void setInvitationStatus(InvitationStatus invitationStatus) {
+        mInvitationStatus = invitationStatus;
     }
 
     public String getName() {
@@ -33,8 +47,8 @@ public class Player {
         return mAlive;
     }
 
-    public Character getCharacterType() {
-        return mCharacterType;
+    public GameCharacter getGameCharacterType() {
+        return mGameCharacterType;
     }
 
     public Location getLocation() {
@@ -45,8 +59,8 @@ public class Player {
         mAlive = alive;
     }
 
-    public void setCharacterType(Character characterType) {
-        mCharacterType = characterType;
+    public void setGameCharacterType(GameCharacter gameCharacterType) {
+        mGameCharacterType = gameCharacterType;
     }
 
     public void setLocation(Location location) {
@@ -57,6 +71,16 @@ public class Player {
 
     public static Player getDummyPlayer() {
         ++counter;
-        return new Player("abc" + counter + "@xyz.com", "Ajit " + counter, Character.CITIZEN, true);
+        InvitationStatus status = InvitationStatus.UNDEFINED;
+        if (counter%4 == 0)
+            status = InvitationStatus.ACCEPTED;
+        else if (counter%4 == 1)
+            status = InvitationStatus.DECLINED;
+        else if (counter%4 == 2)
+            status = InvitationStatus.UNDEFINED;
+        else if (counter%4 == 3)
+            status = InvitationStatus.INVITED;
+
+        return new Player("Ajit " + counter, "abc" + counter + "@xyz.com", GameCharacter.CITIZEN, true, status);
     }
 }

@@ -60,11 +60,6 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
     }
 
     private void sendInvite() {
-        DatabaseHandler databaseHandler = new DatabaseHandler(this, Game.getInstance().getGameName());
-        List<Player> players = databaseHandler.getAllPlayers();
-        for (Player player : players) {
-            FirebaseHelper.sendInvite(player);
-        }
         startActivity(new Intent(InvitePlayersActivity.this, GameBoardActivity.class));
     }
 
