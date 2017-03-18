@@ -66,15 +66,20 @@ public class SignUpPageActivity extends AppCompatActivity {
 
                 // We need to make sure password1Value and password2Value are equal.
 
-                if (password1.equals(password2)) {
+                if (password1.equals(password2) && username.length() > 0 && email.length() > 0 && password1.length() > 0) {
                     // Passwords match; send user to Firebase
 
                     createAccount(email, password1);
 
-                } else {
+                } else if (!password1.equals(password2)){
                     // Throw error dialogue: "Passwords do not match"
                     Log.d("ERROR", "Passwords do not match!");
                     DialogFragment errorFragment = new SignUpErrorFragment();
+                    errorFragment.show(getFragmentManager(), "SignUpError");
+                } else {
+                    // Throw error dialogue: "Incomplete text fields "
+                    Log.d("ERROR", "Incomplete text fields!");
+                    DialogFragment errorFragment = new IncompleteFieldErrorFragment();
                     errorFragment.show(getFragmentManager(), "SignUpError");
                 }
             }
