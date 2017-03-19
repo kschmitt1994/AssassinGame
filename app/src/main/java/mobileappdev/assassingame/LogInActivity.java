@@ -1,9 +1,11 @@
 package mobileappdev.assassingame;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,17 +22,24 @@ public class LogInActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
     private static final String TAG = "Assassin_Game";
+
+    public static final String USER_NAME = "UserName";
+    public static final String IS_USER_LOGGED_IN = "IsLoggedIn";
+    public static final String MY_PREFERENCES = "mobileappdev.assassingame.mypref";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
 
-        Log.i(TAG, "OnCreate method is invoked.");
+        if (isUserAlreadyLoggedIn()) {
+            startActivity(new Intent(LogInActivity.this, MainActivity.class));
+        }
 
+        Log.i(TAG, "OnCreate method is invoked.");
         mAuth = FirebaseAuth.getInstance();
+
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -68,19 +77,22 @@ public class LogInActivity extends AppCompatActivity {
 
                 if (email.length() > 0 && password.length() > 0) {
                     signIn(email, password);
-                }
-                else {
-                    Toast.makeText(LogInActivity.this, "Sign in failed.",
-                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(LogInActivity.this, "Sign in failed.", Toast.LENGTH_SHORT).show();
                 }
 //                InvitationRequestReceiver.addNotification(getApplicationContext(), intent);
 //                signIn(email, password); //// TODO: 3/17/2017 uncomment this line and remove below line
-               // startActivity(new Intent(LogInActivity.this, MainActivity.class));
+//                 startActivity(new Intent(LogInActivity.this, MainActivity.class));
             }
         });
     }
 
-    private void signIn(String email, String password) {
+    private boolean isUserAlreadyLoggedIn() {
+        SharedPreferences sharedpreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        return sharedpreferences.getBoolean(IS_USER_LOGGED_IN, false);
+    }
+
+    private void signIn(final String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -88,13 +100,25 @@ public class LogInActivity extends AppCompatActivity {
                         Log.d("FB", "signInWithEmail:onComplete:" + task.isSuccessful());
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithEmail:failed", task.getException());
-                            Toast.makeText(LogInActivity.this, "Sign in failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            startActivity(new Intent(LogInActivity.this, MainActivity.class));
+                            Toast.makeText(LogInActivity.this, "Sign in failed.", Toast.LENGTH_SHORT).show();
+                            return;
                         }
+
+                        persistUserLogInState(email);
+                        startActivity(new Intent(LogInActivity.this, MainActivity.class));
+                        //removes current activity from stack, so that if user presses back button from MainActivity, the app will exit
+                        finish();
                     }
                 });
+    }
+
+    private void persistUserLogInState(String email) {
+        SharedPreferences sharedpreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sharedpreferences.edit();
+
+        edit.putBoolean(IS_USER_LOGGED_IN, true);
+        edit.putString(USER_NAME, FirebaseHelper.getPlayerByEmailID(email).getName());
+        edit.apply();
     }
 
 

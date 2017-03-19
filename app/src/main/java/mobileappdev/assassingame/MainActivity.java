@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        checkForLocationServices(this);
+
         // Track when user signs in and out
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -54,10 +56,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        checkForLocationServices(MainActivity.this);
+        //TODO:Kenny: while implementing logic for logout, please clear the "LoginActivity.ISUSERLOGGEDIN"
+        //TODO:Kenny: flag from sharedpreferences
+
     }
 
-    public static void checkForLocationServices(Context context) {
+    public void checkForLocationServices(Context context) {
 
         LocationManager service = (LocationManager) context.getSystemService(LOCATION_SERVICE);
         boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -65,20 +69,14 @@ public class MainActivity extends AppCompatActivity {
         if (!enabled) {
             showSettingsAlert(context);
         }
-
     }
 
-    public static void showSettingsAlert(final Context context) {
+    public void showSettingsAlert(final Context context) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
-        // Setting Dialog Title
         alertDialog.setTitle("GPS is settings");
-
-        alertDialog.setCancelable(false);
-        // Setting Dialog Message
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
-
-        // On pressing Settings button
+//        alertDialog.setCancelable(false);
+        alertDialog.setMessage("Location needs to be enabled for this game. Please Press Cancel to exit the game");
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -87,12 +85,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // on pressing cancel button
-//        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int which) {
-//                dialog.cancel();
-//
-//            }
-//        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                MainActivity.this.finish();
+                //context.startActivity(new Intent(context, LogInActivity.class));
+            }
+        });
 
         // Showing Alert Message
         alertDialog.show();

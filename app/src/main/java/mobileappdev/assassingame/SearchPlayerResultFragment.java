@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,11 +28,13 @@ public class SearchPlayerResultFragment extends Fragment {
     private DatabaseHandler mDatabaseHandler;
     private ListView mListView;
     private ArrayAdapter<String> mAdapter;
+    ArrayList<String> mItems;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mItems = new ArrayList<>();
         mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
     }
 
@@ -54,7 +57,7 @@ public class SearchPlayerResultFragment extends Fragment {
 
         mListView = (ListView)view.findViewById(R.id.search_results_list_view);
         mAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_1, new String[]{});
+                android.R.layout.simple_list_item_1, mItems);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -69,12 +72,11 @@ public class SearchPlayerResultFragment extends Fragment {
                 Player player = FirebaseHelper.getPlayerListContainingUserName(playerName).get(0);//it's unique. size(list) = 1
                 mDatabaseHandler.addPlayer(searchedPlayer);
                 FirebaseHelper.sendInvite(searchedPlayer); //send invite to the player who got added
-//                mAdapter.remove(searchedPlayer.getName());
-//                mAdapter.notifyDataSetChanged();
-                view.setClickable(false);
-                view.setFocusable(false);
-                mListener.update();
 
+                mItems.remove(searchedPlayer.getName());
+                mAdapter.notifyDataSetChanged();
+
+                mListener.update();
             }
         });
 
@@ -101,11 +103,9 @@ public class SearchPlayerResultFragment extends Fragment {
     public void update() {
         Game instance = Game.getInstance();
         List<Player> searchedPlayer = instance.getSearchedPlayer();
-        String[] menuItems = new String[] {searchedPlayer.get(0).getName()};
-//        mAdapter.clear();
-//        mAdapter.add("Ajit"); // TODO: 3/17/2017 not working - unsupported exception
-        mListView.setAdapter(new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_1, menuItems));
+        //TODO:Ajit: fix with actual data
+        mItems.add(searchedPlayer.get(0).getName());
+        mAdapter.notifyDataSetChanged();
     }
 
     public void update1() {

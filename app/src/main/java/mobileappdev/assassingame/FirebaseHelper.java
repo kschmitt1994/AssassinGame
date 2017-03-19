@@ -5,6 +5,7 @@ import android.location.Location;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -60,15 +61,15 @@ public class FirebaseHelper {
     }
 
 
-    public static void sendLocation(Location location) {
-        // TODO: 3/18/2017 need to retrieve the game which I am a part of and then send location to all of the players
+    public static void sendLocation(Location location, String gameName, String myself) {
+        // TODO: 3/18/2017 need to send location to all of the players of the given game
     }
 
     public static void sendRejectionResponse(String sender) {
         // TODO: 3/18/2017 need to send out a reject message through firebase to the sender
     }
 
-    public static void sendAcceptResponse(String sender) {
+    public static void sendAcceptResponse(String fromPlayer, String toAdmin) {
         // TODO: 3/18/2017 add the player to the game in firebase
         // TODO: 3/18/2017 send acceptance response to the admin
 
@@ -91,5 +92,43 @@ public class FirebaseHelper {
 
     public static boolean isGameFinished(String gameName) {
         return GameStatus.FINISHED.equals(getGameStatus(gameName)); //dummy value
+    }
+
+    public static Map<String, Player> getAllPlayers(String gameName) {
+        //TODO:Sam: return all the players (playerName --> Player object) from firebase database for the given GameName
+        return null;
+    }
+
+    public static void updatePlayerStatus(String gameName, String playerName, PlayerStatus status, boolean shouldUpdateCiviliansCounter) {
+        //TODO:Sam: update the player to be dead/alive/left
+        //TODO:Sam: decrease alive civlians counter only if the boolean flag is true,
+        // which represents no of civilians left (excluding detective). when it becomes zero, Assassin wins the game.
+    }
+
+    public static int getNoOfAliveCivilians(String gameName) {
+        //TODO:Sam: number of civilians alive (not dead/left) for the game
+        return 1;
+    }
+
+    public static void initializeNoOfAliveCivilians(String gameName) {
+        //TODO:Sam: number of civilians alive (not dead/left) for the game
+    }
+
+    public static void increaseNoOfAliveCiviliansBy1(String gameName) {
+        //TODO:Sam: increase the counter for number of civilians alive (not dead/left) for the game
+    }
+
+
+    public static void updateGameStatus(String gameName, boolean assassinWon, String description) {
+        //TODO:Sam: update the game status
+
+    }
+
+    public static void newPlayerAddedUp(String userName, String gameName) {
+        //TODO:Sam: send this message to everyone in the game
+    }
+
+    public static void sendPlayerNotLoggedInResponse(String fromPlayer, String toAdmin) {
+        //TODO:Sam: send this message to admin with info about fromPlayer
     }
 }

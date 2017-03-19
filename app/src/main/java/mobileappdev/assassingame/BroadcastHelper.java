@@ -7,13 +7,20 @@ package mobileappdev.assassingame;
 
 public class BroadcastHelper {
 
-    public static final String INVITE_REQUEST = "mobileappdev.assassingame.InviteRequest";
-    public static final String INVITE_RESPONSE = "mobileappdev.assassingame.InviteResponse";
-    public static final String LOCATION_RECEIVED = "mobileappdev.assassingame.LocationReceived";
     public static final String GAME_START = "mobileappdev.assassingame.GameStart";
     public static final String ACCEPT_ACTION = "mobileappdev.assassingame.Accept";
     public static final String REJECT_ACTION = "mobileappdev.assassingame.Reject";
+    public static final String INVITE_REQUEST = "mobileappdev.assassingame.InviteRequest";
+    public static final String INVITE_RESPONSE = "mobileappdev.assassingame.InviteResponse";
+    public static final String NEW_PLAYER = "mobileappdev.assassingame.NewPlayer";
+    public static final String LOCATION_RECEIVED = "mobileappdev.assassingame.LocationReceived";
 
-    public static final String USER_NAME = "User Name";
-    public static final String STATUS = "Status";
+    public static final String ADMIN = "admin";
+    public static final String SENDER = "sender";
+    public static final String STATUS = "status";
+    public static final String LOCATION = "location";
+    public static final String GAME_NAME = "gameName";
+    public static final String PLAYER_NAME = "playerName";
+    public static final String GAME_STARTED = "gameStarted";
+    public static final String ON_GAME_REQUEST = "onGameRequest";
 }

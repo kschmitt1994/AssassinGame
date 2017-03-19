@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -13,6 +14,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -51,16 +54,21 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private LocationManager mLocationManager;
     private Location mLocation;
     private GoogleMap mGoogleMap;
-    private Player mMyself;
-    private boolean isAdminOfGame = false;
-
+    private String mMyself = "ABCD";
+    private String mGameName;
+    private boolean mGameStarted;
+    private boolean mIsAdminOfGame = false;
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 500; // .5 sec
 
     private MyReceiver mMyReceiver;
-    private List<String> mPlayers;
+    private List<String> mPlayerNames;
+    private Map<String, Player> mPlayers;
     private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
+
+    private GoogleMap.OnMarkerClickListener _this;
+    private boolean mGoogleCameraUpdateDone;
 
 
     @Override
@@ -68,16 +76,66 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_board);
         mMyReceiver = new MyReceiver();
-        if (getIntent().getBooleanExtra("admin", false))
-            isAdminOfGame = true;
 
-        if (getIntent().getBooleanExtra("gamestarted", false)) {
-            mPlayers = FirebaseHelper.getAllPlayerNames();
+        _this = this;
+
+        Intent intent = getIntent();
+        if (intent.getBooleanExtra(BroadcastHelper.ADMIN, false))
+            mIsAdminOfGame = true;
+
+        if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
+            String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+            String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
+            FirebaseHelper.sendAcceptResponse(player, admin);
         }
-
-        checkForLocationServices(PlayBoardActivity.this);
-        Log.d("Ajit", "!@(!*$^!(#^(!*#&$(!*#^$(!&#$&!#$^");
         initialize();
+
+        mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
+        if (mGameStarted) {
+            updateUserName();
+            mPlayerNames = FirebaseHelper.getAllPlayerNames();
+            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+            mPlayers = FirebaseHelper.getAllPlayers(mGameName);
+            if (mIsAdminOfGame) {
+                assignCharacters(mPlayerNames);
+                FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
+            }
+        }
+    }
+
+    private void updateUserName() {
+        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity.MY_PREFERENCES,
+                                                                   Context.MODE_PRIVATE);
+        String userName = sharedPreferences.getString(LogInActivity.USER_NAME, null);
+        if(userName != null) mMyself = userName;
+    }
+
+    //TODO:Ajit: to be implemented.
+    private void assignCharacters(List<String> playerNames) {
+    }
+
+    private void addMarker(String userName, LatLng itemPoint, GameCharacter character) {
+        MarkerOptions marker = new MarkerOptions().position(itemPoint).title(userName)
+                .snippet(character.name()).icon(getBitmapDescriptor(character));
+        mMarkerMap.put(userName, marker);
+        mGoogleMap.addMarker(marker);
+    }
+
+    @NonNull //TODO:Ajit: need a legend info panel as a menu item to describe the colors
+    private BitmapDescriptor getBitmapDescriptor(GameCharacter character) {
+        switch (character) {
+            case ASSASSIN:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+            case DETECTIVE:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+            case DOCTOR:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+            case CITIZEN:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+            default:
+                return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
+
+        }
     }
 
 
@@ -149,6 +207,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void initialize() {
         Log.d("Ajit", "Inside initialize().");
 
+        checkForLocationServices(PlayBoardActivity.this);
+
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mLocation = getCurrentLocation(PlayBoardActivity.this);
 
@@ -160,58 +220,45 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         }
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, this);
 
-        Log.d("Ajit", "Inside initialize(). Calling fragment.");
+
+        Log.d("Ajit", "Inside initialize(). Calling Map fragment.");
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         fragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mGoogleMap = googleMap;
-                Log.d("Ajit", "Inside onMapReady(). Checking if location is null -- 1");
+                Log.d("Ajit", "Inside onMapReady(). Checking if location is null.");
                 if (mLocation != null) {
-                    Log.d("Ajit", "Inside onMapReady(). Calling addMarkers() -- 1");
-                    addMarkers(googleMap);
+                    Log.d("Ajit", "Inside onMapReady(). Location is NOT null. Calling initialGoogleMapCameraUpdate()");
+                    initialGoogleMapCameraUpdate();
                 }
+
 
             }
         });
+
     }
 
-    private void addMarkers(GoogleMap googleMap) {
+    private void initialGoogleMapCameraUpdate() {
+        if (mGoogleCameraUpdateDone) return;
+
         LatLng itemPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLng myPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
-        LatLngBounds bounds = new LatLngBounds.Builder()
-                .include(itemPoint)
-                .include(myPoint)
-                .build();
+        LatLngBounds bounds = new LatLngBounds.Builder().include(itemPoint).include(myPoint).build();
         final int margin = getResources().getDimensionPixelSize(R.dimen.map_inset_margin);
         CameraUpdate update = CameraUpdateFactory.newLatLngBounds(bounds, margin);
-        googleMap.animateCamera(update);
+        mGoogleMap.animateCamera(update);
 
-        // TODO: 3/18/2017 get all the locations from the game from firebase and show markers
-        MarkerOptions marker = new MarkerOptions().position(itemPoint).title("Smith").snippet("Assassin");
-        mMarkerMap.put("Smith", marker);
-        googleMap.addMarker(marker);
-        LatLng secMarker = new LatLng(itemPoint.latitude + 0.00004, itemPoint.longitude + 0.00003);
-        MarkerOptions marker1 = new MarkerOptions().position(secMarker).title("Kenny")
-                .snippet("Doctor").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        googleMap.addMarker(marker1);
-        mMarkerMap.put("Kenny", marker1);
-        googleMap.setOnMarkerClickListener(this);
-    }
-
-    private void updateMarkers(String userName, Location location) {
-        Log.d("Ajit", "I am moving....");
-        MarkerOptions markerOptions = mMarkerMap.get(userName);
-        markerOptions.position(new LatLng(location.getLatitude(), location.getLongitude()));
-
+        mGoogleMap.setOnMarkerClickListener(_this);
+        mGoogleCameraUpdateDone = true;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mGoogleMap = null;
-        Log.d("ajit", "Ondestroy called");
+        //TODO:Ajit: check if something else needs to be cleaned up, like listener
     }
 
     @Override
@@ -237,23 +284,26 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onLocationChanged(Location location) {
-        // TODO: 3/15/2017 broadcast the location to all the players
-        updateMarkers(null, location);
-        Criteria criteria = new Criteria();
-        LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        String provider = mLocationManager.getBestProvider(criteria, false);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+        Log.d("Ajit", "I am moving....");
+        mLocation = location;
+        updateMarker(mMyself,
+                     new LatLng(location.getLatitude(), location.getLongitude()),
+                     mPlayers.get(mMyself).getGameCharacterType());
+
+        if (mGameStarted)
+            FirebaseHelper.sendLocation(mLocation, mGameName, mMyself);
+    }
+
+    private void updateMarker(String userName, LatLng latLng, GameCharacter gameCharacterType) {
+
+        MarkerOptions markerOptions = mMarkerMap.get(userName);
+
+        if (markerOptions == null) {
+            initialGoogleMapCameraUpdate();
+            addMarker(userName, latLng, gameCharacterType);
+            markerOptions = mMarkerMap.get(userName);
         }
-        mLocation = mLocationManager.getLastKnownLocation(provider);
-        FirebaseHelper.sendLocation(mLocation);
+        markerOptions.position(latLng);
     }
 
     @Override
@@ -268,14 +318,24 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onProviderDisabled(String provider) {
-        // TODO: 3/15/2017 show alarm dialog that you would be dead if you turn location off.
+        if (mGameStarted && mPlayers.get(mMyself).getGameCharacterType().equals(GameCharacter.ASSASSIN)) {
+            FirebaseHelper.updateGameStatus(mGameName, false, "Assassin left the game.");
+            return;
+        }
+        boolean amIDetective = mPlayers.get(mMyself).getGameCharacterType().equals(GameCharacter.DETECTIVE);
+        FirebaseHelper.updatePlayerStatus(mGameName, mMyself, PlayerStatus.LEFT, !amIDetective);
+        Toast.makeText(this, "You are no more part of this game.", Toast.LENGTH_LONG).show();
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mMyReceiver, new IntentFilter(BroadcastHelper.LOCATION_RECEIVED));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BroadcastHelper.LOCATION_RECEIVED);
+        filter.addAction(BroadcastHelper.INVITE_RESPONSE);
+        filter.addAction(BroadcastHelper.NEW_PLAYER);
+        registerReceiver(mMyReceiver, filter);
     }
 
     @Override
@@ -296,7 +356,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         return mLocationManager;
     }
 
-
     public static void checkForLocationServices(Context context) {
 
         LocationManager service = (LocationManager) context.getSystemService(LOCATION_SERVICE);
@@ -307,10 +366,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         }
     }
 
-    /**
-     * Function to show settings alert dialog
-     * On pressing Settings button will lauch Settings Options
-     */
     public static void showSettingsAlert(final Context context) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
@@ -371,7 +426,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
             } else {
                 Log.d("Ajit", "Inside checkPermission # IFELSEBLOCK. Requesting Runtime permission");
-
                 // Permission has not been granted yet. Request it directly.
                 ActivityCompat.requestPermissions(PlayBoardActivity.this,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -390,7 +444,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case LOCATION_PERMISSION_REQUEST_ID: {
+            case LOCATION_PERMISSION_REQUEST_ID:
                 Log.d("Ajit", "Inside onRequestPermissionsResult");
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -401,27 +455,56 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     // TODO: 3/16/2017 exit the game
                 }
                 break;
-            }
 
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-
         }
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+//        if (!marker.isInfoWindowShown()) { //TODO:Ajit:fix: Marker info not shown upon click
+//            marker.showInfoWindow();
+//            marker.set
+//            marker.hideInfoWindow();
+//        }
+//        else {
+//            Log.d("marker", "is marker shown?" + marker.isInfoWindowShown());
+//            marker.hideInfoWindow();
+//        }
 
-        if (marker.getSnippet().equals("Citizen") || marker.getSnippet().equals("Doctor")) {
-            marker.setVisible(false);
-            doesGameEnd();
+        if (!mGameStarted) {
+            Toast.makeText(this, "The game has not yet started", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        Player myself = mPlayers.get(mMyself);
+
+        switch (myself.getGameCharacterType()) {
+            case ASSASSIN:
+                if (marker.getSnippet().equals(GameCharacter.CITIZEN.toString())
+                        || marker.getSnippet().equals(GameCharacter.DOCTOR.toString())) {
+                    //marker.setVisible(false);
+                    //TODO:Ajit: take distance into consideration before removing player
+                    mMarkerMap.get(marker.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    FirebaseHelper.updatePlayerStatus(mGameName, marker.getTitle(), PlayerStatus.DEAD, true);
+                    if (FirebaseHelper.getNoOfAliveCivilians(mGameName) == 0)
+                        gameFinished(true, "Assassin killed all Civilians & Doctor.");
+                }
+                break;
+            case DETECTIVE:
+                if (marker.getSnippet().equals(GameCharacter.ASSASSIN.toString())) {
+                    mMarkerMap.get(marker.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    gameFinished(false, "Detective arrested the Assassin.");
+                }
+                break;
         }
         return false;
     }
 
-    private void doesGameEnd() {
-        // TODO: 3/17/2017 check if Assassin wins
+    private void gameFinished(boolean assassinWon, String description) {
+        FirebaseHelper.updateGameStatus(mGameName, assassinWon, description);
+        //TODO:Ajit: show dialog for replay
     }
 
     public class MyReceiver extends BroadcastReceiver {
@@ -429,12 +512,27 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(BroadcastHelper.LOCATION_RECEIVED)) {
-//                updateMarkers();
+                double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
+                String playerName = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+                updateMarker(playerName, new LatLng(latlng[0], latlng[1]), mPlayers.get(mMyself).getGameCharacterType());
 
-            } else if (action.equals(BroadcastHelper.INVITE_RESPONSE)) {
-                String userName = intent.getExtras().getString(BroadcastHelper.USER_NAME);
-                if (FirebaseHelper.isGameStarted(Game.getInstance().getGameName()))
-                    mPlayers.add(userName);
+            } else if (mIsAdminOfGame && action.equals(BroadcastHelper.INVITE_RESPONSE)) {
+                String userName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
+                //double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
+                if (FirebaseHelper.isGameStarted(mGameName)) {//remove
+                    mPlayerNames.add(userName);
+                    FirebaseHelper.increaseNoOfAliveCiviliansBy1(mGameName);
+                    //rather than adding marker here, we will add it while receiving updated location from the user
+                    //addMarker(userName, new LatLng(latlng[0], latlng[1]), GameCharacter.CITIZEN);
+                    FirebaseHelper.newPlayerAddedUp(userName, /*latlng, */mGameName);
+                }
+            } else if (!mIsAdminOfGame && action.equals(BroadcastHelper.NEW_PLAYER)) {
+                String userName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
+                double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
+                if (FirebaseHelper.isGameStarted(mGameName)) {
+                    mPlayerNames.add(userName);
+                    addMarker(userName, new LatLng(latlng[0], latlng[1]), GameCharacter.CITIZEN);
+                }
             }
         }
     }

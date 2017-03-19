@@ -91,7 +91,7 @@ public class GameBoardActivity extends AppCompatActivity {
     private void createGame() {
         FirebaseHelper.sendGameStartMessage(Game.getInstance().getGameName());
         Intent intent = new Intent(GameBoardActivity.this, PlayBoardActivity.class);
-        intent.putExtra("admin", true);
+        intent.putExtra(BroadcastHelper.ADMIN, true);
         startActivity(intent);
     }
 
