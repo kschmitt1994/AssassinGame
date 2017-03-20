@@ -3,6 +3,7 @@ package mobileappdev.assassingame;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -15,6 +16,10 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import static mobileappdev.assassingame.LogInActivity.IS_USER_LOGGED_IN;
+import static mobileappdev.assassingame.LogInActivity.MY_PREFERENCES;
+import static mobileappdev.assassingame.LogInActivity.USER_NAME;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,8 +61,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //TODO:Kenny: while implementing logic for logout, please clear the "LoginActivity.ISUSERLOGGEDIN"
-        //TODO:Kenny: flag from sharedpreferences
+        //Sign out, return to Login Activity
+        Button logoutButton = (Button)findViewById(R.id.logout);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAuth.signOut();
+
+                SharedPreferences sharedpreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences.Editor edit = sharedpreferences.edit();
+
+                edit.putBoolean(IS_USER_LOGGED_IN, false);
+                edit.apply();
+
+                startActivity(new Intent(MainActivity.this, LogInActivity.class));
+
+            }
+        });
 
     }
 
