@@ -45,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in!
+                    FirebaseHelper.setGamePublic("testing");
+                    FirebaseHelper.setGamePublic("game1");
+                    FirebaseHelper.setGamePublic("new");
+                    FirebaseHelper.setGamePublic("another");
+                    // FirebaseHelper.isGamePublic("testing");
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out!

@@ -65,6 +65,9 @@ public class SearchPlayerResultFragment extends Fragment {
 //                instance.addPlayer(searchedPlayer);
                 String playerName = (String) parent.getAdapter().getItem(position);
                 Toast.makeText(getActivity(), playerName + " is added!", Toast.LENGTH_LONG).show();
+
+                /* FROM SAM: We just need to push the list of players to Firebase. */
+
                 // TODO:Ajit add actual player to database
                 Game instance = Game.getInstance();
                 Player searchedPlayer = instance.getSearchedPlayer().get(0);

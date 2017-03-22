@@ -61,23 +61,25 @@ public class NewGameActivity extends AppCompatActivity {
             }
         });
 
-        /*Button cancelButton = (Button)findViewById(R.id.cancel_game_creation_button);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(NewGameActivity.this, MainActivity.class));
-            }
-        });
+//        Button cancelButton = (Button)findViewById(R.id.cancel_game);
+//        cancelButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(NewGameActivity.this, MainActivity.class));
+//            }
+//        });
 
-        Button createButton = (Button)findViewById(R.id.create_button);
-        createButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Game gameInstance = Game.getInstance(getApplicationContext());
-                gameInstance.setGameName(gameTitleET.getText().toString());
-                startActivity(new Intent(NewGameActivity.this, GameBoardActivity.class));
-            }
-        });*/
+//        Button createButton = (Button)findViewById(R.id.create_game);
+//        createButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                FirebaseHelper.setGamePublic(mGameTitleET.getText().toString());
+////                Game gameInstance = Game.getInstance(getApplicationContext());
+////                gameInstance.setGameName(mGameTitleET.getText().toString());
+//                //startActivity(new Intent(NewGameActivity.this, GameBoardActivity.class));
+//            }
+//        });
 
     }
 

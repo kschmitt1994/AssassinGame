@@ -39,9 +39,13 @@ public class Player {
         return mName;
     }
 
+    public void setName(String newName) { mName = newName; }
+
     public String getEmailID() {
         return mEmailID;
     }
+
+    public void setEmailID(String newEmail) { mEmailID = newEmail; }
 
     public boolean isAlive() {
         return mAlive;
