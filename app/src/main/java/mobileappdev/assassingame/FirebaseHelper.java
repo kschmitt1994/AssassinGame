@@ -110,7 +110,7 @@ public class FirebaseHelper {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
         Query gameQuery = ref.child("games");
-        final List<String> gameNames = new List<String>;
+        final List<String> gameNames = new ArrayList<String>();
 
         gameQuery.addValueEventListener(new ValueEventListener() {
             @Override
