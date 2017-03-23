@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -80,24 +81,29 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         _this = this;
 
         Intent intent = getIntent();
-        if (intent.getBooleanExtra(BroadcastHelper.ADMIN, false))
+        if (intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false)) {
             mIsAdminOfGame = true;
 
-        if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
-            String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+        } else if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
-            FirebaseHelper.sendAcceptResponse(player, admin);
+            String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+            String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
+            if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
+                FirebaseHelper.sendAcceptResponse(player, admin);
+            } else {
+                FirebaseHelper.sendRejectionResponse(player, admin);
+            }
         }
         initialize();
 
         mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
         if (mGameStarted) {
             updateUserName();
-            mPlayerNames = FirebaseHelper.getAllPlayerNames();
             mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+            mPlayerNames = FirebaseHelper.getAllPlayerNames(mGameName);
             mPlayers = FirebaseHelper.getAllPlayers(mGameName);
             if (mIsAdminOfGame) {
-                assignCharacters(mPlayerNames);
+                assignCharacters(mGameName, mPlayerNames);
                 FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
             }
         }
@@ -110,8 +116,23 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         if(userName != null) mMyself = userName;
     }
 
-    //TODO:Ajit: to be implemented.
-    private void assignCharacters(List<String> playerNames) {
+    private void assignCharacters(String gameName, List<String> playerNames) {
+        Random random = new Random();
+
+        int assassinIndex = random.nextInt(playerNames.size());
+        String assassin = playerNames.get(assassinIndex);
+        playerNames.remove(assassinIndex);
+
+        int detectiveIndex = random.nextInt(playerNames.size());
+        String detective = playerNames.get(detectiveIndex);
+        playerNames.remove(detectiveIndex);
+
+        int doctorIndex = random.nextInt(playerNames.size());
+        String doctor = playerNames.get(doctorIndex);
+        playerNames.remove(doctorIndex);
+
+        FirebaseHelper.updateCharactersOfPlayers(gameName, assassin, detective, doctor, playerNames);
+
     }
 
     private void addMarker(String userName, LatLng itemPoint, GameCharacter character) {
@@ -505,6 +526,26 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void gameFinished(boolean assassinWon, String description) {
         FirebaseHelper.updateGameStatus(mGameName, assassinWon, description);
         //TODO:Ajit: show dialog for replay
+        boolean shouldReplay = false;
+        if (shouldReplay) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Are you sure you want to exit?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+//                            PlayBoardActivity.this.finish();
+                            startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+        //TODO:AJIT: should send invites to players. if not, send gameStarted message only if there are atleast 4 players
     }
 
     public class MyReceiver extends BroadcastReceiver {

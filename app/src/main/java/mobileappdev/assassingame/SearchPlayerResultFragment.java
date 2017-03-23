@@ -63,19 +63,13 @@ public class SearchPlayerResultFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                instance.addPlayer(searchedPlayer);
                 String playerName = (String) parent.getAdapter().getItem(position);
-                Toast.makeText(getActivity(), playerName + " is added!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), playerName + " is added!", Toast.LENGTH_SHORT).show();
 
-                /* FROM SAM: We just need to push the list of players to Firebase. */
-
-                // TODO:Ajit add actual player to database
                 Game instance = Game.getInstance();
-                Player searchedPlayer = instance.getSearchedPlayer().get(0);
-                // TODO: Ajit we can get below player by iterating over searchedPlayer list which contains result from firebase during search
-                Player player = FirebaseHelper.getPlayerListContainingUserName(playerName).get(0);//it's unique. size(list) = 1
+                Player searchedPlayer = instance.getSearchedPlayer().get(position);
                 mDatabaseHandler.addPlayer(searchedPlayer);
-                FirebaseHelper.sendInvite(searchedPlayer, searchedPlayer); //send invite to the player who got added
+                FirebaseHelper.sendInvite(searchedPlayer.getName(), Game.getInstance().getGameAdmin());
 
                 mItems.remove(searchedPlayer.getName());
                 mAdapter.notifyDataSetChanged();
@@ -107,14 +101,13 @@ public class SearchPlayerResultFragment extends Fragment {
     public void update() {
         Game instance = Game.getInstance();
         List<Player> searchedPlayer = instance.getSearchedPlayer();
-        //TODO:Ajit: fix with actual data
-//        mItems.add(searchedPlayer.get(0).getName());
         if (searchedPlayer.size() > 0) {
-            for (int i = 0; i < searchedPlayer.size(); i++) {
-                mItems.add(searchedPlayer.get(i).getName());
+            for (Player player : searchedPlayer) {
+                mItems.add(player.getName());
             }
         } else {
-            Log.i("GAME", "No players found; we need to show an error here.");
+            Log.i("GAME", "Search result empty.");
+            Toast.makeText(getContext(), "Search result is empty", Toast.LENGTH_SHORT).show();
         }
         mAdapter.notifyDataSetChanged();
     }

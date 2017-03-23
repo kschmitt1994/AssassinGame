@@ -54,26 +54,26 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
 
         mBuilder.setSmallIcon(R.drawable.common_google_signin_btn_icon_dark);
         mBuilder.setContentTitle("Assassin Invitation !");
-        mBuilder.setContentText("Please join me. From - " + intent.getStringExtra(BroadcastHelper.SENDER)); // TODO: 3/18/2017 show sender name
+        mBuilder.setContentText("Please join me. From - " + intent.getStringExtra(BroadcastHelper.ADMIN)); // TODO: 3/18/2017 show sender name
         mBuilder.setAutoCancel(true);
 
         //Accept intent
         Intent yesReceive = new Intent(context, PlayBoardActivity.class);
-        yesReceive.putExtra(BroadcastHelper.SENDER, intent.getStringExtra(BroadcastHelper.SENDER));
         yesReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
+        yesReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.ACCEPTED);
         yesReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));
         yesReceive.putExtra(BroadcastHelper.PLAYER_NAME, intent.getStringExtra(BroadcastHelper.PLAYER_NAME));
         PendingIntent pendingIntentYes = PendingIntent.getActivity(context, 12345, yesReceive, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Accept", pendingIntentYes);
 
-        //TODO:Ajit: fix it. It needs to send a reject message to admin. In worse case, have a blank activity which will simply
-        //TODO:Ajit: fire a Firebase message to Admin and close the activity/app.
         //Reject intent
         Intent noReceive = new Intent();
-        noReceive.putExtra(BroadcastHelper.SENDER, intent.getStringExtra(BroadcastHelper.SENDER));
-        noReceive.setAction(BroadcastHelper.REJECT_ACTION);
-        PendingIntent pendingIntentNo = PendingIntent.getBroadcast(context, 12345, noReceive, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Reject", pendingIntentNo);
+        noReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
+        noReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.DECLINED);
+        noReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));
+        noReceive.putExtra(BroadcastHelper.PLAYER_NAME, intent.getStringExtra(BroadcastHelper.PLAYER_NAME));
+        PendingIntent pendingIntentNo = PendingIntent.getActivity(context, 12345, noReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Decline", pendingIntentNo);
 
 
        /* Intent resultIntent = new Intent(context, PlayBoardActivity.class);

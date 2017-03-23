@@ -17,10 +17,11 @@ public class BroadcastHelper {
 
     public static final String ADMIN = "admin";
     public static final String SENDER = "sender";
-    public static final String STATUS = "status";
     public static final String LOCATION = "location";
     public static final String GAME_NAME = "gameName";
+    public static final String AM_I_ADMIN = "amiadmin";
     public static final String PLAYER_NAME = "playerName";
     public static final String GAME_STARTED = "gameStarted";
     public static final String ON_GAME_REQUEST = "onGameRequest";
+    public static final String INVITATION_RESPONSE = "inviation_response";
 }

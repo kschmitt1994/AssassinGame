@@ -13,6 +13,7 @@ public class Game {
 
     private boolean mIsPublic;
     private String mGameName;
+    private String gameAdmin;
     private List<Player> mSearchedPlayer;
 
     private static Game sGame;
@@ -30,6 +31,15 @@ public class Game {
 
     public String getGameName() {
         return mGameName;
+    }
+
+    public void setGameAdmin(String gameAdmin) {
+        this.gameAdmin = gameAdmin;
+    }
+
+    public String getGameAdmin() {
+
+        return gameAdmin;
     }
 
     public boolean isPublic() {

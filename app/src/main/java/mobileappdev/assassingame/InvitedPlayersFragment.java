@@ -180,7 +180,7 @@ public class InvitedPlayersFragment extends Fragment {
             //TODO: 3/18/2017 need to broadcast a msg with INVITE_RESPONSE action when a response is received through Firebase
             if (action.equals(BroadcastHelper.INVITE_RESPONSE)) {
                 String userName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
-                String response = intent.getExtras().getString(BroadcastHelper.STATUS);
+                String response = intent.getExtras().getString(BroadcastHelper.INVITATION_RESPONSE);
                 mDatabaseHandler.updatePlayerInviationStatus(userName, InvitationStatus.getStatusFrom(response));
 
                 for (int i = 0; i < mIPAdapter.getItemCount(); i++) {

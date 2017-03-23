@@ -1,6 +1,9 @@
 package mobileappdev.assassingame;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -56,7 +59,7 @@ public class NewGameActivity extends AppCompatActivity {
                 Game gameInstance = Game.getInstance();
                 gameInstance.setGameName(gameName);
                 gameInstance.setPublic(selectedRadioButton.getText().toString().contains("Public"));
-
+                gameInstance.setGameAdmin(getMyUserName());
                 startActivity(new Intent(NewGameActivity.this, InvitePlayersActivity.class));
             }
         });
@@ -81,6 +84,12 @@ public class NewGameActivity extends AppCompatActivity {
 //            }
 //        });
 
+    }
+
+    @NonNull
+    private String getMyUserName() {
+        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+        return sharedPreferences.getString(LogInActivity.USER_NAME, "undefined");
     }
 
     private RadioButton getSelectedRadioButton() {

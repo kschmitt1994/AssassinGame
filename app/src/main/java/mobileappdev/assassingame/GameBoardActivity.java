@@ -38,12 +38,12 @@ public class GameBoardActivity extends AppCompatActivity {
         publicSwitch.setEnabled(false);
         publicSwitch.setClickable(false);
         publicSwitch.setFocusable(false);
-        publicSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Game.getInstance().setPublic(((Switch)v).isChecked());
-            }
-        });
+//        publicSwitch.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Game.getInstance().setPublic(((Switch)v).isChecked());
+//            }
+//        });
 
         FragmentManager fm = getSupportFragmentManager();
 
@@ -89,11 +89,11 @@ public class GameBoardActivity extends AppCompatActivity {
     }
 
     private void createGame() {
-        FirebaseHelper.createGame(Game.getInstance());
-        // FirebaseHelper.sendGameStartMessage(Game.getInstance().getGameName());
-        // Intent intent = new Intent(GameBoardActivity.this, PlayBoardActivity.class);
-        // intent.putExtra(BroadcastHelper.ADMIN, true);
-        // startActivity(intent);
+         FirebaseHelper.createGame(Game.getInstance());
+         FirebaseHelper.sendGameStartMessage(Game.getInstance().getGameName());
+         Intent intent = new Intent(GameBoardActivity.this, PlayBoardActivity.class);
+         intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
+         startActivity(intent);
     }
 
 

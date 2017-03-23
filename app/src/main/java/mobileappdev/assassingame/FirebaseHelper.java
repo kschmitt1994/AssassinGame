@@ -48,7 +48,7 @@ public class FirebaseHelper {
         DatabaseReference typeRef = database.getReference(gameReference + "/type");
         DatabaseReference creatorRef = database.getReference(gameReference + "/creator");
         DatabaseReference playersRef = database.getReference(gameReference + "/players");
-
+        //TODO:SAM: add the admin to the players list of the game. use 'newGame.getGameAdmin()' to get adminName
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String creatorName = user.getDisplayName();
@@ -158,13 +158,13 @@ public class FirebaseHelper {
     }
 
 
-    public static void sendInvite(Player admin, Player player) {
+    public static void sendInvite(String player, String admin) {
         // TODO: 3/17/2017 broadcast the msg
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference inviteRef = database.getReference("users/" + player.getName() + "/invites");
+        DatabaseReference inviteRef = database.getReference("users/" + player + "/invites");
         DatabaseReference newInviteRef = inviteRef.push();
 
-        newInviteRef.setValue(admin.getName() + " @ " + Long.toString(System.currentTimeMillis()));
+        newInviteRef.setValue(admin + " @ " + Long.toString(System.currentTimeMillis()));
     }
 
     /**
@@ -270,6 +270,11 @@ public class FirebaseHelper {
         return playerNames;
     }
 
+    public static List<String> getAllPlayerNames(String gameName) {
+        // TODO: 3/17/2017 return actual list
+        // TODO: 3/20/2017 What do we need this for?
+        return new ArrayList<>();
+    }
 
     /**
      * Pushes your current location to the game's backend
@@ -534,5 +539,11 @@ public class FirebaseHelper {
         DatabaseReference newMsgRef = msgRef.push();
 
         newMsgRef.setValue(fromPlayer + " not logged in");
+    }
+
+    public static void updateCharactersOfPlayers(String gameName, String assassin, String detective,
+                                                 String doctor, List<String> civilians) {
+        //TODO:SAM: get the players of the game with gameName and update the character of the players
+        //assassin argument is the name of the assassin. similarly detective and doctor
     }
 }
