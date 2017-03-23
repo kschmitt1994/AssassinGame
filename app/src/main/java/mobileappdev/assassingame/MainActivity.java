@@ -78,6 +78,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Todo: For testing purposes, the settings button links to a chat activity.  Change this later.
+        Button settingsButton = (Button)findViewById(R.id.settings);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ChatActivity.class));
+
+            }
+        });
+
         Button joinGameButton = (Button)findViewById(R.id.join_game);
         joinGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
