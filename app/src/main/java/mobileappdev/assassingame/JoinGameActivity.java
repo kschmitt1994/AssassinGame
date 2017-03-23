@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +16,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class JoinGameActivity extends AppCompatActivity {
 
-    private ListView mListView;
-    private ArrayAdapter<String> mAdapter;
     ArrayList<String> mItems = new ArrayList<>();
 
     @Override
@@ -38,16 +45,34 @@ public class JoinGameActivity extends AppCompatActivity {
                 startActivity(new Intent(JoinGameActivity.this, NewGameActivity.class));
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        mItems.add("Testing");
-        mItems.add("Testing2");
-        mItems.add("Testing3");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference();
+        Query gameQuery = ref.child("games");
+        final List<String> gameNames = new ArrayList<String>();
 
-        mListView = (ListView) findViewById(R.id.public_games_list_view);
-        mAdapter = new ArrayAdapter<String>(JoinGameActivity.this,
-                android.R.layout.simple_list_item_1, mItems);
-        mListView.setAdapter(mAdapter);
+        gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
+                    gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
+                    mItems.add(gameSnapshot.getValue().toString());
+                    Log.i("JoinGameActivity", mItems.toString());
+                }
+
+                ListView mListView = (ListView) findViewById(R.id.public_games_list_view);
+                ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(JoinGameActivity.this,
+                        android.R.layout.simple_list_item_1, mItems);
+                mListView.setAdapter(mAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("FirebaseHelper", "loadGames:onCancelled", databaseError.toException());
+                // ...
+            }
+        });
     }
 
 }
