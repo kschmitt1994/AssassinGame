@@ -1,16 +1,34 @@
 package mobileappdev.assassingame;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class JoinGameActivity extends AppCompatActivity {
+
+    ArrayList<String> mItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,15 +38,41 @@ public class JoinGameActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageResource(R.drawable.googleg_standard_color_18);
+        fab.setImageResource(R.drawable.ic_add_white_24px);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Execute the CREATE GAME logic", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                startActivity(new Intent(JoinGameActivity.this, NewGameActivity.class));
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference();
+        Query gameQuery = ref.child("games");
+        final List<String> gameNames = new ArrayList<String>();
+
+        gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
+                    gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
+                    mItems.add(gameSnapshot.getValue().toString());
+                    Log.i("JoinGameActivity", mItems.toString());
+                }
+
+                ListView mListView = (ListView) findViewById(R.id.public_games_list_view);
+                ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(JoinGameActivity.this,
+                        android.R.layout.simple_list_item_1, mItems);
+                mListView.setAdapter(mAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("FirebaseHelper", "loadGames:onCancelled", databaseError.toException());
+                // ...
+            }
+        });
     }
 
 }
