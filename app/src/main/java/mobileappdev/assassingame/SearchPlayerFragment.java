@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,7 @@ public class SearchPlayerFragment extends Fragment {
                 String player = searchBoxValue.getText().toString();
                 if (player.equals(""))
                     return;
+                Log.i("TESTING", "WE ARE ENTERING THE GETPLAYERLIST() FUNCITON");
                 searchPlayer(player, player.contains("@"));
                 searchBoxValue.setText("");
             }
@@ -65,13 +67,15 @@ public class SearchPlayerFragment extends Fragment {
     }
 
     private void searchPlayer(String playerInfo, boolean byEmail) {
-        List<Player> searchedPlayers;
+        List<Player> searchedPlayers = new ArrayList<>();
         if (byEmail) {
             Player player = FirebaseHelper.getPlayerByEmailID(playerInfo);
             searchedPlayers = new ArrayList<>();
             searchedPlayers.add(player);
         } else {
+            Log.i("PLAYERS", searchedPlayers.toString());
             searchedPlayers = FirebaseHelper.getPlayerListContainingUserName(playerInfo);
+            Log.i("PLAYERS", searchedPlayers.toString());
         }
 
         Game.getInstance().setSearchedPlayer(searchedPlayers);

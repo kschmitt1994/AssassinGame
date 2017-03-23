@@ -44,12 +44,6 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    // User is signed in!
-                    FirebaseHelper.setGamePublic("testing");
-                    FirebaseHelper.setGamePublic("game1");
-                    FirebaseHelper.setGamePublic("new");
-                    FirebaseHelper.setGamePublic("another");
-                    // FirebaseHelper.isGamePublic("testing");
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out!
@@ -81,6 +75,14 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivity(new Intent(MainActivity.this, LogInActivity.class));
 
+            }
+        });
+
+        Button joinGameButton = (Button)findViewById(R.id.join_game);
+        joinGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, JoinGameActivity.class));
             }
         });
 

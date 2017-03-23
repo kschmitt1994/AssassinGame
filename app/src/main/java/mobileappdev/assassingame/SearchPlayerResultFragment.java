@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +75,7 @@ public class SearchPlayerResultFragment extends Fragment {
                 // TODO: Ajit we can get below player by iterating over searchedPlayer list which contains result from firebase during search
                 Player player = FirebaseHelper.getPlayerListContainingUserName(playerName).get(0);//it's unique. size(list) = 1
                 mDatabaseHandler.addPlayer(searchedPlayer);
-                FirebaseHelper.sendInvite(searchedPlayer); //send invite to the player who got added
+                FirebaseHelper.sendInvite(searchedPlayer, searchedPlayer); //send invite to the player who got added
 
                 mItems.remove(searchedPlayer.getName());
                 mAdapter.notifyDataSetChanged();
@@ -107,7 +108,14 @@ public class SearchPlayerResultFragment extends Fragment {
         Game instance = Game.getInstance();
         List<Player> searchedPlayer = instance.getSearchedPlayer();
         //TODO:Ajit: fix with actual data
-        mItems.add(searchedPlayer.get(0).getName());
+//        mItems.add(searchedPlayer.get(0).getName());
+        if (searchedPlayer.size() > 0) {
+            for (int i = 0; i < searchedPlayer.size(); i++) {
+                mItems.add(searchedPlayer.get(i).getName());
+            }
+        } else {
+            Log.i("GAME", "No players found; we need to show an error here.");
+        }
         mAdapter.notifyDataSetChanged();
     }
 
