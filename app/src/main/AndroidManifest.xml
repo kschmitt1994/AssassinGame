@@ -73,7 +73,17 @@
         <service
             android:name=".FirebaseService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity
+            android:name=".MyGamesActivity"
+            android:label="@string/title_activity_my_games"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="mobileappdev.assassingame.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

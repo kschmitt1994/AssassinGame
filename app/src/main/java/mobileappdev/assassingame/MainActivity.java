@@ -86,6 +86,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button myGamesButton = (Button)findViewById(R.id.my_games);
+        myGamesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, MyGamesActivity.class));
+            }
+        });
+
     }
 
     public void checkForLocationServices(Context context) {

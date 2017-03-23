@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Assassin</string>
     <string name="create_game">Create Game</string>
+    <string name="my_games">My Games</string>
     <string name="join_game">Join Game</string>
     <string name="stats">Stats</string>
     <string name="settings">Settings</string>
@@ -34,4 +35,5 @@
 
     <color name="dark_gray">#444444</color>
     <string name="title_activity_join_game">Join a Public Game</string>
+    <string name="title_activity_my_games">My Games</string>
 </resources>

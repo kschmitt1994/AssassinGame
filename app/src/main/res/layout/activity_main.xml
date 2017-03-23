@@ -20,6 +20,12 @@
         android:text="@string/join_game"/>
 
     <Button
+        android:id="@+id/my_games"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/my_games"/>
+
+    <Button
         android:id="@+id/stats"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

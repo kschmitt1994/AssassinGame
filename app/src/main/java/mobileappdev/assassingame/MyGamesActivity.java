@@ -26,7 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JoinGameActivity extends AppCompatActivity {
+public class MyGamesActivity extends AppCompatActivity {
 
     ArrayList<String> mItems = new ArrayList<>();
 
@@ -42,28 +42,28 @@ public class JoinGameActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(JoinGameActivity.this, NewGameActivity.class));
+                startActivity(new Intent(MyGamesActivity.this, NewGameActivity.class));
             }
         });
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
         Query gameQuery = ref.child("games");
-        // final List<String> gameNames = new ArrayList<String>();
+        final List<String> gameNames = new ArrayList<String>();
 
-        // TODO: SAM: Only fetch the games that are PUBLIC.
+        // TODO: SAM: Only fetch the games that belong to the current user's ID.
 
         gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
-                    // gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
+                    gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
                     mItems.add(gameSnapshot.getKey());
-                    Log.i("JoinGameActivity", mItems.toString());
+                    Log.i("MyGamesActivity", mItems.toString());
                 }
 
                 ListView mListView = (ListView) findViewById(R.id.public_games_list_view);
-                ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(JoinGameActivity.this,
+                ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(MyGamesActivity.this,
                         android.R.layout.simple_list_item_1, mItems);
                 mListView.setAdapter(mAdapter);
             }
