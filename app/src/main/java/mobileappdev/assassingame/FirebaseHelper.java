@@ -48,7 +48,7 @@ public class FirebaseHelper {
         DatabaseReference typeRef = database.getReference(gameReference + "/type");
         DatabaseReference creatorRef = database.getReference(gameReference + "/creator");
         DatabaseReference playersRef = database.getReference(gameReference + "/players");
-        //TODO:SAM: add the admin to the players list of the game. use 'newGame.getGameAdmin()' to get adminName
+        // TODO:SAM: add the admin to the players list of the game. use 'newGame.getGameAdmin()' to get adminName
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String creatorName = user.getDisplayName();
@@ -542,8 +542,28 @@ public class FirebaseHelper {
     }
 
     public static void updateCharactersOfPlayers(String gameName, String assassin, String detective,
-                                                 String doctor, List<String> civilians) {
-        //TODO:SAM: get the players of the game with gameName and update the character of the players
-        //assassin argument is the name of the assassin. similarly detective and doctor
+                                                 String doctor, List<String> citizens) {
+
+        String gamePlayers = "games/" + gameName + "/players";
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference gamePlayersRef = database.getReference(gamePlayers);
+
+        // Setting up the assassin
+        DatabaseReference assassinRef = database.getReference(gamePlayers + "/" + assassin);
+        assassinRef.child("role").setValue(GameCharacter.ASSASSIN.toString());
+
+        // Setting up the detective
+        DatabaseReference detectiveRef = database.getReference(gamePlayers + "/" + detective);
+        detectiveRef.child("role").setValue(GameCharacter.DETECTIVE.toString());
+
+        // Setting up the doctor
+        DatabaseReference doctorRef = database.getReference(gamePlayers + "/" + doctor);
+        doctorRef.child("role").setValue(GameCharacter.DOCTOR.toString());
+
+        // Setting up each of the citizens
+        for (int i = 0; i < citizens.size(); i++) {
+            DatabaseReference civilianRef = database.getReference(gamePlayers + "/" + citizens.get(i));
+            civilianRef.child("role").setValue(GameCharacter.CITIZEN.toString());
+        }
     }
 }

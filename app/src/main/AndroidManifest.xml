@@ -37,22 +37,22 @@
         <activity android:name=".MainActivity" />
         <activity
             android:name=".NewGameActivity"
-            android:label="@string/new_game"></activity>
+            android:label="@string/new_game" />
         <activity
             android:name=".SignUpPageActivity"
-            android:label="@string/sign_up"></activity>
+            android:label="@string/sign_up" />
         <activity
             android:name=".InvitePlayersActivity"
-            android:configChanges="orientation"></activity>
+            android:configChanges="orientation" />
         <activity
             android:name=".GameBoardActivity"
-            android:configChanges="orientation"></activity>
+            android:configChanges="orientation" />
         <activity
             android:name=".PlayBoardActivity"
-            android:configChanges="orientation"></activity>
+            android:configChanges="orientation" />
         <activity
             android:name=".ChatActivity"
-            android:configChanges="orientation"></activity>
+            android:configChanges="orientation" />
         <activity android:name=".LogInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,6 +69,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="mobileappdev.assassingame.MainActivity" />
         </activity>
+
+        <service
+            android:name=".FirebaseService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
