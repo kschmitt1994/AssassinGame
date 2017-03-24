@@ -16,6 +16,9 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import static mobileappdev.assassingame.LogInActivity.IS_USER_LOGGED_IN;
 import static mobileappdev.assassingame.LogInActivity.MY_PREFERENCES;
@@ -34,6 +37,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // just ignore this
+        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference deviceRef = database.getReference("users/" +
+                FirebaseAuth.getInstance().getCurrentUser().getDisplayName() + "/device/" + deviceToken);
+        DatabaseReference newDeviceRef = deviceRef.push();
+        newDeviceRef.setValue("test device");
 
         checkForLocationServices(this);
 

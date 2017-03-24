@@ -158,13 +158,14 @@ public class FirebaseHelper {
     }
 
 
-    public static void sendInvite(String player, String admin) {
+    public static void sendInvite(String player, String gameName, String admin) {
         // TODO: 3/17/2017 broadcast the msg
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference inviteRef = database.getReference("users/" + player + "/invites");
+        DatabaseReference inviteRef =
+                database.getReference("users/" + player + "/invites/" + admin + "/" + gameName);
         DatabaseReference newInviteRef = inviteRef.push();
 
-        newInviteRef.setValue(admin + " @ " + Long.toString(System.currentTimeMillis()));
+        newInviteRef.setValue(Long.toString(System.currentTimeMillis()));
     }
 
     /**
@@ -297,8 +298,7 @@ public class FirebaseHelper {
 
     }
 
-
-    // TODO: Fix this to utilize admin username instead of pushing to game store
+    
     public static void sendRejectionResponse(String gameName, String sender) {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
