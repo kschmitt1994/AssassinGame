@@ -36,8 +36,8 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBmAUlTZUJmS-zNk9Aci2LF7sI_wvVIPXQ"/>
-
+            android:value="AIzaSyAxup4LLEZMkQmruzwqsFkb4bfr9dHW-wg"/>
+        <!--android:value="AIzaSyBmAUlTZUJmS-zNk9Aci2LF7sI_wvVIPXQ"/>-->
         <activity android:name=".MainActivity" />
 
         <activity android:name=".NewGameActivity"

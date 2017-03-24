@@ -5,7 +5,7 @@ package mobileappdev.assassingame;
  */
 
 public enum GameCharacter {
-    ASSASSIN, CITIZEN, DETECTIVE, DOCTOR;
+    ASSASSIN, CITIZEN, DETECTIVE, DOCTOR, UNDEFINED;
 
     public static GameCharacter getCharacterFrom(String string) {
         switch (string) {
@@ -25,6 +25,10 @@ public enum GameCharacter {
             case "doctor":
             case "Doctor":
                 return DOCTOR;
+            case "UNDEFINED":
+            case "Undefined":
+            case "undefined":
+                return UNDEFINED;
             default:
                 throw new RuntimeException("No such GameCharacter in the game");
         }

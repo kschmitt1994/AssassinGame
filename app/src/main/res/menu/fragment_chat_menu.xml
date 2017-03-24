@@ -4,13 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/chat"
-        android:icon="@android:drawable/ic_btn_speak_now"
+        android:icon="@drawable/ic_chat_white_24px"
         android:title="@string/new_player"
         app:showAsAction="ifRoom|withText"/>
 
     <item
         android:id="@+id/exit_game"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:icon="@drawable/ic_close_white_24px"
         android:title="@string/new_player"
         app:showAsAction="ifRoom|withText"/>
 </menu>

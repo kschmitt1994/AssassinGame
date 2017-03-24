@@ -37,7 +37,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +73,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private List<String> mPlayerNames;
     private Map<String, Player> mPlayers;
     private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
+
+    private final Map<String, LatLng> mPlayerLocations = new HashMap<String, LatLng>();
 
     private GoogleMap.OnMarkerClickListener _this;
     private boolean mGoogleCameraUpdateDone;
@@ -106,6 +114,54 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 assignCharacters(mGameName, mPlayerNames);
                 FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
             }
+
+            /*
+             * Begin Firebase location synchronization stuff
+             * ---------------------------------------------
+             * We have a single listener that is updated any time any of our users change their location.
+             * When that listener detects a change we will query the location for each of said users
+             * and update the appropriate markers.
+             *
+             * NOTE: This is silly
+             */
+
+            String gameReference = "games/" + mGameName + "/";
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor");
+
+            locationRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    for (final String mPlayerName : mPlayerNames) {
+                        String playerRef = "users/" + mPlayerName;
+                        DatabaseReference playerLocationRef = database.getReference(playerRef);
+                        playerLocationRef.child("location").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
+                                Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
+
+                                LatLng userLocation = new LatLng(userLat, userLng);
+
+                                // Push this user to our hash map
+                                mPlayerLocations.put(mPlayerName, userLocation);
+                                updateMarker(mPlayerName, userLocation, mPlayers.get(mPlayerName).getGameCharacterType());
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Log.w("PlayBoardActivity", "playerLocationRef:onCancelled");
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w("PlayBoardActivity", "locationRef:onCancelled");
+                }
+            });
         }
     }
 
@@ -279,7 +335,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     protected void onDestroy() {
         super.onDestroy();
         mGoogleMap = null;
-        //TODO:Ajit: check if something else needs to be cleaned up, like listener
+        //TODO: Ajit: check if something else needs to be cleaned up, like listener
     }
 
     @Override

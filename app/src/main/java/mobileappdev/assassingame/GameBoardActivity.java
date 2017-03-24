@@ -66,7 +66,9 @@ public class GameBoardActivity extends AppCompatActivity {
     }
 
     private boolean shouldEnableCreateButton() {
-        return getNoOfPlayersInGame(this) >= MINIMUM_PLAYERS_NEEDED;
+//        return getNoOfPlayersInGame(this) >= MINIMUM_PLAYERS_NEEDED;
+
+        return true;
     }
 
     @Override

@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,7 +49,7 @@ public class MyGamesActivity extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
-        Query gameQuery = ref.child("games");
+        Query gameQuery = ref.child("games").child(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         final List<String> gameNames = new ArrayList<String>();
 
         // TODO: SAM: Only fetch the games that belong to the current user's ID.
