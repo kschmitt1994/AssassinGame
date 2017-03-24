@@ -38,14 +38,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // just ignore this
-        String deviceToken = FirebaseInstanceId.getInstance().getToken();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference deviceRef = database.getReference("users/" +
-                FirebaseAuth.getInstance().getCurrentUser().getDisplayName() + "/device/" + deviceToken);
-        DatabaseReference newDeviceRef = deviceRef.push();
-        newDeviceRef.setValue("test device");
-
         checkForLocationServices(this);
 
         // Track when user signs in and out

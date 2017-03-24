@@ -231,8 +231,71 @@ exports.sendGameStartMessage =  functions.database
  * started. In that case, a notification is sent to all other players saying
  * that this person has joined their game.
  */
-exports.newPlayerAddedUp = functions.https.onRequest((request, response) => {
-  // Logic for newPlayerAddedUp goes here
+exports.newPlayerAddedUp = functions.database
+.ref('games/{gameID}/players').onWrite(event => {
+
+  const gameID = event.params.gameID;
+
+  if (!event.data.val()) {
+    return console.log("Player removed");
+  }
+
+  const newPlayerName = event.data.val();
+
+  const gamePlayerPromise = admin.database()
+    .ref(`games/${gameID}/players`).once('value');
+
+    return Promise.all([gamePlayerPromise]).then(results => {
+      const gamePlayersSnapshot = results[0];
+      for (let player in gamePlayersSnapshot.val()) {
+        // console.log("player: " + player);
+        // console.log("newPlayerName: " + Object.keys(newPlayerName));
+        // console.log(gamePlayersSnapshot.val());
+        if (newPlayerName[player]) {
+          // console.log("PLAYER THAT IS NOT NEW PLAYER: " + player);
+          const getPlayerDeviceToken = admin.database()
+            .ref(`users/${player}/device`).once('value');
+          return Promise.all([getPlayerDeviceToken]).then(results => {
+            const gamePlayerDeviceTokens = results[0];
+            // console.log("THE NEXT ELEMENT SHOULD BE THE ONE THING THAT SHOULD WORK");
+            // console.log("gamePlayerDeviceTokens: " + gamePlayerDeviceTokens);
+            // console.log("gamePlayerDeviceTokens[keys]: " + Object.keys(gamePlayerDeviceTokens));
+            // console.log("gamePlayerDeviceTokens[A]: " + gamePlayerDeviceTokens['A']);
+            // console.log("gamePlayerDeviceTokens[V]: " + gamePlayerDeviceTokens['V']);
+            // console.log("gamePlayerDeviceTokens[g]: " + gamePlayerDeviceTokens['g']);
+
+
+            // Notification details.
+            const payload = {
+              notification: {
+                body: `${newPlayerName} has joined ${gameID}!`
+              }
+            };
+
+            // Listing all tokens.
+            const tokens = Object.keys(gamePlayerDeviceTokens['A'].val());
+
+            // Send notifications to all tokens.
+            return admin.messaging().sendToDevice(tokens, payload).then(response => {
+              // For each message check if there was an error.
+              const tokensToRemove = [];
+              response.results.forEach((result, index) => {
+                const error = result.error;
+                if (error) {
+                  console.error('Failure sending notification to', tokens[index], error);
+                  // Cleanup the tokens who are not registered anymore.
+                  if (error.code === 'messaging/invalid-registration-token' ||
+                      error.code === 'messaging/registration-token-not-registered') {
+                    // tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
+                  }
+                }
+              });
+            return Promise.all(tokensToRemove);
+          });
+        });
+        }
+      } // end for loop
+  });
 });
 
 /**

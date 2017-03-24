@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class SignUpPageActivity extends AppCompatActivity {
 
@@ -131,6 +132,14 @@ public class SignUpPageActivity extends AppCompatActivity {
                                     }
                                 }
                             });
+
+                        // just ignore this
+                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference deviceRef = database.getReference("users/" +
+                                username + "/device/" + deviceToken);
+                        DatabaseReference newDeviceRef = deviceRef.push();
+                        newDeviceRef.setValue("test device");
                         startActivity(new Intent(SignUpPageActivity.this, MainActivity.class));
                     }
 
