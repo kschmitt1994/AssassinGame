@@ -73,7 +73,6 @@ public class MyGamesActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
                 // Getting Post failed, log a message
                 Log.w("FirebaseHelper", "loadGames:onCancelled", databaseError.toException());
-                // ...
             }
         });
     }

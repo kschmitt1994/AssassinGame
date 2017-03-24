@@ -15,9 +15,10 @@ public class Player {
 
     private InvitationStatus mInvitationStatus;
 
-    public Player () {
-        this("dummy", "dummy@gmail.com", GameCharacter.UNDEFINED, true);
+    public Player() {
+        this("dummy" + ++counter, "dummy" + counter + "@dummy.com", GameCharacter.UNDEFINED, true);
     }
+
     public Player(String name, String emailID, GameCharacter gameCharacter, boolean alive) {
         this(name, emailID, gameCharacter, alive, InvitationStatus.UNDEFINED);
     }
@@ -80,7 +81,7 @@ public class Player {
         return new Player();
     }
 
-    public static Player getDummyPlayer_A() {
+    public static Player getDummyColoredPlayer() {
         ++counter;
         InvitationStatus status = InvitationStatus.UNDEFINED;
         if (counter%4 == 0)

@@ -35,7 +35,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         } else if (action.equals(BroadcastHelper.GAME_START)) {
             //if user is not logged in, then he will not receive any notification
             SharedPreferences sharedPreferences = context.getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
-            if (sharedPreferences.getBoolean(LogInActivity.IS_USER_LOGGED_IN, false)) {
+            if (!sharedPreferences.getBoolean(LogInActivity.IS_USER_LOGGED_IN, false)) {
                 String player = intent.getStringExtra(BroadcastHelper.SENDER);
                 String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
                 FirebaseHelper.sendPlayerNotLoggedInResponse(player, admin);
@@ -54,7 +54,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
 
         mBuilder.setSmallIcon(R.drawable.common_google_signin_btn_icon_dark);
         mBuilder.setContentTitle("Assassin Invitation !");
-        mBuilder.setContentText("Please join me. From - " + intent.getStringExtra(BroadcastHelper.ADMIN)); // TODO: 3/18/2017 show sender name
+        mBuilder.setContentText("Please join me. From - " + intent.getStringExtra(BroadcastHelper.ADMIN));
         mBuilder.setAutoCancel(true);
 
         //Accept intent
@@ -67,7 +67,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Accept", pendingIntentYes);
 
         //Reject intent
-        Intent noReceive = new Intent();
+        Intent noReceive = new Intent(context, PlayBoardActivity.class);
         noReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
         noReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.DECLINED);
         noReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));

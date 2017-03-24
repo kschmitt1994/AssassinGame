@@ -1,14 +1,16 @@
 package mobileappdev.assassingame;
 
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +18,14 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,12 +37,14 @@ public class NewGameActivity extends AppCompatActivity {
 
     private EditText mGameTitleET;
     private Button mProceedButton;
+    private Spinner mProgressDialog;
+    private Context _this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_game);
-
+        _this = this;
         mGameTitleET = (EditText)findViewById(R.id.game_title_TF);
         mGameTitleET.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
@@ -44,52 +56,22 @@ public class NewGameActivity extends AppCompatActivity {
             }
         });
 
-        final RadioButton selectedRadioButton = getSelectedRadioButton();
-
         mProceedButton = (Button)findViewById(R.id.invite_players_button);
         mProceedButton.setEnabled(false);
         mProceedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String gameName = mGameTitleET.getText().toString().trim();
-                if (!validGameName(gameName)) {
-//                    gameTitleET.setTextColor(Color.RED);
-                    return;
-                }
-
-                Game gameInstance = Game.getInstance();
-                gameInstance.setGameName(gameName);
-                gameInstance.setPublic(selectedRadioButton.getText().toString().contains("Public"));
-                gameInstance.setGameAdmin(getMyUserName());
-                startActivity(new Intent(NewGameActivity.this, InvitePlayersActivity.class));
+                mProgressDialog = new Spinner(_this);
+                mProgressDialog.show("Validation", "Validating game name. Please wait...", false);
+                fetchAllGameNames();
             }
         });
-
-//        Button cancelButton = (Button)findViewById(R.id.cancel_game);
-//        cancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startActivity(new Intent(NewGameActivity.this, MainActivity.class));
-//            }
-//        });
-
-//        Button createButton = (Button)findViewById(R.id.create_game);
-//        createButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                FirebaseHelper.setGamePublic(mGameTitleET.getText().toString());
-////                Game gameInstance = Game.getInstance(getApplicationContext());
-////                gameInstance.setGameName(mGameTitleET.getText().toString());
-//                //startActivity(new Intent(NewGameActivity.this, GameBoardActivity.class));
-//            }
-//        });
 
     }
 
     @NonNull
     private String getMyUserName() {
-        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity. MY_PREFERENCES, Context.MODE_PRIVATE);
         return sharedPreferences.getString(LogInActivity.USER_NAME, "undefined");
     }
 
@@ -99,13 +81,51 @@ public class NewGameActivity extends AppCompatActivity {
         return (RadioButton) findViewById(selectedId);
     }
 
-    private boolean validGameName(String gameName) {
-        List<String> allGameNames = FirebaseHelper.getAllGameNames();
+    public void fetchAllGameNames() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference();
+        Query gameQuery = ref.child("games");
+        final List<String> gameNames = new ArrayList<String>();
+
+        gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
+                    gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
+                }
+                mProgressDialog.dismiss();
+                validateAndSetData(gameNames);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(NewGameActivity.class.getSimpleName(), "loadGames:onCancelled", databaseError.toException());
+            }
+        });
+
+    }
+
+
+    private void validateAndSetData(List<String> allGameNames) {
+        String gameName = mGameTitleET.getText().toString().trim();
+
         if (allGameNames.contains(gameName)) {
-            Toast.makeText(this, "Game already exists. Please Choose a different name..",
-                    Toast.LENGTH_SHORT).show();
-            return false;
+            Toast.makeText(this, "Game already exists. Please Choose a different name..", Toast.LENGTH_SHORT).show();
+            return;
         }
-        return true;
+
+        Game gameInstance = Game.getInstance();
+        gameInstance.setGameName(gameName);
+        gameInstance.setPublic(getSelectedRadioButton().getText().toString().contains("Public"));
+        gameInstance.setGameAdmin(getMyUserName());
+
+        startActivity(new Intent(NewGameActivity.this, InvitePlayersActivity.class));
+//        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

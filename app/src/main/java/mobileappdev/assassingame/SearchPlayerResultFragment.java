@@ -29,13 +29,15 @@ public class SearchPlayerResultFragment extends Fragment {
     private DatabaseHandler mDatabaseHandler;
     private ListView mListView;
     private ArrayAdapter<String> mAdapter;
-    ArrayList<String> mItems;
+    private ArrayList<String> mItems;
+    private ArrayList<String> players2Invite;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mItems = new ArrayList<>();
+        players2Invite = new ArrayList<>();
         mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
     }
 
@@ -66,12 +68,13 @@ public class SearchPlayerResultFragment extends Fragment {
                 String playerName = (String) parent.getAdapter().getItem(position);
                 Toast.makeText(getActivity(), playerName + " is added!", Toast.LENGTH_SHORT).show();
 
-                Game instance = Game.getInstance();
-                Player searchedPlayer = instance.getSearchedPlayer().get(position);
-                mDatabaseHandler.addPlayer(searchedPlayer);
-                FirebaseHelper.sendInvite(searchedPlayer.getName(), Game.getInstance().getGameName(), Game.getInstance().getGameAdmin());
+                List<Player> searchedResults = Game.getInstance().getSearchedPlayer();
+                Player addedPlayer = searchedResults.get(position);
+                searchedResults.remove(position);
+                mDatabaseHandler.addPlayer(addedPlayer);
 
-                mItems.remove(searchedPlayer.getName());
+                players2Invite.add(addedPlayer.getName());
+                mItems.remove(addedPlayer.getName());
                 mAdapter.notifyDataSetChanged();
 
                 mListener.update();
@@ -106,8 +109,8 @@ public class SearchPlayerResultFragment extends Fragment {
                 mItems.add(player.getName());
             }
         } else {
-            Log.i("GAME", "Search result empty.");
-            Toast.makeText(getContext(), "Search result is empty", Toast.LENGTH_SHORT).show();
+            Log.i("GAME", "No search result!");
+            Toast.makeText(getContext(), "Empty Result!", Toast.LENGTH_SHORT).show();
         }
         mAdapter.notifyDataSetChanged();
     }
@@ -132,5 +135,13 @@ public class SearchPlayerResultFragment extends Fragment {
         for (View v : components) {
             v.setVisibility(visibility);
         }
+    }
+
+    public List<String> getPlayers2Invite() {
+        return players2Invite;
+    }
+
+    public void resetPlayers2Invite() {
+        players2Invite = new ArrayList<>();
     }
 }

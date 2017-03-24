@@ -102,12 +102,12 @@ public class InvitedPlayersFragment extends Fragment {
 
         IPHolder(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
+            /*itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(getActivity(), "Oops !!", Toast.LENGTH_LONG).show();
                 }
-            });
+            });*/
             mNameTextView = (TextView) itemView.findViewById(R.id.player_name);
             mRemoveButton = (Button) itemView.findViewById(R.id.remove_button);
             mRemoveButton.setOnClickListener(new View.OnClickListener() {
