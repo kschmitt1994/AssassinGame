@@ -3,10 +3,15 @@ package mobileappdev.assassingame;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
-public class FirebaseService extends Service {
+public class FirebaseService extends FirebaseInstanceIdService {
 
     /*
      * This service will primarily be tasked with delivering messages and notifications to users
@@ -21,15 +26,23 @@ public class FirebaseService extends Service {
      * logic is described in the FirebaseHelper class.
      */
 
-    public FirebaseService() {
+    @Override
+    public void onTokenRefresh() {
+        // Get updated InstanceID token.
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d("FirebaseService", "Refreshed token: " + refreshedToken);
 
-        // FirebaseDatabase f =
+        // Here we are pushing the token to Firebase.
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference deviceRef = database.getReference("users/" +
+                FirebaseAuth.getInstance().getCurrentUser().getDisplayName() + "/devices");
+        DatabaseReference newDeviceRef = deviceRef.push();
+
+        newDeviceRef.setValue(refreshedToken);
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public FirebaseService() {
+
     }
 }

@@ -16,6 +16,9 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import static mobileappdev.assassingame.LogInActivity.IS_USER_LOGGED_IN;
 import static mobileappdev.assassingame.LogInActivity.MY_PREFERENCES;

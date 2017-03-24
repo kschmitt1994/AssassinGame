@@ -69,7 +69,7 @@ public class SearchPlayerResultFragment extends Fragment {
                 Game instance = Game.getInstance();
                 Player searchedPlayer = instance.getSearchedPlayer().get(position);
                 mDatabaseHandler.addPlayer(searchedPlayer);
-                FirebaseHelper.sendInvite(searchedPlayer.getName(), Game.getInstance().getGameAdmin());
+                FirebaseHelper.sendInvite(searchedPlayer.getName(), Game.getInstance().getGameName(), Game.getInstance().getGameAdmin());
 
                 mItems.remove(searchedPlayer.getName());
                 mAdapter.notifyDataSetChanged();
