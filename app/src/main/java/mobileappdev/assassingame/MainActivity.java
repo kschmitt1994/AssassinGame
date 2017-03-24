@@ -88,6 +88,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button statsButton = (Button)findViewById(R.id.stats);
+        statsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, StatsActivity.class));
+
+            }
+        });
+
         Button joinGameButton = (Button)findViewById(R.id.join_game);
         joinGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
