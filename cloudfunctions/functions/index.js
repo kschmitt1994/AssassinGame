@@ -172,8 +172,59 @@ exports.sendInviteResponse = functions.database
  * particular game. It is triggered when the game status is set to 'STARTED',
  * and informs the users that the game they've joined has begun.
  */
-exports.sendGameStartMessage = functions.https.onRequest((request, response) => {
-  // Logic for sendGameStartMessage goes here
+exports.sendGameStartMessage =  functions.database
+  .ref('games/{gameID}/status').onWrite(event => {
+
+    const gameID = event.params.gameID;
+    if (!event.data.val()) {
+      return console.log('No game status info');
+    } else {
+      const status = event.data.val();
+      if (status == 'started' || status == 'STARTED') {
+        const gamePlayerPromise = admin.database()
+          .ref(`games/${gameID}/players`).once('value');
+
+          return Promise.all([gamePlayerPromise]).then(results => {
+            const gamePlayersSnapshot = results[0];
+            console.log(`${gamePlayersSnapshot.length} players found`);
+            for (let player of gamePlayersSnapshot) {
+              const getPlayerDeviceToken = admin.database()
+                .ref(`users/${player.val()}/device`).once('value');
+              return Promise.all([getPlayerDeviceToken]).then(results => {
+                const gameAdminDeviceToken = results[0];
+
+                // Notification details.
+                const payload = {
+                  notification: {
+                    body: `${gameID} has started!`
+                  }
+                };
+
+                // Listing all tokens.
+                const tokens = Object.keys(gameAdminDeviceToken.val());
+
+                // Send notifications to all tokens.
+                return admin.messaging().sendToDevice(tokens, payload).then(response => {
+                  // For each message check if there was an error.
+                  const tokensToRemove = [];
+                  response.results.forEach((result, index) => {
+                    const error = result.error;
+                    if (error) {
+                      console.error('Failure sending notification to', tokens[index], error);
+                      // Cleanup the tokens who are not registered anymore.
+                      if (error.code === 'messaging/invalid-registration-token' ||
+                          error.code === 'messaging/registration-token-not-registered') {
+                        tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
+                      }
+                    }
+                  });
+                return Promise.all(tokensToRemove);
+              });
+          });
+        } // end for loop
+      });
+    }
+  }
 });
 
 /**
