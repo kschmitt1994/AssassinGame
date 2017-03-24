@@ -1,5 +1,6 @@
 package mobileappdev.assassingame;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -183,8 +184,8 @@ public class ChatFragment extends Fragment {
 
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        // Set default username is anonymous.
-        mUsername = ANONYMOUS;
+
+        mUsername = getMyUserName();
 
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                 .enableAutoManage((FragmentActivity) getActivity() /* FragmentActivity */, new GoogleApiClient.OnConnectionFailedListener() {
@@ -263,6 +264,12 @@ public class ChatFragment extends Fragment {
                         applyRetrievedLengthLimit();
                     }
                 });
+    }
+
+    @NonNull
+    private String getMyUserName() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+        return sharedPreferences.getString(LogInActivity.USER_NAME, "undefined");
     }
 
 

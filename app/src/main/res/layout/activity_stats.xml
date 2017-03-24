@@ -19,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/user_name"
+            android:paddingRight="30dp"
             android:layout_row="0"
             android:layout_column="0"/>
 
@@ -37,6 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/wins"
+
             android:layout_row="1"
             android:layout_column="0"/>
 
