@@ -198,7 +198,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mGoogleMap.addMarker(marker);
     }
 
-    @NonNull //TODO:Ajit: need a legend info panel as a menu item to describe the colors
+    @NonNull //TODO: Ajit: need a legend info panel as a menu item to describe the colors
     private BitmapDescriptor getBitmapDescriptor(GameCharacter character) {
         switch (character) {
             case ASSASSIN:

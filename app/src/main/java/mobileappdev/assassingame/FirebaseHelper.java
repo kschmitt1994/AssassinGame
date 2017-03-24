@@ -274,8 +274,7 @@ public class FirebaseHelper {
     }
 
     public static List<String> getAllPlayerNames(String gameName) {
-        // TODO: 3/17/2017 return actual list
-        // TODO: 3/20/2017 What do we need this for?
+
         return new ArrayList<>();
     }
 
@@ -287,14 +286,12 @@ public class FirebaseHelper {
      * @param myself
      */
     public static void sendLocation(Location location, String gameName, String myself) {
-        // TODO: 3/18/2017 need to send location to all of the players of the given game
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myLocationRef = database.getReference("games/" + gameName + "/" + myself + "/location");
+        DatabaseReference myLocationRef = database.getReference("users/" + myself + "/location");
+        DatabaseReference latRef = myLocationRef.child("lat");
+        DatabaseReference lngRef = myLocationRef.child("lng");
 
-        String fmtLocation = Double.toString(location.getLatitude()) + " "
-                + Double.toString(location.getLongitude());
 
-        myLocationRef.setValue(fmtLocation);
 
     }
 
@@ -424,8 +421,8 @@ public class FirebaseHelper {
     }
 
     public static void updatePlayerStatus(String gameName, String playerName, PlayerStatus status, boolean shouldIncreaseCiviliansCounter) {
-        //TODO:Sam: update the player to be dead/alive/left
-        //TODO:Sam: decrease alive civlians counter only if the boolean flag is true,
+        // TODO: Sam: update the player to be dead/alive/left
+        // TODO: Sam: decrease alive civilians counter only if the boolean flag is true,
         // which represents no of civilians left (excluding detective). when it becomes zero, Assassin wins the game.
 
         String gamePlayerReference = "games/" + gameName + "/players/" + playerName + "/status";
@@ -521,14 +518,13 @@ public class FirebaseHelper {
         gameStatusRef.setValue("finished");
 
         DatabaseReference resultRef = database.getReference("games/" + gameName + "/result");
+        DatabaseReference assassinWonRef = database.getReference("games/" + gameName + "/assassinsWon");
 
-        // TODO: SAM: Store assassinWon
-
+        assassinWonRef.setValue(assassinWon);
         resultRef.setValue(description);
     }
 
     public static void newPlayerAddedUp(String userName, String gameName) {
-        //TODO:Sam: send this message to everyone in the game
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference gamePlayersRef = database.getReference("games/" + gameName + "/players");
         DatabaseReference newGamePlayerRef = gamePlayersRef.push();

@@ -200,7 +200,7 @@ exports.sendGameStartMessage =  functions.database
                 };
 
                 // Listing all tokens.
-                const tokens = Object.keys(gameAdminDeviceToken.val());
+                const tokens = gameAdminDeviceToken.val();
 
                 // Send notifications to all tokens.
                 return admin.messaging().sendToDevice(tokens, payload).then(response => {
