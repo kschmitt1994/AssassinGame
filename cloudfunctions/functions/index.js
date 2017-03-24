@@ -186,10 +186,9 @@ exports.sendGameStartMessage =  functions.database
 
           return Promise.all([gamePlayerPromise]).then(results => {
             const gamePlayersSnapshot = results[0];
-            console.log(`${gamePlayersSnapshot.length} players found`);
-            for (let player of gamePlayersSnapshot) {
+            for (let player in gamePlayersSnapshot.val()) {
               const getPlayerDeviceToken = admin.database()
-                .ref(`users/${player.val()}/device`).once('value');
+                .ref(`users/${player}/device`).once('value');
               return Promise.all([getPlayerDeviceToken]).then(results => {
                 const gameAdminDeviceToken = results[0];
 

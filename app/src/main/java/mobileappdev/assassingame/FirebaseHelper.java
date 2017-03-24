@@ -298,7 +298,7 @@ public class FirebaseHelper {
 
     }
 
-    
+
     public static void sendRejectionResponse(String gameName, String sender) {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
