@@ -279,15 +279,12 @@ public class FirebaseHelper {
 
 
     public static void sendLocation(Location location, String gameName, String myself) {
-        // TODO: 3/18/2017 need to send location to all of the players of the given game
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myLocationRef = database.getReference("games/" + gameName + "/" + myself + "/location");
+        String userLocation = "users/" + myself + "/location";
+        DatabaseReference myLocationRef = database.getReference(userLocation);
 
-        String fmtLocation = Double.toString(location.getLatitude()) + " "
-                + Double.toString(location.getLongitude());
-
-        myLocationRef.setValue(fmtLocation);
-
+        myLocationRef.child("lat").setValue(location.getLatitude());
+        myLocationRef.child("lng").setValue(location.getLongitude());
     }
 
 

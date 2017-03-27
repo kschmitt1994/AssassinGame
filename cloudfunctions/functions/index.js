@@ -132,6 +132,7 @@ exports.sendInviteResponse = functions.database
         .ref(`users/${adminUsernameSnapshot.val()}/device`).once('value');
       return Promise.all([getGameAdminDeviceToken]).then(results => {
         const gameAdminDeviceToken = results[0];
+        console.log("gameAdminDeviceToken.val() = " + gameAdminDeviceToken.val());
 
         var response;
         if (invitationResponseSnapshot.val() == 'accepted') {
