@@ -66,14 +66,30 @@
 
     </GridLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="48dp">
 
-   <Button
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/main_menu_button"
-       android:layout_margin="24dp"
-       android:layout_gravity="end"
-       android:textAlignment="viewEnd"
-       android:text="@string/main_menu"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/replay_button"
+            android:layout_margin="24dp"
+            android:layout_gravity="end"
+            android:textAlignment="viewEnd"
+            android:text="@string/replay"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/main_menu_button"
+            android:layout_margin="24dp"
+            android:layout_gravity="end"
+            android:textAlignment="viewEnd"
+            android:text="@string/main_menu"/>
+
+    </LinearLayout>
 
 </LinearLayout>
