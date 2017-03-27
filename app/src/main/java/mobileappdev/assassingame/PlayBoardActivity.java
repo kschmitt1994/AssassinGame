@@ -707,7 +707,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void checkIfGameIsOver(String gameName) {
             String gameReference = "games/" + gameName;
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
+            DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
 
             final StringBuffer aliveCivilians = new StringBuffer();
 

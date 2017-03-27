@@ -132,6 +132,7 @@ exports.sendInviteResponse = functions.database
         .ref(`users/${adminUsernameSnapshot.val()}/device`).once('value');
       return Promise.all([getGameAdminDeviceToken]).then(results => {
         const gameAdminDeviceToken = results[0];
+        console.log("gameAdminDeviceToken = " + Object.keys(gameAdminDeviceToken));
         console.log("gameAdminDeviceToken.val() = " + gameAdminDeviceToken.val());
 
         var response;
@@ -155,7 +156,7 @@ exports.sendInviteResponse = functions.database
         };
 
         // Listing all tokens.
-        const tokens = Object.keys(gameAdminDeviceToken.val());
+        const tokens = Object.keys(gameAdminDeviceToken);
 
         // Send notifications to all tokens.
         return admin.messaging().sendToDevice(tokens, payload).then(response => {
