@@ -18,6 +18,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -71,8 +73,16 @@ public class NewGameActivity extends AppCompatActivity {
 
     @NonNull
     private String getMyUserName() {
-        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity. MY_PREFERENCES, Context.MODE_PRIVATE);
-        return sharedPreferences.getString(LogInActivity.USER_NAME, "undefined");
+//        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity. MY_PREFERENCES, Context.MODE_PRIVATE);
+//        return sharedPreferences.getString(LogInActivity.USER_NAME, "undefined");
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            // Name, email address, and profile photo Url
+            return user.getDisplayName();
+        }
+
+        return "Error";
     }
 
     private RadioButton getSelectedRadioButton() {

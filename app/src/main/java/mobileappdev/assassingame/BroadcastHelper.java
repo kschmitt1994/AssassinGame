@@ -23,5 +23,5 @@ public class BroadcastHelper {
     public static final String PLAYER_NAME = "playerName";
     public static final String GAME_STARTED = "gameStarted";
     public static final String ON_GAME_REQUEST = "onGameRequest";
-    public static final String INVITATION_RESPONSE = "inviation_response";
+    public static final String INVITATION_RESPONSE = "invitation_response";
 }

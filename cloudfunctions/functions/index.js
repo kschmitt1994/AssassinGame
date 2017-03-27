@@ -16,7 +16,7 @@ admin.initializeApp(functions.config().firebase);
  * in the Firebase console and you are greeted with the text below.
  */
 exports.helloWorld = functions.https.onRequest((request, response) => {
-  response.send("Hello from Firebase!");
+  response.send('Hello from Firebase!');
 });
 
 /**
@@ -47,7 +47,7 @@ exports.sendInvite = functions.database
   }
 
   // Just for our records
-  console.log(inviterID + " has invited " + inviteeID + ' to ' + gameID);
+  console.log(inviterID + ' has invited ' + inviteeID + ' to ' + gameID);
 
   // Get the list of device notification tokens.
   const getDeviceTokensPromise = admin.database()
@@ -65,9 +65,15 @@ exports.sendInvite = functions.database
 
     // Notification details.
     const payload = {
-      notification: {
-        title: 'You\'ve been invited to play Assassin!',
-        body: `${inviterID} would like you to join their game, ${gameID}`
+    //   notification: {
+    //     title: 'You\'ve been invited to play Assassin!',
+    //     body: `${inviterID} would like you to join their game, ${gameID}`
+    //   },
+      data : {
+        type: "invitation",
+        sender: inviterID,
+        receiver: inviteeID,
+        game: gameID
       }
     };
 
@@ -128,9 +134,9 @@ exports.sendInviteResponse = functions.database
         const gameAdminDeviceToken = results[0];
 
         var response;
-        if (invitationResponseSnapshot.val() == "accepted") {
+        if (invitationResponseSnapshot.val() == 'accepted') {
           response = `${invitedID} accepted your invitation to join ${gameID}.`;
-        } else if (invitationResponseSnapshot.val() == "declined") {
+        } else if (invitationResponseSnapshot.val() == 'declined') {
           response = `${invitedID} declined your invitation to join ${gameID}.`;
         } else {
           return console.log('Invalid response from player');
@@ -237,7 +243,7 @@ exports.newPlayerAddedUp = functions.database
   const gameID = event.params.gameID;
 
   if (!event.data.val()) {
-    return console.log("Player removed");
+    return console.log('Player removed');
   }
 
   const newPlayerName = event.data.val();
@@ -248,21 +254,21 @@ exports.newPlayerAddedUp = functions.database
     return Promise.all([gamePlayerPromise]).then(results => {
       const gamePlayersSnapshot = results[0];
       for (let player in gamePlayersSnapshot.val()) {
-        // console.log("player: " + player);
-        // console.log("newPlayerName: " + Object.keys(newPlayerName));
+        // console.log('player: ' + player);
+        // console.log('newPlayerName: ' + Object.keys(newPlayerName));
         // console.log(gamePlayersSnapshot.val());
         if (newPlayerName[player]) {
-          // console.log("PLAYER THAT IS NOT NEW PLAYER: " + player);
+          // console.log('PLAYER THAT IS NOT NEW PLAYER: ' + player);
           const getPlayerDeviceToken = admin.database()
             .ref(`users/${player}/device`).once('value');
           return Promise.all([getPlayerDeviceToken]).then(results => {
             const gamePlayerDeviceTokens = results[0];
-            // console.log("THE NEXT ELEMENT SHOULD BE THE ONE THING THAT SHOULD WORK");
-            // console.log("gamePlayerDeviceTokens: " + gamePlayerDeviceTokens);
-            // console.log("gamePlayerDeviceTokens[keys]: " + Object.keys(gamePlayerDeviceTokens));
-            // console.log("gamePlayerDeviceTokens[A]: " + gamePlayerDeviceTokens['A']);
-            // console.log("gamePlayerDeviceTokens[V]: " + gamePlayerDeviceTokens['V']);
-            // console.log("gamePlayerDeviceTokens[g]: " + gamePlayerDeviceTokens['g']);
+            // console.log('THE NEXT ELEMENT SHOULD BE THE ONE THING THAT SHOULD WORK');
+            // console.log('gamePlayerDeviceTokens: ' + gamePlayerDeviceTokens);
+            // console.log('gamePlayerDeviceTokens[keys]: ' + Object.keys(gamePlayerDeviceTokens));
+            // console.log('gamePlayerDeviceTokens[A]: ' + gamePlayerDeviceTokens['A']);
+            // console.log('gamePlayerDeviceTokens[V]: ' + gamePlayerDeviceTokens['V']);
+            // console.log('gamePlayerDeviceTokens[g]: ' + gamePlayerDeviceTokens['g']);
 
 
             // Notification details.

@@ -53,26 +53,30 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
 
         mBuilder.setSmallIcon(R.drawable.common_google_signin_btn_icon_dark);
-        mBuilder.setContentTitle("Assassin Invitation !");
-        mBuilder.setContentText("Please join me. From - " + intent.getStringExtra(BroadcastHelper.ADMIN));
+        mBuilder.setContentTitle("Join my game of Assassin!");
+        mBuilder.setContentText(intent.getStringExtra(BroadcastHelper.ADMIN) + " wants you to join their game, " + intent.getStringExtra(BroadcastHelper.GAME_NAME));
         mBuilder.setAutoCancel(true);
 
         //Accept intent
         Intent yesReceive = new Intent(context, PlayBoardActivity.class);
         yesReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
-        yesReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.ACCEPTED);
+        yesReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, "ACCEPTED");
         yesReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));
         yesReceive.putExtra(BroadcastHelper.PLAYER_NAME, intent.getStringExtra(BroadcastHelper.PLAYER_NAME));
+        yesReceive.putExtra(BroadcastHelper.GAME_NAME, intent.getStringExtra(BroadcastHelper.GAME_NAME));
         PendingIntent pendingIntentYes = PendingIntent.getActivity(context, 12345, yesReceive, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Accept", pendingIntentYes);
 
         //Reject intent
         Intent noReceive = new Intent(context, PlayBoardActivity.class);
         noReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
-        noReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.DECLINED);
+        noReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, "DECLINED");
         noReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));
         noReceive.putExtra(BroadcastHelper.PLAYER_NAME, intent.getStringExtra(BroadcastHelper.PLAYER_NAME));
-        PendingIntent pendingIntentNo = PendingIntent.getActivity(context, 12345, noReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        noReceive.putExtra(BroadcastHelper.GAME_NAME, intent.getStringExtra(BroadcastHelper.GAME_NAME));
+
+        // NOTE: I had to change the number literal; this has to be unique for every pending activity.
+        PendingIntent pendingIntentNo = PendingIntent.getActivity(context, 12346, noReceive, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Decline", pendingIntentNo);
 
 

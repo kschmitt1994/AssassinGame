@@ -59,7 +59,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private static final int LOCATION_PERMISSION_REQUEST_ID = 123;
     private LocationManager mLocationManager;
-    private Location mLocation;
+    private Location mLocation = new Location("PlayBoard");
     private GoogleMap mGoogleMap;
     private String mMyself = "ANONYMOUS";
     private String mGameName;
@@ -72,7 +72,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private Spinner mSpinner;
     private MyReceiver mMyReceiver;
-    private List<String> mPlayerNames;
+    private List<String> mPlayerNames = new ArrayList<>();
     private Map<String, Player> mPlayersMap;
     private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
 
@@ -90,6 +90,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         _this = this;
         mSpinner = new Spinner(this);
         mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
+        mLocation.setLatitude(0.0);
+        mLocation.setLongitude(0.0);
 
         updateUserName();
 
@@ -100,11 +102,58 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         } else if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
             String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
-            if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
-                FirebaseHelper.sendAcceptResponse(player, admin);
+            Log.d("FIREBASE BROADCAST", "gameReqResponse: " + gameReqResponse);
+            Log.d("FIREBASE EXTRAS", intent.getExtras().toString());
+            if (InvitationStatus.ACCEPTED.toString().equals(InvitationStatus.getStatusFrom(gameReqResponse).toString())) {
+
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                String invitesUrl = "games/" + mGameName + "/invites/" + player;
+                String playerUrl = "games/" + mGameName + "/players/" + player;
+                String userUrl = "users/" + player;
+
+                mPlayerNames.add(player);
+
+                DatabaseReference playerRef = database.getReference(playerUrl);
+                playerRef.child("status").setValue(PlayerStatus.ALIVE.toString());
+                playerRef.child("invite").setValue(InvitationStatus.ACCEPTED.toString());
+                playerRef.child("role").setValue(GameCharacter.UNDEFINED.toString());
+
+                // DatabaseReference userRef = database.getReference(userUrl);
+
+                DatabaseReference inviteResponseRef = database.getReference(invitesUrl);
+                inviteResponseRef.setValue("accepted");
+
+                // Update location monitor to show that we exist
+                String gameReference = "games/" + mGameName + "/";
+                DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor");
+
+                locationRef.setValue(Math.random());
+
             } else {
-                FirebaseHelper.sendRejectionResponse(player, admin);
+//                FirebaseHelper.sendRejectionResponse(player, admin);
+                Log.d("FIREBASE BROADCAST", "Game request was false");
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                String playerUrl = "games/" + mGameName + "/players/" + player;
+                String userUrl = "users/" + player;
+
+                DatabaseReference playerRef = database.getReference(playerUrl);
+//                playerRef.child("status").setValue(PlayerStatus.ALIVE.toString());
+                playerRef.child("invite").setValue(InvitationStatus.DECLINED.toString());
+//                playerRef.child("role").setValue(GameCharacter.UNDEFINED.toString());
+
+                String invitesUrl = "games/" + mGameName + "/invites/" + player;
+                DatabaseReference inviteResponseRef = database.getReference(invitesUrl);
+                inviteResponseRef.setValue("declined");
+
+                // DatabaseReference userRef = database.getReference(userUrl);
+
+                // Update location monitor to show that we exist
+//                String gameReference = "games/" + mGameName + "/";
+//                DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor");
+
+//                locationRef.setValue(Math.random());
                 return;
             }
         }
@@ -401,8 +450,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void initialGoogleMapCameraUpdate() {
         if (mGoogleCameraUpdateDone) return;
 
-        LatLng itemPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
-        LatLng myPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
+        Location temp = new Location("");
+        temp.setLatitude(0.0);
+        temp.setLongitude(0.0);
+        LatLng itemPoint = new LatLng(temp.getLatitude(), temp.getLongitude());
+        LatLng myPoint = new LatLng(temp.getLatitude(), temp.getLongitude());
         LatLngBounds bounds = new LatLngBounds.Builder().include(itemPoint).include(myPoint).build();
         final int margin = getResources().getDimensionPixelSize(R.dimen.map_inset_margin);
         CameraUpdate update = CameraUpdateFactory.newLatLngBounds(bounds, margin);

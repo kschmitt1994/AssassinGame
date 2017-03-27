@@ -60,8 +60,11 @@ public class FirebaseHelper {
         }
 
         // Adding player names to our newly-created game!
-        DatabaseReference newPlayerRef = playersRef.push();
-        newPlayerRef.setValue(newGame.getGameAdmin());
+        DatabaseReference gameAdminRef = database.getReference(gameReference + "/players/" + newGame.getGameAdmin());
+        gameAdminRef.child("role").setValue(GameCharacter.UNDEFINED);
+        gameAdminRef.child("status").setValue(PlayerStatus.ALIVE);
+        gameAdminRef.child("invite").setValue(InvitationStatus.UNDEFINED);
+
     }
 
     /**

@@ -33,6 +33,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.android.gms.auth.api.Auth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -185,7 +187,10 @@ public class ChatFragment extends Fragment {
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        mUsername = getMyUserName();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            mUsername = user.getDisplayName();
+        }
 
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                 .enableAutoManage((FragmentActivity) getActivity() /* FragmentActivity */, new GoogleApiClient.OnConnectionFailedListener() {
