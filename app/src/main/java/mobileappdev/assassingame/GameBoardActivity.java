@@ -50,10 +50,16 @@ public class GameBoardActivity extends AppCompatActivity {
         mFragment2 = (InvitedPlayersFragment) fm.findFragmentById(R.id.fragment_game_players);
         if (mFragment2 == null) {
             mFragment2 = new InvitedPlayersFragment();
-            fm.beginTransaction()
-                    .add(R.id.fragment_game_players, mFragment2)
-                    .commit();
+            fm.beginTransaction().add(R.id.fragment_game_players, mFragment2).commit();
         }
+
+        Button cancelButton = (Button) findViewById(R.id.cancel_game);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelGameCreation();
+            }
+        });
 
         mCreateGameButton = (Button) findViewById(R.id.create_game);
         mCreateGameButton.setEnabled(shouldEnableCreateButton());
@@ -65,10 +71,15 @@ public class GameBoardActivity extends AppCompatActivity {
         });
     }
 
-    private boolean shouldEnableCreateButton() {
-//        return getNoOfPlayersInGame(this) >= MINIMUM_PLAYERS_NEEDED;
+    private void cancelGameCreation() {
+        FirebaseHelper.deleteGame(Game.getInstance().getGameName());
+        startActivity(new Intent(GameBoardActivity.this, MainActivity.class));
+        finish();
+    }
 
+    private boolean shouldEnableCreateButton() {
         return true;
+//        return getNoOfPlayersInGame(this) >= MINIMUM_PLAYERS_NEEDED;
     }
 
     @Override
@@ -91,11 +102,15 @@ public class GameBoardActivity extends AppCompatActivity {
     }
 
     private void createGame() {
-         FirebaseHelper.createGame(Game.getInstance());
-         FirebaseHelper.sendGameStartMessage(Game.getInstance().getGameName());
-         Intent intent = new Intent(GameBoardActivity.this, PlayBoardActivity.class);
-         intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
-         startActivity(intent);
+        FirebaseHelper.createGame(Game.getInstance());
+        FirebaseHelper.sendGameStartMessage(Game.getInstance().getGameName());
+
+        Intent intent = new Intent(GameBoardActivity.this, PlayBoardActivity.class);
+        intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
+        intent.putExtra(BroadcastHelper.GAME_STARTED, true);
+        startActivity(intent);
+
+        finish();
     }
 
 

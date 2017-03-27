@@ -1,7 +1,8 @@
 package mobileappdev.assassingame;
 
 /**
- * Created by Ajit Ku. Sahoo on 3/14/2017.
+ * @author: Ajit Ku. Sahoo
+ * @Date: 3/13/2017
  */
 
 public interface SearchOpListener {

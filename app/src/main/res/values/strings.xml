@@ -33,8 +33,9 @@
     <string name="proceed">Proceed</string>
     <string name="players_to_invite">Players To Invite</string>
     <string name="search_results">Search Results</string>
-
-    <color name="dark_gray">#444444</color>
+    <string name="wins">Wins</string>
+    <string name="losses">Losses</string>
     <string name="title_activity_join_game">Join a Public Game</string>
     <string name="title_activity_my_games">My Games</string>
+    <string name="invite_proceed"><![CDATA[Invite & Proceed]]></string>
 </resources>

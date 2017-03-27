@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -15,6 +16,8 @@ import android.widget.Button;
 
 public class InvitePlayersActivity extends AppCompatActivity implements SearchOpListener, InvitedPlayerListChangeListener {
 
+    private SearchPlayerResultFragment mSPRFragment;
+    private InvitedPlayersFragment mIPFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,56 +25,68 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
         setContentView(R.layout.abc);
 
         FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.frameLayout);
-        if (fragment == null) {
-            fragment = new SearchPlayerFragment();
-            fm.beginTransaction()
-                    .add(R.id.frameLayout, fragment)
-                    .commit();
+        SearchPlayerFragment SPFragment = (SearchPlayerFragment) fm.findFragmentById(R.id.frameLayout);
+        if (SPFragment == null) {
+            SPFragment = new SearchPlayerFragment();
+            fm.beginTransaction().add(R.id.frameLayout, SPFragment).commit();
         }
 
-        Fragment fragment1 = fm.findFragmentById(R.id.frameLayout2);
-        if (fragment1 == null) {
-            fragment1 = new SearchPlayerResultFragment();
-            fm.beginTransaction()
-                    .add(R.id.frameLayout2, fragment1)
-                    .commit();
+        mSPRFragment = (SearchPlayerResultFragment) fm.findFragmentById(R.id.frameLayout2);
+        if (mSPRFragment == null) {
+            mSPRFragment = new SearchPlayerResultFragment();
+            fm.beginTransaction().add(R.id.frameLayout2, mSPRFragment).commit();
         }
 
-        Fragment fragment2 = fm.findFragmentById(R.id.frameLayout3);
-        if (fragment2 == null) {
-            fragment2 = new InvitedPlayersFragment();
-            fm.beginTransaction()
-                    .add(R.id.frameLayout3, fragment2)
-                    .commit();
+        mIPFragment = (InvitedPlayersFragment) fm.findFragmentById(R.id.frameLayout3);
+        if (mIPFragment == null) {
+            mIPFragment = new InvitedPlayersFragment();
+            fm.beginTransaction().add(R.id.frameLayout3, mIPFragment).commit();
         }
 
-        Button proceedButton = (Button) findViewById(R.id.proceed1);
+        Button cancelButton = (Button) findViewById(R.id.cancel_game);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelGameCreation();
+            }
+        });
+
+        Button proceedButton = (Button) findViewById(R.id.invite);
         proceedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                proceed();
+                inviteAndProceed();
             }
         });
     }
 
-    private void proceed() {
+    private void cancelGameCreation() {
+        FirebaseHelper.deleteGame(Game.getInstance().getGameName());
+        startActivity(new Intent(InvitePlayersActivity.this, MainActivity.class));
+        finish();
+    }
+
+    private void inviteAndProceed() {
+        Game instance = Game.getInstance();
+        FirebaseHelper.sendInvite(mSPRFragment.getPlayers2Invite(), instance.getGameName(), instance.getGameAdmin());
+        Toast.makeText(InvitePlayersActivity.this, "Sending invites...", Toast.LENGTH_SHORT).show();
+        mSPRFragment.resetPlayers2Invite();
         startActivity(new Intent(InvitePlayersActivity.this, GameBoardActivity.class));
+        finish();
     }
 
     @Override
     public void updateSearchResult() {
-        SearchPlayerResultFragment fragment =
-                (SearchPlayerResultFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.frameLayout2);
-        fragment.update();
+        mSPRFragment.update();
     }
 
     @Override
     public void update() {
-        InvitedPlayersFragment fragment =
-                (InvitedPlayersFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.frameLayout3);
-        fragment.update();
+        mIPFragment.update();
+    }
+
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
     }
 }

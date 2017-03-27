@@ -127,12 +127,13 @@ public class FirebaseHelper {
         ref.setValue("public");
     }
 
+    //Ajit - check NewGameActivity#fetchAllGameNames()
     /**
      * Returns all game names from our Firebase backend.
      *
      * @return a list of strings referring to unique game names.
      */
-    public static List<String> getAllGameNames() {
+   /* public static List<String> getAllGameNames() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
         Query gameQuery = ref.child("games");
@@ -141,7 +142,7 @@ public class FirebaseHelper {
         gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot gameSnapshot : dataSnapshot.getChildren()) {
+                for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
                     gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
                 }
             }
@@ -156,29 +157,30 @@ public class FirebaseHelper {
 
         return gameNames;
     }
+*/
 
-
-    public static void sendInvite(String player, String gameName, String admin) {
-        // TODO: 3/17/2017 broadcast the msg
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference inviteRef =
-                database.getReference("users/" + player + "/invites/" + admin + "/" + gameName);
-        DatabaseReference newInviteRef = inviteRef.push();
-
-        newInviteRef.setValue(Long.toString(System.currentTimeMillis()));
-    }
+   public static void sendInvite(List<String> players, String gameName, String admin) {
+       FirebaseDatabase database = FirebaseDatabase.getInstance();
+       String currTime = Long.toString(System.currentTimeMillis());
+       for (String player : players) {
+           DatabaseReference inviteRef =
+                   database.getReference("users/" + player + "/invites/" + admin + "/" + gameName);
+           DatabaseReference newInviteRef = inviteRef.push();
+           newInviteRef.setValue(currTime);
+       }
+   }
 
     /**
      * Find a player based on their email address. Note: the result must be an exact match in
      * order to protect the privacy of our users. ALSO NOTE: We are doing some silly formatting
      * of the email because Firebase keys cannot contain certain characters (like '.').
-     * <p>
+     *
      * TODO: SAM Push formatted email to "emails/" to facilitate search. See SignUpPage.
      *
      * @param emailID: email address of player we are looking for
      * @return Newly-created Player object referring to queried user
      */
-    public static Player getPlayerByEmailID(String emailID) {
+    /*public static Player getPlayerByEmailID(String emailID) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
 
@@ -192,7 +194,7 @@ public class FirebaseHelper {
         gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
                     playerQueryResult.setEmailID(originalEmail);
                     playerQueryResult.setName(userSnapshot.getValue().toString());
                 }
@@ -209,7 +211,7 @@ public class FirebaseHelper {
         return playerQueryResult;
     }
 
-
+*/
     /**
      * Find a player based on their username. Note: unlike email addresses, this does not have
      * to be an exact match. It would be fairly easy to change that though.
@@ -217,7 +219,7 @@ public class FirebaseHelper {
      * @param userName: username snippet of player(s) we are looking for
      * @return List<Player>: Newly-created Player list containing the userName string
      */
-    public static List<Player> getPlayerListContainingUserName(String userName) {
+   // public static List<Player> getPlayerListContainingUserName(String userName) {
 
         /*
          * Our methodology here is to retrieve all names from Firebase and then search them
@@ -225,28 +227,26 @@ public class FirebaseHelper {
          * that will improve the UX.
          */
 
-        List<Player> playerList = new ArrayList<>();    // To store our player objects.
+       /* List<Player> playerList = new ArrayList<>();    // To store our player objects.
         List<String> allNames = getAllPlayerNames();    // Getting all the names from Firebase.
 
-        for (String name : allNames) {
-            if (name.contains(userName)) {
+        for (int i = 0; i < allNames.size(); i++) {
+            if (allNames.get(i).contains(userName)) {
                 // Here we are creating "default" player objects because we only need their names.
-                Player newPlayerResult = new Player(name, "", null, false);
-                // TODO:SAM: 3/23/17 add email, character type, alive, invitation status to the player object
+                Player newPlayerResult = new Player(allNames.get(i), "", null, false);
                 playerList.add(newPlayerResult);
             }
         }
 
         return playerList;
-    }
+    }*/
 
 
     /**
      * Returns a list of all player names for the purpose of searching.
-     *
      * @return List<String> containing all user names.
      */
-    public static List<String> getAllPlayerNames() {
+    /*public static List<String> getAllPlayerNames() {
         final List<String> playerNames = new ArrayList<>();
         String usersReference = "users/";
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -272,19 +272,14 @@ public class FirebaseHelper {
 
         return playerNames;
     }
+    */
 
     public static List<String> getAllPlayerNames(String gameName) {
 
         return new ArrayList<>();
     }
 
-    /**
-     * Pushes your current location to the game's backend
-     *
-     * @param location
-     * @param gameName
-     * @param myself
-     */
+
     public static void sendLocation(Location location, String gameName, String myself) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myLocationRef = database.getReference("users/" + myself + "/location");
@@ -391,7 +386,8 @@ public class FirebaseHelper {
      * @param gameName: the game we want the players for
      * @return a map containing all the game player info
      */
-    public static Map<String, Player> getAllPlayers(String gameName) {
+    /*public static Map<String, Player> getAllPlayers(String gameName) {
+        //TODO:Sam: return all the players (playerName --> Player object) from firebase database for the given GameName
 
         final Map<String, Player> playerMap = new HashMap<>();
 
@@ -419,10 +415,11 @@ public class FirebaseHelper {
 
         return playerMap;
     }
-
-    public static void updatePlayerStatus(String gameName, String playerName, PlayerStatus status, boolean shouldIncreaseCiviliansCounter) {
-        // TODO: Sam: update the player to be dead/alive/left
-        // TODO: Sam: decrease alive civilians counter only if the boolean flag is true,
+*/
+    public static void updatePlayerStatus(String gameName, String playerName, PlayerStatus status,
+                                          boolean shouldUpdateCiviliansCounter) {
+        //TODO:Sam: update the player to be dead/alive/left
+        //TODO:Sam: decrease alive civlians counter only if the boolean flag is true,
         // which represents no of civilians left (excluding detective). when it becomes zero, Assassin wins the game.
 
         String gamePlayerReference = "games/" + gameName + "/players/" + playerName + "/status";
@@ -430,7 +427,7 @@ public class FirebaseHelper {
         DatabaseReference ref = database.getReference(gamePlayerReference);
         ref.setValue(status.toString());
 
-        if (shouldIncreaseCiviliansCounter) {
+        if (shouldUpdateCiviliansCounter) {
             increaseNoOfAliveCiviliansBy1(gameName);
         } else {
             decreaseNoOfAliveCiviliansBy1(gameName);
@@ -470,7 +467,7 @@ public class FirebaseHelper {
 
         playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(DataSnapshot dataSnapshot) { //todo:SAM: can we simplify so that we do only one write into firebase database
                 for (int i = 0; i < dataSnapshot.getChildrenCount(); i++) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         if (snapshot.child(snapshot.getKey()).child("role").toString().equals("civilian")) {
@@ -495,21 +492,44 @@ public class FirebaseHelper {
     public static void increaseNoOfAliveCiviliansBy1(String gameName) {
         String gameReference = "games/" + gameName;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
-        int numberAlive = getNoOfAliveCivilians(gameName);
+        final DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
 
-        // That was easy!
-        aliveRef.setValue(numberAlive + 1);
+        final StringBuffer aliveCivilians = new StringBuffer();
+
+        aliveRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                aliveCivilians.append(dataSnapshot.getValue());
+                aliveRef.setValue(Integer.parseInt(aliveCivilians.toString()) + 1);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("FirebaseHelper", "getNoOfAliveCivilians:onCancelled");
+            }
+        });
+
     }
 
     public static void decreaseNoOfAliveCiviliansBy1(String gameName) {
         String gameReference = "games/" + gameName;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
-        int numberAlive = getNoOfAliveCivilians(gameName);
+        final DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
 
-        // That was easy!
-        aliveRef.setValue(numberAlive - 1);
+        final StringBuffer aliveCivilians = new StringBuffer();
+
+        aliveRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                aliveCivilians.append(dataSnapshot.getValue());
+                aliveRef.setValue(Integer.parseInt(aliveCivilians.toString()) - 1);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("FirebaseHelper", "getNoOfAliveCivilians:onCancelled");
+            }
+        });
     }
 
     public static void updateGameStatus(String gameName, boolean assassinWon, String description) {
@@ -554,7 +574,7 @@ public class FirebaseHelper {
         DatabaseReference assassinRef = database.getReference(gamePlayers + "/" + assassin);
         assassinRef.child("role").setValue(GameCharacter.ASSASSIN.toString());
 
-        // Setting up the detective
+        // Setting up the detective1
         DatabaseReference detectiveRef = database.getReference(gamePlayers + "/" + detective);
         detectiveRef.child("role").setValue(GameCharacter.DETECTIVE.toString());
 
@@ -567,5 +587,9 @@ public class FirebaseHelper {
             DatabaseReference civilianRef = database.getReference(gamePlayers + "/" + citizenName);
             civilianRef.child("role").setValue(GameCharacter.CITIZEN.toString());
         }
+    }
+
+    public static void deleteGame(String gameName) {
+        //TODO:SAM:delete the game node from firebase database
     }
 }

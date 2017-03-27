@@ -23,6 +23,8 @@
         android:layout_marginLeft="17dp"
         android:layout_marginStart="17dp"
         android:layout_marginTop="5dp"
+        android:textStyle="bold"
+        android:textSize="15sp"
         android:text="@string/search_results" />
 
     <android.support.v4.widget.Space
@@ -51,6 +53,8 @@
         android:layout_alignStart="@+id/frameLayout2"
         android:layout_below="@+id/frameLayout2"
         android:layout_marginTop="5dp"
+        android:textStyle="bold"
+        android:textSize="15sp"
         android:text="@string/players_to_invite" />
 
     <android.support.v4.widget.Space
@@ -72,12 +76,22 @@
 
     </FrameLayout>
 
-    <Button
-        android:id="@+id/proceed1"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="@string/proceed" />
-
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/cancel_game"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="@string/cancel" />
+        <Button
+            android:id="@+id/invite"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="@string/invite_proceed" />
+    </LinearLayout>
 </RelativeLayout>

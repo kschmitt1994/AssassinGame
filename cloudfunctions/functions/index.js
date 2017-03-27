@@ -268,7 +268,10 @@ exports.newPlayerAddedUp = functions.database
             // Notification details.
             const payload = {
               notification: {
-                body: `${newPlayerName} has joined ${gameID}!`
+                body: `${newPlayerName} has joined ${gameID}!`,
+                data: {
+
+                }
               }
             };
 

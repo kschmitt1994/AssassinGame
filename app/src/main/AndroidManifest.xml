@@ -81,6 +81,15 @@
                 android:value="mobileappdev.assassingame.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".StatsActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="mobileappdev.assassingame.MainActivity" />
+        </activity>
+
         <service
             android:name=".FirebaseService"
             android:enabled="true"

@@ -12,7 +12,7 @@ public class BroadcastHelper {
     public static final String REJECT_ACTION = "mobileappdev.assassingame.Reject";
     public static final String INVITE_REQUEST = "mobileappdev.assassingame.InviteRequest";
     public static final String INVITE_RESPONSE = "mobileappdev.assassingame.InviteResponse";
-    public static final String NEW_PLAYER = "mobileappdev.assassingame.NewPlayer";
+    public static final String NEW_PLAYER_JOINED = "mobileappdev.assassingame.NewPlayerJoined";
     public static final String LOCATION_RECEIVED = "mobileappdev.assassingame.LocationReceived";
 
     public static final String ADMIN = "admin";
