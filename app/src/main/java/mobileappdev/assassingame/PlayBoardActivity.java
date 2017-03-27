@@ -798,10 +798,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
             } else if (!mIsAdminOfGame && action.equals(BroadcastHelper.NEW_PLAYER_JOINED)) {
                 String userName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
-                double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
+//                double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
                 if (FirebaseHelper.isGameStarted(mGameName)) {
                     mPlayerNames.add(userName);
-                    addMarker(userName, new LatLng(latlng[0], latlng[1]), mPlayersMap.get(userName));
+//                    addMarker(userName, new LatLng(latlng[0], latlng[1]), mPlayersMap.get(userName));
                 }
             }
         }
