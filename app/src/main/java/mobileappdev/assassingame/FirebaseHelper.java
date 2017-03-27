@@ -291,28 +291,28 @@ public class FirebaseHelper {
     }
 
 
-    public static void sendRejectionResponse(String gameName, String sender) {
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference inviteRef = database.getReference("games/" + gameName + "/invites/" + sender);
-        DatabaseReference inviteDeclineRef = inviteRef.push();
-
-        inviteDeclineRef.setValue("declined");
+    public static void sendRejectionResponse(String player, String gameName) {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        String invitesUrl = "games/" + gameName + "/invites/" + player;
+        DatabaseReference inviteResponseRef = database.getReference(invitesUrl);
+        inviteResponseRef.setValue("declined");
     }
 
     /**
-     * @param fromPlayer: The user that accepted the invitation.
+     * @param player: The user that accepted the invitation.
      * @param gameName:   The game that the user has accepted the invitation for
      */
-    public static void sendAcceptResponse(String fromPlayer, String gameName) {
-        // TODO: 3/18/2017 add the player to the game in firebase
-        // TODO: 3/18/2017 send acceptance response to the admin
+    public static void sendAcceptResponse(String player, String gameName) {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        String invitesUrl = "games/" + gameName + "/invites/" + player;
+        String playerUrl = "games/" + gameName + "/players/" + player;
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference inviteRef = database.getReference("games/" + gameName + "/invites/" + fromPlayer);
-        DatabaseReference inviteAcceptRef = inviteRef.push();
-
-        inviteAcceptRef.setValue("accepted");
+        DatabaseReference playerRef = database.getReference(playerUrl);
+        playerRef.child("status").setValue(PlayerStatus.ALIVE.toString());
+        playerRef.child("invite").setValue(InvitationStatus.ACCEPTED.toString());
+        playerRef.child("role").setValue(GameCharacter.UNDEFINED.toString());
+        DatabaseReference inviteResponseRef = database.getReference(invitesUrl);
+        inviteResponseRef.setValue("accepted");
     }
 
     public static void sendGameStartMessage(String gameName) {

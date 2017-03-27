@@ -98,75 +98,26 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         Intent intent = getIntent();
         if (intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false)) {
             mIsAdminOfGame = true;
-
         } else if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
             mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
             String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
-            Log.d("FIREBASE BROADCAST", "gameReqResponse: " + gameReqResponse);
-            Log.d("FIREBASE EXTRAS", intent.getExtras().toString());
-            if (InvitationStatus.ACCEPTED.toString().equals(InvitationStatus.getStatusFrom(gameReqResponse).toString())) {
-
-                final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                String invitesUrl = "games/" + mGameName + "/invites/" + player;
-                String playerUrl = "games/" + mGameName + "/players/" + player;
-                String userUrl = "users/" + player;
-
-                mPlayerNames.add(player);
-
-                DatabaseReference playerRef = database.getReference(playerUrl);
-                playerRef.child("status").setValue(PlayerStatus.ALIVE.toString());
-                playerRef.child("invite").setValue(InvitationStatus.ACCEPTED.toString());
-                playerRef.child("role").setValue(GameCharacter.UNDEFINED.toString());
-
-                // DatabaseReference userRef = database.getReference(userUrl);
-
-                DatabaseReference inviteResponseRef = database.getReference(invitesUrl);
-                inviteResponseRef.setValue("accepted");
-
-                // Update location monitor to show that we exist
-                String gameReference = "games/" + mGameName + "/";
-                DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor");
-
-                locationRef.setValue(Math.random());
-
+            if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
+                FirebaseHelper.sendAcceptResponse(player, mGameName);
             } else {
-//                FirebaseHelper.sendRejectionResponse(player, admin);
-                Log.d("FIREBASE BROADCAST", "Game request was false");
-                final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                String playerUrl = "games/" + mGameName + "/players/" + player;
-                String userUrl = "users/" + player;
-
-                DatabaseReference playerRef = database.getReference(playerUrl);
-//                playerRef.child("status").setValue(PlayerStatus.ALIVE.toString());
-                playerRef.child("invite").setValue(InvitationStatus.DECLINED.toString());
-//                playerRef.child("role").setValue(GameCharacter.UNDEFINED.toString());
-
-                String invitesUrl = "games/" + mGameName + "/invites/" + player;
-                DatabaseReference inviteResponseRef = database.getReference(invitesUrl);
-                inviteResponseRef.setValue("declined");
-
-                // DatabaseReference userRef = database.getReference(userUrl);
-
-                // Update location monitor to show that we exist
-//                String gameReference = "games/" + mGameName + "/";
-//                DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor");
-
-//                locationRef.setValue(Math.random());
+                FirebaseHelper.sendRejectionResponse(player, mGameName);
                 return;
             }
         }
 
         /*
-             * Begin Firebase location synchronization stuff
-             * ---------------------------------------------
-             * We have a single listener that is updated any time any of our users change their location.
-             * When that listener detects a change we will query the location for each of said users
-             * and update the appropriate markers.
-             *
-             * NOTE: This is silly
-             */
+         * Begin Firebase location synchronization stuff
+         * ---------------------------------------------
+         * We have a single listener that is updated any time any of our users change their location.
+         * When that listener detects a change we will query the location for each of said users
+         * and update the appropriate markers.
+         */
 
         String gameReference = "games/" + mGameName + "/";
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -182,14 +133,15 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     playerLocationRef.child("location").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            //TODO:SAM: we may have blank lat, lng
-                            Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
-                            Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
+                            if (dataSnapshot.child("lat").getValue() != null) {
+                                Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
+                                Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
 
-                            LatLng userLocation = new LatLng(userLat, userLng);
+                                LatLng userLocation = new LatLng(userLat, userLng);
 
-                            // Push this user to our hash map
-                            updateMarker(mPlayerName, userLocation);
+                                // Push this user to our hash map
+                                updateMarker(mPlayerName, userLocation);
+                            }
                         }
 
                         @Override
@@ -217,11 +169,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     }
 
-    public List<String> fetchAllPlayerNames(final String gameName) { //todo:SAM: need to get all players of the game, not all users
+    public List<String> fetchAllPlayerNames(final String gameName) {
         final List<String> playerNames = new ArrayList<>();
-        String usersReference = "users/";
+        String playersReference = "games/" + gameName + "/players";
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference(usersReference);
+        DatabaseReference ref = database.getReference(playersReference);
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

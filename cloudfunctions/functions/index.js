@@ -202,6 +202,9 @@ exports.sendGameStartMessage =  functions.database
                 const payload = {
                   notification: {
                     body: `${gameID} has started!`
+                  },
+                  data: {
+                    type: "game_start"
                   }
                 };
 
