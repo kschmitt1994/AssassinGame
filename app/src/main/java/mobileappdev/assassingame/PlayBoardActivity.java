@@ -130,8 +130,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
          * We have a single listener that is updated any time any of our users change their location.
          * When that listener detects a change we will query the location for each of said users
          * and update the appropriate markers.
-         *
-         * NOTE: This is silly
          */
 
         String gameReference = "games/" + mGameName + "/";
@@ -464,6 +462,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         Log.d("Ajit", "I am moving....");
         mLocation = location;
         initialGoogleMapCameraUpdate();
+
+
 
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
                 location.getLongitude()), 14));
