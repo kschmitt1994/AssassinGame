@@ -65,6 +65,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private String mGameName;
     private boolean mGameStarted;
     private boolean mIsAdminOfGame = false;
+    private boolean mInitialized = false;
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 50; // .5 sec
@@ -73,7 +74,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private Spinner mSpinner;
     private MyReceiver mMyReceiver;
     private List<String> mPlayerNames = new ArrayList<>();
-    private Map<String, Player> mPlayersMap;
+    private Map<String, Player> mPlayersMap = new HashMap<>();
     private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
 
     private GoogleMap.OnMarkerClickListener _this;
@@ -102,6 +103,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 //TODO:Ajit: do I need to call finish()?
 
             }
+            startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
+            finish();
 //            finishAffinity();
 //            return;
         }
@@ -142,8 +145,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                for (final String mPlayerName : mPlayerNames) {
-                    addListenerForLocation(mPlayerName, database);
+                for (final String playerName : mPlayerNames) {
+                    if (mMyself.equals(playerName))
+                        continue;
+                    addListenerForLocation(playerName, database);
                 }
             }
 
@@ -380,6 +385,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private void initialize() {
         Log.d("Ajit", "Inside initialize().");
+        if (mInitialized) return;
 
         checkForLocationServices(PlayBoardActivity.this);
 
@@ -392,7 +398,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, this);
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, this);
 
 
         Log.d("Ajit", "Inside initialize(). Calling Map fragment.");
@@ -406,11 +412,13 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 if (mLocation != null) {
                     Log.d("Ajit", "Inside onMapReady(). Location is NOT null. Calling initialGoogleMapCameraUpdate()");
                     initialGoogleMapCameraUpdate();
+                    updateMarker(mMyself, new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
                 }
 
             }
         });
 
+        mInitialized = true;
     }
 
     private void initialGoogleMapCameraUpdate() {
@@ -426,7 +434,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mGoogleMap.setMyLocationEnabled(true);
+//        mGoogleMap.setMyLocationEnabled(true);
         mGoogleMap.setOnMarkerClickListener(_this);
         mGoogleCameraUpdateDone = true;
     }
@@ -465,19 +473,15 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mLocation = location;
         initialGoogleMapCameraUpdate();
 
-
-
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
-                location.getLongitude()), 14));
-//        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(mGoogleMap.getCameraPosition().zoom - 7f));
+//        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
+//                location.getLongitude()), 12));
 
         if (mGameStarted) {
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+           /* if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            mGoogleMap.setMyLocationEnabled(false);
-            updateMarker(mMyself,
-                    new LatLng(location.getLatitude(), location.getLongitude()));
+//            mGoogleMap.setMyLocationEnabled(false);*/
+            updateMarker(mMyself, new LatLng(location.getLatitude(), location.getLongitude()));
             FirebaseHelper.sendLocation(mLocation, mGameName, mMyself);
         }
     }
