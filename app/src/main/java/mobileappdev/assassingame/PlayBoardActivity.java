@@ -89,11 +89,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         Intent intent = getIntent();
         if (intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false)) {
             mIsAdminOfGame = true;
-//            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
         } else if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
-//            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
             String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
             if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
                 FirebaseHelper.sendAcceptResponse(player, mGameName);
