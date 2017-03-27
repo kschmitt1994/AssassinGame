@@ -102,6 +102,10 @@ public class SignUpPageActivity extends AppCompatActivity {
         DatabaseReference locationRef = database.getReference(userReference + "/location");
         locationRef.child("lat").setValue(0);
         locationRef.child("lng").setValue(0);
+
+        DatabaseReference statsRef = database.getReference(userReference + "/stats");
+        statsRef.child("wins").setValue(0);
+        statsRef.child("losses").setValue(0);
     }
 
     private void createAccount(final String username, final String email, String password) {
