@@ -84,23 +84,16 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_board);
-        mMyReceiver = new MyReceiver();
-        _this = this;
-        mSpinner = new Spinner(this);
-        mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
-        mLocation.setLatitude(0.0);
-        mLocation.setLongitude(0.0);
 
-        updateUserName();
 
         Intent intent = getIntent();
         if (intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false)) {
             mIsAdminOfGame = true;
-            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+//            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
         } else if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
-            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+//            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
             String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
             if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
                 FirebaseHelper.sendAcceptResponse(player, mGameName);
@@ -111,13 +104,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             return;
         }
 
-        _this = this;
         mMyReceiver = new MyReceiver();
+        _this = this;
         mSpinner = new Spinner(this);
         mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
+//        mLocation.setLatitude(0.0);
+//        mLocation.setLongitude(0.0);
 
         updateUserName();
-
         mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
         if (mGameStarted) {
             mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
@@ -791,6 +785,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             if (mIsAdminOfGame && action.equals(BroadcastHelper.INVITE_RESPONSE)) {
                 String playerName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
                 mPlayerNames.add(playerName); //todo:Ajit: add listener for location on this player
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                addListenerForLocation(playerName, database);
                 FirebaseHelper.increaseNoOfAliveCiviliansBy1(mGameName);
                 FirebaseHelper.newPlayerAddedUp(playerName, mGameName);
                 //rather than adding marker here, we will add it while receiving updated location from the user
@@ -801,6 +797,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 //                double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
                 if (FirebaseHelper.isGameStarted(mGameName)) {
                     mPlayerNames.add(userName);
+                    final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    addListenerForLocation(userName, database);
 //                    addMarker(userName, new LatLng(latlng[0], latlng[1]), mPlayersMap.get(userName));
                 }
             }
