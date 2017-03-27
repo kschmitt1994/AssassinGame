@@ -133,7 +133,6 @@ public class LogInActivity extends AppCompatActivity {
 
         // Get rid of periods for valid Firebase keys
         String fmtEmail = emailID.replaceAll("\\.", "");
-        final String originalEmail = emailID;
 
         Query gameQuery = ref.child("emails").equalTo(fmtEmail);
 

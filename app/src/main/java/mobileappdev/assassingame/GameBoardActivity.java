@@ -110,7 +110,6 @@ public class GameBoardActivity extends AppCompatActivity {
         intent.putExtra(BroadcastHelper.GAME_STARTED, true);
         intent.putExtra(BroadcastHelper.GAME_NAME, Game.getInstance().getGameName());
         startActivity(intent);
-
         finish();
     }
 

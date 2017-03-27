@@ -60,7 +60,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         //Accept intent
         Intent yesReceive = new Intent(context, PlayBoardActivity.class);
         yesReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
-        yesReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, "ACCEPTED");
+        yesReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.ACCEPTED);
         yesReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));
         yesReceive.putExtra(BroadcastHelper.PLAYER_NAME, intent.getStringExtra(BroadcastHelper.PLAYER_NAME));
         yesReceive.putExtra(BroadcastHelper.GAME_NAME, intent.getStringExtra(BroadcastHelper.GAME_NAME));
@@ -70,7 +70,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         //Reject intent
         Intent noReceive = new Intent(context, PlayBoardActivity.class);
         noReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
-        noReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, "DECLINED");
+        noReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.DECLINED);
         noReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));
         noReceive.putExtra(BroadcastHelper.PLAYER_NAME, intent.getStringExtra(BroadcastHelper.PLAYER_NAME));
         noReceive.putExtra(BroadcastHelper.GAME_NAME, intent.getStringExtra(BroadcastHelper.GAME_NAME));

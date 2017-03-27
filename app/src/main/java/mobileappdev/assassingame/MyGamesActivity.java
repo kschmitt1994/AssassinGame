@@ -44,6 +44,7 @@ public class MyGamesActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(MyGamesActivity.this, NewGameActivity.class));
+                finish();
             }
         });
 

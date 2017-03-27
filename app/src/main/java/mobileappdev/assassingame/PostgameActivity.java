@@ -17,6 +17,7 @@ public class PostgameActivity extends AppCompatActivity {
     private TextView mWinnerTextView;
     private TextView mLoserTextView;
     private Button mMenuButton;
+    private Button mReplayButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +36,38 @@ public class PostgameActivity extends AppCompatActivity {
         //Todo: pull game instance data to find winner and loser.
 
         mMenuButton = (Button) findViewById(R.id.main_menu_button);
+        if (getIntent().getBooleanExtra("IS_ADMIN", false)) {
+            replayGame();
+        } else {
+        }
         mMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PostgameActivity.this, MainActivity.class));
+                goBackToMainMenu();
             }
         });
+
+        mReplayButton = (Button) findViewById(R.id.replay_button);
+        if (!getIntent().getBooleanExtra("IS_ADMIN", false)) {
+            mReplayButton.setVisibility(View.INVISIBLE);
+        }
+
+        mReplayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replayGame();
+            }
+        });
+    }
+
+    private void replayGame() {
+        startActivity(new Intent(PostgameActivity.this, InvitePlayersActivity.class));
+        finish();
+    }
+
+    private void goBackToMainMenu() {
+        startActivity(new Intent(PostgameActivity.this, MainActivity.class));
+        finish();
     }
 
 }
