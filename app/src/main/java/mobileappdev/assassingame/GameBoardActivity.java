@@ -108,6 +108,7 @@ public class GameBoardActivity extends AppCompatActivity {
         Intent intent = new Intent(GameBoardActivity.this, PlayBoardActivity.class);
         intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
         intent.putExtra(BroadcastHelper.GAME_STARTED, true);
+        intent.putExtra(BroadcastHelper.GAME_NAME, Game.getInstance().getGameName());
         startActivity(intent);
 
         finish();

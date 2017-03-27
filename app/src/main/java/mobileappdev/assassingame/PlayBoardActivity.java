@@ -98,6 +98,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         Intent intent = getIntent();
         if (intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false)) {
             mIsAdminOfGame = true;
+            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
         } else if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
@@ -236,6 +237,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             assignCharacters(mGameName, mPlayerNames);
             FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
         }
+
         initialize();
         mSpinner.dismiss();
     }
@@ -257,13 +259,22 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         String assassin = playerNames.get(assassinIndex);
         playerNames.remove(assassinIndex);
 
-        int detectiveIndex = random.nextInt(playerNames.size());
-        String detective = playerNames.get(detectiveIndex);
-        playerNames.remove(detectiveIndex);
+        String detective = "";
+        String doctor = "";
 
-        int doctorIndex = random.nextInt(playerNames.size());
-        String doctor = playerNames.get(doctorIndex);
-        playerNames.remove(doctorIndex);
+        // Doing some magic to handle < 4 player games
+
+        if (playerNames.size() > 1) {
+            int detectiveIndex = random.nextInt(playerNames.size());
+            detective = playerNames.get(detectiveIndex);
+            playerNames.remove(detectiveIndex);
+
+            if (playerNames.size() > 1) {
+                int doctorIndex = random.nextInt(playerNames.size());
+                doctor = playerNames.get(doctorIndex);
+                playerNames.remove(doctorIndex);
+            }
+        }
 
         FirebaseHelper.updateCharactersOfPlayers(gameName, assassin, detective, doctor, playerNames);
 

@@ -577,12 +577,16 @@ public class FirebaseHelper {
         assassinRef.child("role").setValue(GameCharacter.ASSASSIN.toString());
 
         // Setting up the detective
-        DatabaseReference detectiveRef = database.getReference(gamePlayers + "/" + detective);
-        detectiveRef.child("role").setValue(GameCharacter.DETECTIVE.toString());
+        if (detective.length() > 1) {
+            DatabaseReference detectiveRef = database.getReference(gamePlayers + "/" + detective);
+            detectiveRef.child("role").setValue(GameCharacter.DETECTIVE.toString());
+        }
 
         // Setting up the doctor
-        DatabaseReference doctorRef = database.getReference(gamePlayers + "/" + doctor);
-        doctorRef.child("role").setValue(GameCharacter.DOCTOR.toString());
+        if (doctor.length() > 1) {
+            DatabaseReference doctorRef = database.getReference(gamePlayers + "/" + doctor);
+            doctorRef.child("role").setValue(GameCharacter.DOCTOR.toString());
+        }
 
         // Setting up each of the citizens
         for (String citizenName : citizens) {
