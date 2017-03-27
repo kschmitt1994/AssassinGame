@@ -419,7 +419,7 @@ public class FirebaseHelper {
     public static void updatePlayerStatus(String gameName, String playerName, PlayerStatus status,
                                           boolean shouldUpdateCiviliansCounter) {
 
-        //TODO:Sam: update the player to be dead/alive/left
+        //TODO:Sam: update the player to be dead/citizens_alive/left
         //TODO:Sam: decrease alive civlians counter only if the boolean flag is true,
         // which represents no of civilians left (excluding detective). when it becomes zero, Assassin wins the game.
 
@@ -438,7 +438,7 @@ public class FirebaseHelper {
     public static int getNoOfAliveCivilians(String gameName) {
         String gameReference = "games/" + gameName;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
+        DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
 
         final StringBuffer aliveCivilians = new StringBuffer();
 
@@ -461,7 +461,7 @@ public class FirebaseHelper {
     public static void initializeNoOfAliveCivilians(final String gameName) {
         String gameReference = "games/" + gameName;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
+        DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
         DatabaseReference playersRef = database.getReference(gameReference + "/players");
 
         aliveRef.setValue(0);
@@ -493,7 +493,7 @@ public class FirebaseHelper {
     public static void increaseNoOfAliveCiviliansBy1(String gameName) {
         String gameReference = "games/" + gameName;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
+        final DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
 
         final StringBuffer aliveCivilians = new StringBuffer();
 
@@ -515,7 +515,7 @@ public class FirebaseHelper {
     public static void decreaseNoOfAliveCiviliansBy1(String gameName) {
         String gameReference = "games/" + gameName;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference aliveRef = database.getReference(gameReference + "/alive");
+        final DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
 
         final StringBuffer aliveCivilians = new StringBuffer();
 
@@ -548,11 +548,11 @@ public class FirebaseHelper {
     public static void newPlayerAddedUp(String userName, String gameName) {
         //TODO:Sam: send this message to everyone in the game
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference gamePlayersRef = database.getReference("games/" + gameName + "/players");
-        DatabaseReference newGamePlayerRef = gamePlayersRef.push();
+        DatabaseReference gamePlayersRef = database.getReference("games/" + gameName + "/players/" + userName);
 
-        newGamePlayerRef.push().setValue(userName);
-        // TODO: On the listener side we need to react to this event (broadcast msg to others)
+        gamePlayersRef.child("role").setValue(GameCharacter.CITIZEN.toString());
+        gamePlayersRef.child("invite").setValue(InvitationStatus.UNDEFINED.toString());
+        gamePlayersRef.child("status").setValue(PlayerStatus.ALIVE.toString());
     }
 
     public static void sendPlayerNotLoggedInResponse(String fromPlayer, String toAdmin) {
