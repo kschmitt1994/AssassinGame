@@ -120,7 +120,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             fetchAllPlayerNames(mGameName); //mSpinner is being dismissed and initialize() is called within the method
         } else {
             mSpinner.dismiss();
-//            initialize();
+            initialize();
         }
 
     }
@@ -166,6 +166,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 if (dataSnapshot.child("lat").getValue() != null) {
                     Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
                     Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
+                    if (userLat.equals(0.0) && userLng.equals(0.0))
+                        return;
                     LatLng userLocation = new LatLng(userLat, userLng);
                     updateMarker(mPlayerName, userLocation);
                 }
