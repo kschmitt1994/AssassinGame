@@ -43,6 +43,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     gameStartIntent.putExtra(BroadcastHelper.ADMIN, payload.get("admin"));
                     gameStartIntent.putExtra(BroadcastHelper.GAME_NAME, payload.get("game"));
                     gameStartIntent.putExtra(BroadcastHelper.SENDER, payload.get("sender"));
+                    sendBroadcast(gameStartIntent);
+                    break;
+                case "invite_response":
+                    Intent inviteResponseIntent = new Intent();
+                    inviteResponseIntent.setAction(BroadcastHelper.INVITE_RESPONSE);
+                    inviteResponseIntent.putExtra(BroadcastHelper.PLAYER_NAME, payload.get("player_name")); // TODO: Complete Cloud Fxn
+                    sendBroadcast(inviteResponseIntent);
+                    break;
+                case "new_player_joined":
+                    Intent newPlayerJoinedIntent = new Intent();
+                    newPlayerJoinedIntent.setAction(BroadcastHelper.NEW_PLAYER_JOINED);
+                    newPlayerJoinedIntent.putExtra(BroadcastHelper.PLAYER_NAME, payload.get("player_name")); // TODO: Complete Cloud Fxn
+                    newPlayerJoinedIntent.putExtra(BroadcastHelper.LOCATION, payload.get("location")); // TODO: Complete Cloud Fxn 
+                    sendBroadcast(newPlayerJoinedIntent);
+                    break;
                 default:
                     Log.d(TAG, "Intent error");
             }
