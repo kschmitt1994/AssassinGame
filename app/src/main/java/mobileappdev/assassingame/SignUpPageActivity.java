@@ -135,7 +135,7 @@ public class SignUpPageActivity extends AppCompatActivity {
                                 username + "/device/" + deviceToken);
                         DatabaseReference newDeviceRef = deviceRef.push();
                         newDeviceRef.setValue("test device");
-                        startActivity(new Intent(SignUpPageActivity.this, MainActivity.class));
+                        startActivity(new Intent(SignUpPageActivity.this, LogInActivity.class));
                     }
 
                 }

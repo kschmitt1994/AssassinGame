@@ -61,7 +61,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private LocationManager mLocationManager;
     private Location mLocation = new Location("PlayBoard");
     private GoogleMap mGoogleMap;
-    private String mMyself = "ANONYMOUS_PBA";
+    private String mMyself = "ajit0"; //TODO:ajit: revert
     private String mGameName;
     private boolean mGameStarted;
     private boolean mIsAdminOfGame = false;
@@ -100,8 +100,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             } else {
                 FirebaseHelper.sendRejectionResponse(player, mGameName);
                 //TODO:Ajit: do I need to call finish()?
+
             }
-            return;
+//            finishAffinity();
+//            return;
         }
 
         mMyReceiver = new MyReceiver();
@@ -111,14 +113,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 //        mLocation.setLatitude(0.0);
 //        mLocation.setLongitude(0.0);
 
-        updateUserName();
+        updateUserName(this);
         mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
         if (mGameStarted) {
             mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
             fetchAllPlayerNames(mGameName); //mSpinner is being dismissed and initialize() is called within the method
         } else {
             mSpinner.dismiss();
-            initialize();
+//            initialize();
         }
 
     }
@@ -204,7 +206,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void updatePlayerNamesListAndGetFurtherData(String gameName, List<String> playerNames) {
         mPlayerNames = playerNames;
         fetchAllPlayer(gameName);
-        attachLocationListener();
 
     }
 
@@ -244,12 +245,13 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
         }
         initialize();
+        attachLocationListener();
         mSpinner.dismiss();
     }
 
 
-    private void updateUserName() {
-        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
+    private void updateUserName(PlayBoardActivity playBoardActivity) {
+        SharedPreferences sharedPreferences = playBoardActivity.getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
         String userName = sharedPreferences.getString(LogInActivity.USER_NAME, null);
         if (userName != null) {
             mMyself = userName;
@@ -414,6 +416,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void initialGoogleMapCameraUpdate() {
         if (mGoogleCameraUpdateDone) return;
 
+        if (mLocation == null) return;
         LatLng itemPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLng myPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLngBounds bounds = new LatLngBounds.Builder().include(itemPoint).include(myPoint).build();
@@ -529,14 +532,16 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mMyReceiver);
+        if (mMyReceiver != null) {
+            unregisterReceiver(mMyReceiver);
+        }
     }
 
 
     @Override
     protected void onStop() {
         super.onStop();
-        mLocationManager.removeUpdates(PlayBoardActivity.this);
+//        mLocationManager.removeUpdates(PlayBoardActivity.this);
     }
 
 
@@ -636,7 +641,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("Ajit", "Inside onRequestPermissionsResult#beforeInitialize");
-                    initialize();
+//                    initialize();
                 } else {
                     Toast.makeText(this, "Permissions denied. Exiting Game...", Toast.LENGTH_LONG).show();
                     // TODO: 3/16/2017 exit the game
