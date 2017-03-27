@@ -139,13 +139,7 @@ public class LogInActivity extends AppCompatActivity {
         gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //todo:SAM: why do we need a for loop here?
-                String playerName = null;
-                for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
-//                    playerQueryResult.setEmailID(originalEmail);
-                    playerName = userSnapshot.getValue().toString();
-                }
-                persistUserLogInState(playerName);
+                persistUserLogInState(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
             }
 
             @Override
