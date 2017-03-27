@@ -196,9 +196,11 @@ exports.sendGameStartMessage =  functions.database
         const gameAdminPromise = admin.database()
           .ref(`games/${gameID}/admin`).once('value');
 
-          return Promise.all([gamePlayerPromise]).then(results => {
+          return Promise.all([gamePlayerPromise, gameAdminPromise]).then(results => {
             const gamePlayersSnapshot = results[0];
             const gameAdminSnapshot = results[1];
+            console.log(gameAdminSnapshot);
+            console.log(Object.keys(gameAdminSnapshot));
             for (let player in gamePlayersSnapshot.val()) {
               const getPlayerDeviceToken = admin.database()
                 .ref(`users/${player}/device`).once('value');
@@ -259,6 +261,7 @@ exports.newPlayerAddedUp = functions.database
   }
 
   const newPlayerName = event.data.val();
+  console.log(newPlayerName);
 
   const gamePlayerPromise = admin.database()
     .ref(`games/${gameID}/players`).once('value');

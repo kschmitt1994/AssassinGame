@@ -101,7 +101,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 FirebaseHelper.sendRejectionResponse(player, mGameName);
                 //TODO:Ajit: do I need to call finish()?
             }
-            return;
+            finishAffinity();
         }
 
         mMyReceiver = new MyReceiver();
@@ -204,7 +204,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void updatePlayerNamesListAndGetFurtherData(String gameName, List<String> playerNames) {
         mPlayerNames = playerNames;
         fetchAllPlayer(gameName);
-        attachLocationListener();
+
 
     }
 
@@ -244,6 +244,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
         }
         initialize();
+        attachLocationListener();
         mSpinner.dismiss();
     }
 
@@ -413,6 +414,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private void initialGoogleMapCameraUpdate() {
         if (mGoogleCameraUpdateDone) return;
+
+        if (mLocation == null) return;
 
         LatLng itemPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLng myPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());

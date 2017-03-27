@@ -98,6 +98,10 @@ public class SignUpPageActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference emailRef = database.getReference(userReference + "/email");
         emailRef.setValue(email);
+
+        DatabaseReference locationRef = database.getReference(userReference + "/location");
+        locationRef.child("lat").setValue(0);
+        locationRef.child("lng").setValue(0);
     }
 
     private void createAccount(final String username, final String email, String password) {
