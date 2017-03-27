@@ -146,6 +146,10 @@ exports.sendInviteResponse = functions.database
         const payload = {
           notification: {
             body: response
+          },
+          data: {
+            type: "invite_response",
+            player_name: invitedID
           }
         };
 
@@ -189,9 +193,12 @@ exports.sendGameStartMessage =  functions.database
       if (status == 'started' || status == 'STARTED') {
         const gamePlayerPromise = admin.database()
           .ref(`games/${gameID}/players`).once('value');
+        const gameAdminPromise = admin.database()
+          .ref(`games/${gameID}/admin`).once('value');
 
           return Promise.all([gamePlayerPromise]).then(results => {
             const gamePlayersSnapshot = results[0];
+            const gameAdminSnapshot = results[1];
             for (let player in gamePlayersSnapshot.val()) {
               const getPlayerDeviceToken = admin.database()
                 .ref(`users/${player}/device`).once('value');
@@ -204,7 +211,9 @@ exports.sendGameStartMessage =  functions.database
                     body: `${gameID} has started!`
                   },
                   data: {
-                    type: "game_start"
+                    type: "game_start",
+                    admin: gameAdminSnapshot.val(),
+                    game: gameID;
                   }
                 };
 
@@ -266,18 +275,15 @@ exports.newPlayerAddedUp = functions.database
             .ref(`users/${player}/device`).once('value');
           return Promise.all([getPlayerDeviceToken]).then(results => {
             const gamePlayerDeviceTokens = results[0];
-            // console.log('THE NEXT ELEMENT SHOULD BE THE ONE THING THAT SHOULD WORK');
-            // console.log('gamePlayerDeviceTokens: ' + gamePlayerDeviceTokens);
-            // console.log('gamePlayerDeviceTokens[keys]: ' + Object.keys(gamePlayerDeviceTokens));
-            // console.log('gamePlayerDeviceTokens[A]: ' + gamePlayerDeviceTokens['A']);
-            // console.log('gamePlayerDeviceTokens[V]: ' + gamePlayerDeviceTokens['V']);
-            // console.log('gamePlayerDeviceTokens[g]: ' + gamePlayerDeviceTokens['g']);
-
 
             // Notification details.
             const payload = {
               notification: {
                 body: `${newPlayerName} has joined ${gameID}!`
+              },
+              data: {
+                type: "new_player_joined",
+                player_name: Object.keys(newPlayerName)
               }
             };
 

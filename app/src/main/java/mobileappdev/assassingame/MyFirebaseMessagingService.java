@@ -42,7 +42,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     gameStartIntent.setAction(BroadcastHelper.GAME_START);
                     gameStartIntent.putExtra(BroadcastHelper.ADMIN, payload.get("admin"));
                     gameStartIntent.putExtra(BroadcastHelper.GAME_NAME, payload.get("game"));
-                    gameStartIntent.putExtra(BroadcastHelper.SENDER, payload.get("sender"));
+                    // gameStartIntent.putExtra(BroadcastHelper.SENDER, payload.get("sender"));
                     sendBroadcast(gameStartIntent);
                     break;
                 case "invite_response":
@@ -55,7 +55,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Intent newPlayerJoinedIntent = new Intent();
                     newPlayerJoinedIntent.setAction(BroadcastHelper.NEW_PLAYER_JOINED);
                     newPlayerJoinedIntent.putExtra(BroadcastHelper.PLAYER_NAME, payload.get("player_name")); // TODO: Complete Cloud Fxn
-                    newPlayerJoinedIntent.putExtra(BroadcastHelper.LOCATION, payload.get("location")); // TODO: Complete Cloud Fxn 
+                    // newPlayerJoinedIntent.putExtra(BroadcastHelper.LOCATION, payload.get("location")); // TODO: Complete Cloud Fxn
                     sendBroadcast(newPlayerJoinedIntent);
                     break;
                 default:
