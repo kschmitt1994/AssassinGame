@@ -213,7 +213,7 @@ exports.sendGameStartMessage =  functions.database
                   data: {
                     type: "game_start",
                     admin: gameAdminSnapshot.val(),
-                    game: gameID;
+                    game: gameID
                   }
                 };
 
