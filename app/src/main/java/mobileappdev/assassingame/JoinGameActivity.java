@@ -54,8 +54,15 @@ public class JoinGameActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
                     // gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
+
+//                    Log.i("TEST", gameSnapshot.child("type").getValue().toString());
+
                     mItems.add(gameSnapshot.getKey());
-                    Log.i("JoinGameActivity", mItems.toString());
+//
+//                    if (gameSnapshot.child("type").getValue().equals("public")) {
+//                        mItems.add(gameSnapshot.getKey());
+//                    }
+//                    Log.i("JoinGameActivity", mItems.toString());
                 }
 
                 ListView mListView = (ListView) findViewById(R.id.public_games_list_view);
