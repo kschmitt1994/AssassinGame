@@ -100,15 +100,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Todo: For testing purposes, the settings button links to a chat activity.  Change this later.
-        Button settingsButton = (Button)findViewById(R.id.settings);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, ChatActivity.class));
-
-            }
-        });
+//        //Todo: For testing purposes, the settings button links to a chat activity.  Change this later.
+//        Button settingsButton = (Button)findViewById(R.id.settings);
+//        settingsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(MainActivity.this, ChatActivity.class));
+//
+//            }
+//        });
 
         Button statsButton = (Button)findViewById(R.id.stats);
         statsButton.setOnClickListener(new View.OnClickListener() {
@@ -126,14 +126,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, JoinGameActivity.class));
             }
         });
-
-        Button myGamesButton = (Button)findViewById(R.id.my_games);
-        myGamesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MyGamesActivity.class));
-            }
-        });
+//
+//        Button myGamesButton = (Button)findViewById(R.id.my_games);
+//        myGamesButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(MainActivity.this, MyGamesActivity.class));
+//            }
+//        });
 
     }
 
