@@ -71,8 +71,6 @@ public class StatsActivity extends AppCompatActivity {
         mUsernameTextView = (TextView) findViewById(R.id.user_name_view);
 
         mUsernameTextView.setText(mUsername);
-
-        //Todo: pull player's number of wins and losses from database
     }
 
     @NonNull

@@ -37,6 +37,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -68,6 +70,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private boolean mGameStarted;
     private boolean mIsAdminOfGame = false;
     private boolean mInitialized = false;
+    private boolean amIAlive = true;
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 50; // .5 sec
@@ -477,7 +480,36 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.chat:
-                startActivity(new Intent(PlayBoardActivity.this, ChatActivity.class));
+
+                String statusReference = "games/" + mGameName + "/players/" + mMyself + "status/";
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference statusRef = database.getReference(statusReference);
+                //boolean amIAlive = (database.);
+
+                final StringBuffer playerStatus = new StringBuffer();
+
+
+                statusRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        playerStatus.append(dataSnapshot.getValue());
+                        if (!playerStatus.equals("ALIVE")) {
+                            setDead();
+                        } else {
+                            setAlive();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w("FirebaseHelper", "getPlayerStatus:onCancelled");
+                    }
+                });
+
+                Intent intent = new Intent(PlayBoardActivity.this, ChatActivity.class);
+                intent.putExtra("AM_I_ALIVE", amIAlive);
+                startActivity(intent);
                 return true;
             case R.id.exit_game:
                 startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
@@ -485,6 +517,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void setDead(){
+        amIAlive = false;
+    }
+
+    private void setAlive(){
+        amIAlive = true;
     }
 
     @Override
