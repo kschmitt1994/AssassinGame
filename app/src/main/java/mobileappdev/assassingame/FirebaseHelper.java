@@ -59,11 +59,11 @@ public class FirebaseHelper {
             typeRef.setValue("private");
         }
 
-        // Adding player names to our newly-created game!
-        DatabaseReference gameAdminRef = database.getReference(gameReference + "/players/" + newGame.getGameAdmin());
-        gameAdminRef.child("role").setValue(GameCharacter.UNDEFINED);
-        gameAdminRef.child("status").setValue(PlayerStatus.ALIVE);
-        gameAdminRef.child("invite").setValue(InvitationStatus.UNDEFINED);
+//        // Adding player names to our newly-created game!
+//        DatabaseReference gameAdminRef = database.getReference(gameReference + "/players/" + newGame.getGameAdmin());
+//        gameAdminRef.child("role").setValue(GameCharacter.UNDEFINED);
+//        gameAdminRef.child("status").setValue(PlayerStatus.ALIVE);
+//        gameAdminRef.child("invite").setValue(InvitationStatus.UNDEFINED);
 
     }
 
