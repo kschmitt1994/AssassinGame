@@ -43,8 +43,11 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
                 return;
             }
 
-            addNotificationForStartGame(context, intent);
-
+//            addNotificationForStartGame(context, intent);
+            Intent intent1 = new Intent(context, PlayBoardActivity.class);
+            intent1.putExtra(BroadcastHelper.GAME_STARTED, true);
+            intent1.putExtra(BroadcastHelper.GAME_NAME, intent.getStringExtra(BroadcastHelper.GAME_NAME));
+            context.getApplicationContext().startActivity(intent1);
         }
     }
 
