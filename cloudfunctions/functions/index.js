@@ -31,8 +31,6 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
  * This triggers a notification on the device of a player who has been invited
  * to a particular game. Acting on the notification will take them to a dialogue
  * where they have the opportunity to accept or decline the game invitation.
- *
- * TODO: Create the interface for accepting or declining said invitation.
  */
 exports.sendInvite = functions.database
   .ref('users/{inviteeID}/invites/{inviterID}/{gameID}').onWrite(event => {
@@ -65,10 +63,6 @@ exports.sendInvite = functions.database
 
     // Notification details.
     const payload = {
-    //   notification: {
-    //     title: 'You\'ve been invited to play Assassin!',
-    //     body: `${inviterID} would like you to join their game, ${gameID}`
-    //   },
       data : {
         type: "invitation",
         sender: inviterID,
@@ -206,14 +200,14 @@ exports.sendGameStartMessage =  functions.database
             for (let player in gamePlayersSnapshot.val()) {
               const getPlayerDeviceToken = admin.database()
                 .ref(`users/${player}/device`).once('value');
-              return Promise.all([getPlayerDeviceToken]).then(results => {
+              Promise.all([getPlayerDeviceToken]).then(results => {
                 const gameAdminDeviceToken = results[0];
 
                 // Notification details.
                 const payload = {
-                  notification: {
-                    body: `${gameID} has started!`
-                  },
+                  // notification: {
+                  //   body: `${gameID} has started!`
+                  // },
                   data: {
                     type: "game_start",
                     admin: gameAdminSnapshot.val(),
@@ -268,7 +262,7 @@ exports.newPlayerAddedUp = functions.database
   const gamePlayerPromise = admin.database()
     .ref(`games/${gameID}/players`).once('value');
 
-    return Promise.all([gamePlayerPromise]).then(results => {
+    Promise.all([gamePlayerPromise]).then(results => {
       const gamePlayersSnapshot = results[0];
       for (let player in gamePlayersSnapshot.val()) {
         // console.log('player: ' + player);
