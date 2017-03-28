@@ -1,5 +1,6 @@
 package mobileappdev.assassingame;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -229,12 +230,16 @@ public class ChatFragment extends Fragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ChatMessage chatMessage = new
-                        ChatMessage(mMessageEditText.getText().toString(),
-                        mUsername);
-                mFirebaseDatabaseReference.child(MESSAGES_CHILD)
-                        .push().setValue(chatMessage);
-                mMessageEditText.setText("");
+                if (getActivity().getIntent().getBooleanExtra("AM_I_ALIVE", true)) {
+                    ChatMessage chatMessage = new
+                            ChatMessage(mMessageEditText.getText().toString(),
+                            mUsername);
+                    mFirebaseDatabaseReference.child(MESSAGES_CHILD)
+                            .push().setValue(chatMessage);
+                    mMessageEditText.setText("");
+                }  else {
+                    Toast.makeText(getActivity(), "You can't chat when you're dead!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         return chatView;
