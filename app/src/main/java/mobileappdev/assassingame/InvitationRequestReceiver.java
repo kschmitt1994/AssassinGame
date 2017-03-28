@@ -65,7 +65,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "PLAY", pendingIntentYes);
 
         NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+        mNotificationManager.notify(1, mBuilder.build());
 
     }
 

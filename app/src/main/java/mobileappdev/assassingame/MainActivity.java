@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             }
 //            startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
 //            finish();
-//            finishAffinity();
+            finishAffinity();
 //            return;
 
         }
