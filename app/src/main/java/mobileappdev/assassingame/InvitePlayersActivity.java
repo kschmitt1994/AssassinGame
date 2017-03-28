@@ -68,9 +68,10 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
 
     private void inviteAndProceed() {
         Game instance = Game.getInstance();
-        FirebaseHelper.sendInvite(mSPRFragment.getPlayers2Invite(), instance.getGameName(), instance.getGameAdmin());
+        DatabaseHandler databaseHandler = new DatabaseHandler(this, Game.getInstance().getGameName());
+        FirebaseHelper.sendInvite(databaseHandler.getAllPlayerNames(), instance.getGameName(), instance.getGameAdmin());
         Toast.makeText(InvitePlayersActivity.this, "Sending invites...", Toast.LENGTH_SHORT).show();
-        mSPRFragment.resetPlayers2Invite();
+//        mSPRFragment.resetPlayers2Invite();
         startActivity(new Intent(InvitePlayersActivity.this, GameBoardActivity.class));
         finish();
     }

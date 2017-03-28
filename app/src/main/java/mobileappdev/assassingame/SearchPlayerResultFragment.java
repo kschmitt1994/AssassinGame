@@ -16,7 +16,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -30,14 +32,12 @@ public class SearchPlayerResultFragment extends Fragment {
     private ListView mListView;
     private ArrayAdapter<String> mAdapter;
     private ArrayList<String> mItems;
-    private ArrayList<String> players2Invite;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mItems = new ArrayList<>();
-        players2Invite = new ArrayList<>();
         mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
     }
 
@@ -73,7 +73,7 @@ public class SearchPlayerResultFragment extends Fragment {
                 searchedResults.remove(position);
                 mDatabaseHandler.addPlayer(addedPlayer);
 
-                players2Invite.add(addedPlayer.getName());
+//                Game.getInstance().addPlayer2Invite(addedPlayer.getName());
                 mItems.remove(addedPlayer.getName());
                 mAdapter.notifyDataSetChanged();
 
@@ -103,6 +103,7 @@ public class SearchPlayerResultFragment extends Fragment {
 
     public void update() {
         Game instance = Game.getInstance();
+        mItems.clear();
         List<Player> searchedPlayer = instance.getSearchedPlayer();
         if (searchedPlayer.size() > 0) {
             for (Player player : searchedPlayer) {
@@ -137,11 +138,11 @@ public class SearchPlayerResultFragment extends Fragment {
         }
     }
 
-    public List<String> getPlayers2Invite() {
-        return players2Invite;
-    }
-
-    public void resetPlayers2Invite() {
-        players2Invite = new ArrayList<>();
-    }
+//    public List<String> getPlayers2Invite() {
+//        return players2Invite;
+//    }
+//
+//    public void resetPlayers2Invite() {
+//        players2Invite = new ArrayList<>();
+//    }
 }

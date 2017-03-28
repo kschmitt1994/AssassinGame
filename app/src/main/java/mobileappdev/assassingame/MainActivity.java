@@ -37,6 +37,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = getIntent();
+        String mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+
+        if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
+            String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
+            String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+            String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
+            if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
+                FirebaseHelper.sendAcceptResponse(player, mGameName);
+            } else {
+                FirebaseHelper.sendRejectionResponse(player, mGameName);
+                //TODO:Ajit: do I need to call finish()?
+
+            }
+//            startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
+            finish();
+//            finishAffinity();
+//            return;
+
+        }
         checkForLocationServices(this);
 
         // Track when user signs in and out

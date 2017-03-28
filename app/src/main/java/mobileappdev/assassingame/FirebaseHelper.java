@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -162,7 +163,7 @@ public class FirebaseHelper {
     }
 */
 
-   public static void sendInvite(List<String> players, String gameName, String admin) {
+   public static void sendInvite(Set<String> players, String gameName, String admin) {
        FirebaseDatabase database = FirebaseDatabase.getInstance();
        String currTime = Long.toString(System.currentTimeMillis());
        for (String player : players) {

@@ -78,7 +78,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         mBuilder.setAutoCancel(true);
 
         //Accept intent
-        Intent yesReceive = new Intent(context, PlayBoardActivity.class);
+        Intent yesReceive = new Intent(context, MainActivity.class);
         yesReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
         yesReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.ACCEPTED.toString());
         yesReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));
@@ -88,7 +88,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Accept", pendingIntentYes);
 
         //Reject intent
-        Intent noReceive = new Intent(context, PlayBoardActivity.class);
+        Intent noReceive = new Intent(context, MainActivity.class);
         noReceive.putExtra(BroadcastHelper.ON_GAME_REQUEST, true);
         noReceive.putExtra(BroadcastHelper.INVITATION_RESPONSE, InvitationStatus.DECLINED.toString());
         noReceive.putExtra(BroadcastHelper.ADMIN, intent.getStringExtra(BroadcastHelper.ADMIN));

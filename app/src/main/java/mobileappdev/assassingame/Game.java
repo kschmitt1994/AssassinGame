@@ -2,8 +2,10 @@ package mobileappdev.assassingame;
 
 import android.content.Context;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -15,7 +17,19 @@ public class Game {
     private boolean mIsPublic;
     private String mGameName;
     private String gameAdmin;
+    private Set<String> players2Invite = new HashSet<>();
+
     private List<Player> mSearchedPlayer;
+
+
+    public Set<String> getPlayers2Invite() {
+        return players2Invite;
+    }
+
+    public void addPlayer2Invite(String player) {
+        players2Invite.add(player);
+    }
+
 
     private static Game sGame;
 
