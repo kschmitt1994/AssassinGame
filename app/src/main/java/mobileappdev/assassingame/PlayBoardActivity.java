@@ -43,6 +43,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.DOMConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -193,7 +195,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     }
 
     public void fetchAllPlayerNames(final String gameName) {
-        final List<String> playerNames = new ArrayList<>();
         String playersReference = "games/" + gameName + "/players";
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(playersReference);
@@ -201,7 +202,9 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
                 // Push the names to our result List.
+                List<String> playerNames = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     playerNames.add(snapshot.getKey());
                 }
@@ -255,7 +258,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mPlayersMap = playersMap;
 
         if (mIsAdminOfGame) {
-            assignCharacters(mGameName, mPlayerNames);
+            assignCharacters(mGameName, new ArrayList<>(mPlayerNames));
             FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
         }
         initialize();
@@ -279,6 +282,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         int assassinIndex = random.nextInt(playerNames.size());
         String assassin = playerNames.get(assassinIndex);
         playerNames.remove(assassinIndex);
+        mPlayersMap.get(assassin).setGameCharacterType(GameCharacter.ASSASSIN);
+
 
         String detective = "";
         String doctor = "";
@@ -289,14 +294,20 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             int detectiveIndex = random.nextInt(playerNames.size());
             detective = playerNames.get(detectiveIndex);
             playerNames.remove(detectiveIndex);
+            mPlayersMap.get(detective).setGameCharacterType(GameCharacter.DETECTIVE);
         }
 
         if (playerNames.size() > 1) {
             int doctorIndex = random.nextInt(playerNames.size());
             doctor = playerNames.get(doctorIndex);
             playerNames.remove(doctorIndex);
+            mPlayersMap.get(doctor).setGameCharacterType(GameCharacter.DOCTOR);
+
         }
 
+        for (String player : playerNames) {
+            mPlayersMap.get(player).setGameCharacterType(GameCharacter.CITIZEN);
+        }
         FirebaseHelper.updateCharactersOfPlayers(gameName, assassin, detective, doctor, playerNames);
 
     }
