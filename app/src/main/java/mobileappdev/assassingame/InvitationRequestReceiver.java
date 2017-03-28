@@ -47,6 +47,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
             Intent intent1 = new Intent(context, PlayBoardActivity.class);
             intent1.putExtra(BroadcastHelper.GAME_STARTED, true);
             intent1.putExtra(BroadcastHelper.GAME_NAME, intent.getStringExtra(BroadcastHelper.GAME_NAME));
+            intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.getApplicationContext().startActivity(intent1);
         }
     }
