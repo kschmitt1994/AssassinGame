@@ -483,7 +483,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mLocation = location;
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference locationRef = database.getReference(mGameName + "/location_monitor");
+        DatabaseReference locationRef = database.getReference("games/" + mGameName + "/location_monitor");
         locationRef.setValue(Math.random());
 
         initialGoogleMapCameraUpdate();
