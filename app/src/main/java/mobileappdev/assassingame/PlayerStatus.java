@@ -6,7 +6,7 @@ package mobileappdev.assassingame;
  */
 
 public enum PlayerStatus {
-    ALIVE, DEAD, LEFT; //LEFT = left game
+    ALIVE, DEAD, LEFT, NEWLY_JOINED; //LEFT = left game
 
     public static PlayerStatus getPlayerStatus(String status) {
         switch (status) {
@@ -22,6 +22,10 @@ public enum PlayerStatus {
             case "Left":
             case "left":
                 return LEFT;
+            case "NEWLY_JOINED":
+            case "Newly_joined":
+            case "newly_joined":
+                return NEWLY_JOINED;
             default:
                 throw new RuntimeException("No such player status defined");
 

@@ -1,7 +1,6 @@
 package mobileappdev.assassingame;
 
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -11,13 +10,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -44,61 +44,92 @@ public class JoinGameActivity extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
-        Query gameQuery = ref.child("games");
-        // final List<String> gameNames = new ArrayList<String>();
+        final DatabaseReference gamesRef = ref.child("games");
 
-        // TODO: SAM: Only fetch the games that are PUBLIC.
-
-        gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        gamesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
-                    // gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
-
-//                    Log.i("TEST", gameSnapshot.child("type").getValue().toString());
-
-                    mItems.add(gameSnapshot.getKey());
-//
-//                    if (gameSnapshot.child("type").getValue().equals("public")) {
-//                        mItems.add(gameSnapshot.getKey());
-//                    }
-//                    Log.i("JoinGameActivity", mItems.toString());
-                }
-
-                ListView mListView = (ListView) findViewById(R.id.public_games_list_view);
-                final ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(JoinGameActivity.this,
-                        android.R.layout.simple_list_item_1, mItems);
-                mListView.setAdapter(mAdapter);
-
-                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                        String playerName = (String) parent.getAdapter().getItem(position);
-//                        Toast.makeText(JoinGameActivity.this, playerName + " is added!", Toast.LENGTH_SHORT).show();
-
-                        FirebaseHelper.updatePlayerStatus(
-                            mItems.get(position),
-                            FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),
-                            PlayerStatus.ALIVE,
-                            true // To increase counter
-                        );
-
-                        // TODO: SAM: ADD GAME NAME AND OTHER STUFF FROM PlayBoardActivity.java
-
-                        Intent intent = new Intent(JoinGameActivity.this, PlayBoardActivity.class);
-                        intent.putExtra(BroadcastHelper.AM_I_ADMIN, false);
-                        startActivity(intent);
+                for (DataSnapshot gameSnapshot : dataSnapshot.getChildren()) {
+                    Object gameType = gameSnapshot.child("type").getValue();
+                    if (gameType == null) {
+                        Log.i("JoinGame", gameSnapshot.getKey() + " doesn't have a Type value");
+                        continue;
                     }
-                });
+                    if ("public".equals(gameType.toString())) {
+                        mItems.add(gameSnapshot.getKey());
+                    }
+                }
+                populateData();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Getting Post failed, log a message
-                Log.w("FirebaseHelper", "loadGames:onCancelled", databaseError.toException());
-                // ...
+                Log.w("JoinGameActivity", "loadGames:onCancelled", databaseError.toException());
             }
         });
+    }
+
+    private void populateData() {
+        ListView mListView = (ListView) findViewById(R.id.public_games_list_view);
+        final ArrayAdapter<String> mAdapter = new ArrayAdapter<>(JoinGameActivity.this, android.R.layout.simple_list_item_1, mItems);
+        mListView.setAdapter(mAdapter);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                final String gameName = mItems.get(position);
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                String gameStatusRef = "games/" + gameName + "/status";
+                DatabaseReference ref = database.getReference(gameStatusRef);
+
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Object statusObj = dataSnapshot.getValue();
+                        if (statusObj == null) {
+                            Log.w("JoinGameActivity:", gameName + "'s status is null.");
+                            return;
+                        }
+
+                        joinGame(gameName, statusObj.toString());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+            }
+        });
+    }
+
+    private void joinGame(String gameName, String gameStatus) {
+        if (GameStatus.FINISHED.equals(GameStatus.getGameStatusFrom(gameStatus))) {
+            Toast.makeText(this, "The game is not being played right now. But, you are added to the game.",
+                    Toast.LENGTH_SHORT).show();
+
+            String currentUser = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            String playerUrl = "games/" + gameName + "/players/" + currentUser;
+
+            DatabaseReference playerRef = database.getReference(playerUrl);
+            playerRef.child("status").setValue(PlayerStatus.NEWLY_JOINED.toString());
+            playerRef.child("invite").setValue(InvitationStatus.ACCEPTED.toString());
+            playerRef.child("role").setValue(GameCharacter.UNDEFINED.toString());
+
+        } else {
+            FirebaseHelper.updatePlayerStatus(gameName, FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),
+                    PlayerStatus.ALIVE, true);
+            Intent intent = new Intent(JoinGameActivity.this, PlayBoardActivity.class);
+            intent.putExtra(BroadcastHelper.GAME_STARTED, true);
+            intent.putExtra(BroadcastHelper.GAME_NAME, gameName);
+//            intent.putExtra(BroadcastHelper.AM_I_ADMIN, false); //no need since default value is false
+            startActivity(intent);
+        }
     }
 
 }

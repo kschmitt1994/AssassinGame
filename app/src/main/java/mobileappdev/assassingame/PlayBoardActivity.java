@@ -37,15 +37,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import org.w3c.dom.DOMConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +92,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mIsAdminOfGame = intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false);
         mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
 
-        if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
+       /* if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
             String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
@@ -112,7 +108,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 //            finishAffinity();
 //            return;
 
-        } else {
+        } else {*/
 
             mMyReceiver = new MyReceiver();
             _this = this;
@@ -128,7 +124,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 mSpinner.dismiss();
                 initialize();
             }
-        }
+//        }
 
     }
 
@@ -859,9 +855,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 updateMarker(playerName, new LatLng(latlng[0], latlng[1]));
 
             } else */
+
+            //todo:ajit: need to check if invite response is "Accepted" type. If decline, just ignore.
             if (mIsAdminOfGame && action.equals(BroadcastHelper.INVITE_RESPONSE)) {
                 String playerName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
-                mPlayerNames.add(playerName); //todo:Ajit: add listener for location on this player
+                mPlayerNames.add(playerName);
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
                 addListenerForLocation(playerName, database);
                 FirebaseHelper.increaseNoOfAliveCiviliansBy1(mGameName);

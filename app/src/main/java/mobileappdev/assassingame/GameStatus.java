@@ -9,7 +9,7 @@ public enum GameStatus {
 
     STARTED, FINISHED;
 
-    public static GameStatus getCharacterFrom(String string) {
+    public static GameStatus getGameStatusFrom(String string) {
         switch (string) {
             case "STARTED" :
             case "started" :

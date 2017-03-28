@@ -53,17 +53,24 @@ public class StatsActivity extends AppCompatActivity {
                     // This way, any time we have an update in this data, the view will be modified
                     // to reflect those changes. Test it out yourself in the Firebase console!
 
-                    mWinsTextView = (TextView) findViewById(R.id.num_wins_view);
-                    mWinsTextView.setText(stats.get("wins").toString());
+                    Integer wins = stats.get("wins");
+                    if (wins != null) {
+                        mWinsTextView = (TextView) findViewById(R.id.num_wins_view);
+                        mWinsTextView.setText(String.valueOf(wins));
+                    }
 
-                    mLossesTextView = (TextView) findViewById(R.id.num_losses_view);
-                    mLossesTextView.setText(stats.get("losses").toString());
+                    Integer losses = stats.get("losses");
+                    if (wins != null) {
+                        mLossesTextView = (TextView) findViewById(R.id.num_losses_view);
+                        mLossesTextView.setText(String.valueOf(losses));
+                    }
+
                 }
 
                 @Override
                 public void onCancelled(DatabaseError error) {
                     // Failed to read value
-                    Log.w("Firebase", "Failed to read value.", error.toException());
+                    Log.w("StatsActivity", "Failed to read value from Firebase.", error.toException());
                 }
             });
         }

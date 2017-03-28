@@ -9,13 +9,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -354,7 +350,7 @@ public class FirebaseHelper {
             }
         });
 
-        return GameStatus.getCharacterFrom(status.toString());
+        return GameStatus.getGameStatusFrom(status.toString());
     }
 
     /**
@@ -400,7 +396,7 @@ public class FirebaseHelper {
                     playerMap.put(snapshot.getKey(),
                             new Player(snapshot.getKey(),
                                     "test@doWeNeedThisInfo.com", // TODO: GET ACTUAL EMAIL
-                                    GameCharacter.getCharacterFrom(snapshot.child("character").getValue().toString()),
+                                    GameCharacter.getGameStatusFrom(snapshot.child("character").getValue().toString()),
                                     Boolean.parseBoolean(snapshot.child("isAlive").getValue().toString())));
                 }
             }

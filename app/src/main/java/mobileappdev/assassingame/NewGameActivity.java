@@ -137,6 +137,8 @@ public class NewGameActivity extends AppCompatActivity {
         gameAdminRef.child("status").setValue(PlayerStatus.ALIVE);
         gameAdminRef.child("invite").setValue(InvitationStatus.UNDEFINED);
 
+
+
         startActivity(new Intent(NewGameActivity.this, InvitePlayersActivity.class));
 //        finish();
     }

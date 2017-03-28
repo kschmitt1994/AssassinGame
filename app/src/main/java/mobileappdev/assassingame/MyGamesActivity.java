@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,20 +49,37 @@ public class MyGamesActivity extends AppCompatActivity {
             }
         });
 
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "MyGames: Firebase current user is null.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final String displayName = currentUser.getDisplayName();
+        if (displayName == null) {
+            Toast.makeText(this, "MyGames: Firebase current user is null.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
-        Query gameQuery = ref.child("games").child(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        final List<String> gameNames = new ArrayList<String>();
+        DatabaseReference games = ref.child("games");
 
-        // TODO: SAM: Only fetch the games that belong to the current user's ID.
-
-        gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        games.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
-                    gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
-                    mItems.add(gameSnapshot.getKey());
-                    Log.i("MyGamesActivity", mItems.toString());
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    Object adminObject = snapshot.child("admin").getValue();
+                    if (adminObject == null) {
+                        Log.i("MyGame", snapshot.getKey() + " doesn't have an admin value");
+                        continue;
+                    }
+                    if (displayName.equals(adminObject.toString())) {
+                        mItems.add(snapshot.getKey());
+                    }
                 }
 
                 ListView mListView = (ListView) findViewById(R.id.public_games_list_view);
@@ -72,10 +90,10 @@ public class MyGamesActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w("FirebaseHelper", "loadGames:onCancelled", databaseError.toException());
+                Log.w("FirebaseHelper", "getMyGames:onCancelled");
             }
         });
+
     }
 
 }
