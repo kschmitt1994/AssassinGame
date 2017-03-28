@@ -150,8 +150,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             public void onDataChange(DataSnapshot dataSnapshot) {
 */
                 for (final String playerName : mPlayerNames) {
-                    if (mMyself.equals(playerName))
-                        continue;
+                    /*if (mMyself.equals(playerName))
+                        continue;*/
 
                    /* if (dataSnapshot.child("lat").getValue() != null) {
                         Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
