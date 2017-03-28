@@ -88,13 +88,12 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
 
         Intent intent = getIntent();
-        if (intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false)) {
-            mIsAdminOfGame = true;
-            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
-        } else if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
+        mIsAdminOfGame = intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false);
+        mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+
+        if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
             String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
-            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
             String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
             if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
                 FirebaseHelper.sendAcceptResponse(player, mGameName);
@@ -107,49 +106,49 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             finish();
 //            finishAffinity();
 //            return;
-        }
 
-        mMyReceiver = new MyReceiver();
-        _this = this;
-        mSpinner = new Spinner(this);
-        mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
-//        mLocation.setLatitude(0.0);
-//        mLocation.setLongitude(0.0);
-
-        updateUserName(this);
-        mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
-        if (mGameStarted) {
-            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
-            fetchAllPlayerNames(mGameName); //mSpinner is being dismissed and initialize() is called within the method
         } else {
-            mSpinner.dismiss();
-            initialize();
+
+            mMyReceiver = new MyReceiver();
+            _this = this;
+            mSpinner = new Spinner(this);
+            mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
+
+            updateUserName(this);
+            mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
+            if (mGameStarted) {
+                mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+                fetchAllPlayerNames(mGameName); //mSpinner is being dismissed and initialize() is called within the method
+            } else {
+                mSpinner.dismiss();
+                initialize();
+            }
         }
 
     }
 
     private void attachLocationListener() {
     /*
-         * Begin Firebase location synchronization stuff
+         * Begin Firebase location synchro nization stuff
          * ---------------------------------------------
          * We have a single listener that is updated any time any of our users change their location.
          * When that listener detects a change we will query the location for each of said users
          * and update the appropriate markers.
          */
 
-        String gameReference = "games/" + mGameName + "/";
+//        String gameReference = "games/" + mGameName + "/";
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor");
+        /*DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor").getRef();
 
         locationRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+*/
                 for (final String playerName : mPlayerNames) {
                     if (mMyself.equals(playerName))
                         continue;
 
-                    if (dataSnapshot.child("lat").getValue() != null) {
+                   /* if (dataSnapshot.child("lat").getValue() != null) {
                         Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
                         Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
                         if (userLat.equals(0.0) && userLng.equals(0.0))
@@ -157,21 +156,21 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                         LatLng userLocation = new LatLng(userLat, userLng);
                         updateMarker(playerName, userLocation);
                     }
-
-                    // addListenerForLocation(playerName, database);
+*/
+                     addListenerForLocation(playerName, database);
                 }
-            }
+           /* }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w("PlayBoardActivity", "locationRef:onCancelled");
             }
-        });
+        });*/
     }
 
     private void addListenerForLocation(final String mPlayerName, FirebaseDatabase database) {
         String playerRef = "users/" + mPlayerName;
-        DatabaseReference playerLocationRef = database.getReference(playerRef);
+        DatabaseReference playerLocationRef = database.getReference(playerRef).getRef();
         playerLocationRef.child("location").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -434,7 +433,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void initialGoogleMapCameraUpdate() {
         if (mGoogleCameraUpdateDone) return;
 
-        if (mLocation == null) return;
+        if (mLocation == null || mGoogleMap == null) return;
         LatLng itemPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLng myPoint = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         LatLngBounds bounds = new LatLngBounds.Builder().include(itemPoint).include(myPoint).build();
@@ -483,7 +482,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mLocation = location;
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference locationRef = database.getReference("games/" + mGameName + "/location_monitor");
+        DatabaseReference locationRef = database.getReference("games/" + mGameName + "/location_monitor").getRef();
         locationRef.setValue(Math.random());
 
         initialGoogleMapCameraUpdate();
@@ -491,14 +490,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 //        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
 //                location.getLongitude()), 12));
 
-        if (mGameStarted) {
+//        if (mGameStarted) {
            /* if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
 //            mGoogleMap.setMyLocationEnabled(false);*/
             updateMarker(mMyself, new LatLng(location.getLatitude(), location.getLongitude()));
             FirebaseHelper.sendLocation(mLocation, mGameName, mMyself);
-        }
+//        }
     }
 
     private void updateMarker(String userName, LatLng latLng) {
