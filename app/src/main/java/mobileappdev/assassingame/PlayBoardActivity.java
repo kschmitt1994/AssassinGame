@@ -148,7 +148,17 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 for (final String playerName : mPlayerNames) {
                     if (mMyself.equals(playerName))
                         continue;
-                    addListenerForLocation(playerName, database);
+
+                    if (dataSnapshot.child("lat").getValue() != null) {
+                        Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
+                        Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
+                        if (userLat.equals(0.0) && userLng.equals(0.0))
+                            return;
+                        LatLng userLocation = new LatLng(userLat, userLng);
+                        updateMarker(playerName, userLocation);
+                    }
+
+                    // addListenerForLocation(playerName, database);
                 }
             }
 
@@ -471,6 +481,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     public void onLocationChanged(Location location) {
         Log.d("Ajit", "I am moving....");
         mLocation = location;
+
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference locationRef = database.getReference(mGameName + "/location_monitor");
+        locationRef.setValue(Math.random());
+
         initialGoogleMapCameraUpdate();
 
 //        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
@@ -511,17 +526,17 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onProviderDisabled(String provider) {
-        if (!mGameStarted)
-            Toast.makeText(this, "Location services is needed for you to be part of the game.", Toast.LENGTH_SHORT).show();
-
-        if (mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.ASSASSIN)) {
-            FirebaseHelper.updateGameStatus(mGameName, false, "Assassin left the game.");
-            return;
-        }
-
-        boolean amIDetective = mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.DETECTIVE);
-        FirebaseHelper.updatePlayerStatus(mGameName, mMyself, PlayerStatus.LEFT, !amIDetective);
-        Toast.makeText(this, "You are no more part of this game.", Toast.LENGTH_LONG).show();
+//        if (!mGameStarted)
+//            Toast.makeText(this, "Location services is needed for you to be part of the game.", Toast.LENGTH_SHORT).show();
+//
+//        if (mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.ASSASSIN)) {
+//            FirebaseHelper.updateGameStatus(mGameName, false, "Assassin left the game.");
+//            return;
+//        }
+//
+//        boolean amIDetective = mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.DETECTIVE);
+//        FirebaseHelper.updatePlayerStatus(mGameName, mMyself, PlayerStatus.LEFT, !amIDetective);
+//        Toast.makeText(this, "You are no more part of this game.", Toast.LENGTH_LONG).show();
     }
 
 

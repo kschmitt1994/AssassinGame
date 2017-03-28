@@ -53,8 +53,8 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
 
         mBuilder.setSmallIcon(R.drawable.common_google_signin_btn_icon_dark);
-        mBuilder.setContentTitle("Assassin");
-        mBuilder.setContentText(" Let's play. "/* + intent.getStringExtra(BroadcastHelper.GAME_NAME)*/);
+        mBuilder.setContentTitle("Your game, " + intent.getStringExtra(BroadcastHelper.GAME_NAME) + " is starting!");
+        mBuilder.setContentText("Let's go!"/* + intent.getStringExtra(BroadcastHelper.GAME_NAME)*/);
         mBuilder.setAutoCancel(true);
 
         //Accept intent
