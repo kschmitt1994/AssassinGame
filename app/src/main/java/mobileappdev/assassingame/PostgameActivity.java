@@ -29,17 +29,18 @@ public class PostgameActivity extends AppCompatActivity {
 
         mLoserTextView = (TextView) findViewById(R.id.losing_team);
 
-        mWinnerTextView.setText("");
+        if (getIntent().getBooleanExtra("DID_ASSASINS_WIN", false)){
+            mWinnerTextView.setText(R.string.assassins);
+            mLoserTextView.setText(R.string.citizens);
+        }
 
-        mLoserTextView.setText("");
-
-        //Todo: pull game instance data to find winner and loser.
+        else {
+            mWinnerTextView.setText(R.string.citizens);
+            mLoserTextView.setText(R.string.assassins);
+        }
 
         mMenuButton = (Button) findViewById(R.id.main_menu_button);
-        if (getIntent().getBooleanExtra("IS_ADMIN", false)) {
-            replayGame();
-        } else {
-        }
+
         mMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -48,6 +49,7 @@ public class PostgameActivity extends AppCompatActivity {
         });
 
         mReplayButton = (Button) findViewById(R.id.replay_button);
+
         if (!getIntent().getBooleanExtra("IS_ADMIN", false)) {
             mReplayButton.setVisibility(View.INVISIBLE);
         }

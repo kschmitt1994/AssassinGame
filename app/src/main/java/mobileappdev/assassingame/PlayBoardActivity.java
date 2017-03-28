@@ -794,6 +794,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         if (mIsAdminOfGame) {
             intent.putExtra("IS_ADMIN", true);
         }
+        intent.putExtra("DID_ASSASSINS_WIN", assassinWon);
         startActivity(intent);
     }
 

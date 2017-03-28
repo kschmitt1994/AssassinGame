@@ -37,6 +37,8 @@
     <string name="losses">Losses:</string>
     <string name="win">Win:</string>
     <string name="lose">Lose:</string>
+    <string name="assassins">Assassins</string>
+    <string name="citizens">Citizens</string>
     <string name="game_over">Game Over</string>
     <string name="main_menu">Main Menu</string>
     <string name="replay">Replay</string>
