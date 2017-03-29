@@ -58,6 +58,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     // newPlayerJoinedIntent.putExtra(BroadcastHelper.LOCATION, payload.get("location")); // TODO: Complete Cloud Fxn
                     sendBroadcast(newPlayerJoinedIntent);
                     break;
+                case "game_end_message":
+                    Intent gameEndIntent = new Intent();
+                    gameEndIntent.setAction(BroadcastHelper.GAME_ENDS);
+                    gameEndIntent.putExtra(BroadcastHelper.WINNING_TEAM, payload.get("winner"));
+                    gameEndIntent.putExtra(BroadcastHelper.RESULT_MESSAGE, payload.get("message"));
+                    sendBroadcast(gameEndIntent);
+                    // TODO: PASS NAME OF WINNING TEAM AND THE GAME MESSAGE (SEE FXN)
+                    break;
                 default:
                     Log.d(TAG, "Intent error");
             }

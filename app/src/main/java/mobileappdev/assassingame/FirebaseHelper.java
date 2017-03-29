@@ -531,10 +531,10 @@ public class FirebaseHelper {
         gameStatusRef.setValue("finished");
 
         DatabaseReference resultRef = database.getReference("games/" + gameName + "/result");
-
-        // TODO: SAM: Store assassinWon
-
         resultRef.setValue(description);
+
+        DatabaseReference assassinWonRef = database.getReference("games/" + gameName + "/assassinWon");
+        assassinWonRef.setValue(assassinWon);
     }
 
     public static void newPlayerAddedUp(String userName, String gameName) {
