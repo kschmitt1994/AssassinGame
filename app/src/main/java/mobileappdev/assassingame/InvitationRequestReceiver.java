@@ -17,8 +17,11 @@ import android.util.Log;
 public class InvitationRequestReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        //if not logged in
-        //return;
+        String player = intent.getStringExtra(BroadcastHelper.SENDER);
+        String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
+        if (admin.equals(player)) //patchy..fix it in the logic of sending these events
+            return;
+
         String action = intent.getAction();
         if (action.equals(BroadcastHelper.INVITE_REQUEST)) {
             addNotification(context, intent);
@@ -37,8 +40,8 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
             //if user is not logged in, then he will not receive any notification
             SharedPreferences sharedPreferences = context.getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
             if (!sharedPreferences.getBoolean(LogInActivity.IS_USER_LOGGED_IN, false)) {
-                String player = intent.getStringExtra(BroadcastHelper.SENDER);
-                String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
+                player = intent.getStringExtra(BroadcastHelper.SENDER);
+                admin = intent.getStringExtra(BroadcastHelper.ADMIN);
                 FirebaseHelper.sendPlayerNotLoggedInResponse(player, admin);
                 return;
             }

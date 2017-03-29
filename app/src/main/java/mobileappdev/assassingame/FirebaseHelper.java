@@ -413,21 +413,18 @@ public class FirebaseHelper {
     }
 */
     public static void updatePlayerStatus(String gameName, String playerName, PlayerStatus status,
-                                          boolean shouldUpdateCiviliansCounter) {
-
-        //TODO:Sam: update the player to be dead/citizens_alive/left
-        //TODO:Sam: decrease alive civlians counter only if the boolean flag is true,
-        // which represents no of civilians left (excluding detective). when it becomes zero, Assassin wins the game.
-
+                                          boolean shouldUpdateCiviliansCounter, boolean increaseCounter) {
         String gamePlayerReference = "games/" + gameName + "/players/" + playerName + "/status";
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(gamePlayerReference);
         ref.setValue(status.toString());
 
         if (shouldUpdateCiviliansCounter) {
-            increaseNoOfAliveCiviliansBy1(gameName);
-        } else {
-            decreaseNoOfAliveCiviliansBy1(gameName);
+            if (increaseCounter) {
+                increaseNoOfAliveCiviliansBy1(gameName);
+            } else {
+                decreaseNoOfAliveCiviliansBy1(gameName);
+            }
         }
     }
 
@@ -454,17 +451,16 @@ public class FirebaseHelper {
         return Integer.parseInt(aliveCivilians.toString());
     }
 
-    public static void initializeNoOfAliveCivilians(final String gameName) {
+    public static void initializeNoOfAliveCivilians(final String gameName, int size) {
         String gameReference = "games/" + gameName;
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
-        DatabaseReference playersRef = database.getReference(gameReference + "/players");
+        aliveRef.setValue(size);
 
-        aliveRef.setValue(0);
-
+        /*DatabaseReference playersRef = database.getReference(gameReference + "/players");
         playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) { //todo:SAM: can we simplify so that we do only one write into firebase database
+            public void onDataChange(DataSnapshot dataSnapshot) {
                 for (int i = 0; i < dataSnapshot.getChildrenCount(); i++) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         if (snapshot.child(snapshot.getKey()).child("role").toString().equals("civilian")) {
@@ -478,7 +474,7 @@ public class FirebaseHelper {
             public void onCancelled(DatabaseError databaseError) {
                 Log.w("FIREBASE HELPER", "Failed to read value.", databaseError.toException());
             }
-        });
+        });*/
     }
 
     /**
@@ -562,25 +558,25 @@ public class FirebaseHelper {
 
 
 
-    public static void updateCharactersOfPlayers(String gameName, String assassin, String detective,
-                                                 String doctor, List<String> citizens) {
+    public static void updateCharactersOfPlayers(String gameName, String assassinName, String detectiveName,
+                                                 String doctorName, List<String> citizens) {
 
         String gamePlayers = "games/" + gameName + "/players";
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         // Setting up the assassin
-        DatabaseReference assassinRef = database.getReference(gamePlayers + "/" + assassin);
+        DatabaseReference assassinRef = database.getReference(gamePlayers + "/" + assassinName);
         assassinRef.child("role").setValue(GameCharacter.ASSASSIN.toString());
 
         // Setting up the detective
-        if (detective.length() > 1) {
-            DatabaseReference detectiveRef = database.getReference(gamePlayers + "/" + detective);
+        if (detectiveName.length() > 1) {
+            DatabaseReference detectiveRef = database.getReference(gamePlayers + "/" + detectiveName);
             detectiveRef.child("role").setValue(GameCharacter.DETECTIVE.toString());
         }
 
         // Setting up the doctor
-        if (doctor.length() > 1) {
-            DatabaseReference doctorRef = database.getReference(gamePlayers + "/" + doctor);
+        if (doctorName.length() > 1) {
+            DatabaseReference doctorRef = database.getReference(gamePlayers + "/" + doctorName);
             doctorRef.child("role").setValue(GameCharacter.DOCTOR.toString());
         }
 

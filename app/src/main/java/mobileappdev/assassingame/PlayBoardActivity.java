@@ -45,9 +45,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -61,20 +63,20 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private LocationManager mLocationManager;
     private Location mLocation = new Location("PlayBoard");
     private GoogleMap mGoogleMap;
-    private String mMyself = "ajit0"; //TODO:ajit: revert
+    private String mMyself = "ajitPBA"; //TODO:ajit: revert
     private String mGameName;
-    private boolean mGameStarted;
+    private boolean mGameStarted = false;
     private boolean mIsAdminOfGame = false;
     private boolean mInitialized = false;
     private boolean amIAlive = true;
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 50; // .5 sec
-    private static final double KILL_DISTANCE = 5;
+    private static final double KILL_DISTANCE = 30;
 
     private Spinner mSpinner;
     private MyReceiver mMyReceiver;
-    private List<String> mPlayerNames = new ArrayList<>();
+    private Set<String> mPlayerNames = new HashSet<>();
     private Map<String, Player> mPlayersMap = new HashMap<>();
     private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
 
@@ -92,136 +94,20 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mIsAdminOfGame = intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false);
         mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
 
-       /* if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
-            String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
-            String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
-            String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
-            if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
-                FirebaseHelper.sendAcceptResponse(player, mGameName);
-            } else {
-                FirebaseHelper.sendRejectionResponse(player, mGameName);
-                //TODO:Ajit: do I need to call finish()?
+        mMyReceiver = new MyReceiver();
+        _this = this;
+        mSpinner = new Spinner(this);
+        mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
+        updateUserName(this);
 
-            }
-            startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
-            finish();
-//            finishAffinity();
-//            return;
-
-        } else {*/
-
-            mMyReceiver = new MyReceiver();
-            _this = this;
-            mSpinner = new Spinner(this);
-            mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
-
-            updateUserName(this);
-            mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
-            if (mGameStarted) {
-                mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
-                fetchAllPlayerNames(mGameName); //mSpinner is being dismissed and initialize() is called within the method
-            } else {
-                mSpinner.dismiss();
-                initialize();
-            }
-//        }
-
-    }
-
-    private void attachLocationListener() {
-    /*
-         * Begin Firebase location synchro nization stuff
-         * ---------------------------------------------
-         * We have a single listener that is updated any time any of our users change their location.
-         * When that listener detects a change we will query the location for each of said users
-         * and update the appropriate markers.
-         */
-
-//        String gameReference = "games/" + mGameName + "/";
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        /*DatabaseReference locationRef = database.getReference(gameReference + "/location_monitor").getRef();
-
-        locationRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-*/
-                for (final String playerName : mPlayerNames) {
-                    /*if (mMyself.equals(playerName))
-                        continue;*/
-
-                   /* if (dataSnapshot.child("lat").getValue() != null) {
-                        Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
-                        Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
-                        if (userLat.equals(0.0) && userLng.equals(0.0))
-                            return;
-                        LatLng userLocation = new LatLng(userLat, userLng);
-                        updateMarker(playerName, userLocation);
-                    }
-*/
-                     addListenerForLocation(playerName, database);
-                }
-           /* }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("PlayBoardActivity", "locationRef:onCancelled");
-            }
-        });*/
-    }
-
-    private void addListenerForLocation(final String mPlayerName, FirebaseDatabase database) {
-        String playerRef = "users/" + mPlayerName;
-        DatabaseReference playerLocationRef = database.getReference(playerRef).getRef();
-        playerLocationRef.child("location").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.child("lat").getValue() != null) {
-                    Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
-                    Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
-                    if (userLat.equals(0.0) && userLng.equals(0.0))
-                        return;
-                    LatLng userLocation = new LatLng(userLat, userLng);
-                    updateMarker(mPlayerName, userLocation);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("PlayBoardActivity", "playerLocationRef:onCancelled");
-            }
-        });
-    }
-
-    public void fetchAllPlayerNames(final String gameName) {
-        String playersReference = "games/" + gameName + "/players";
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference(playersReference);
-
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // Push the names to our result List.
-                List<String> playerNames = new ArrayList<>();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    playerNames.add(snapshot.getKey());
-                }
-
-                updatePlayerNamesListAndGetFurtherData(gameName, playerNames);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.i("FirebaseHelper", "getAllPlayerNames:onCancelled");
-            }
-        });
-
-    }
-
-    private void updatePlayerNamesListAndGetFurtherData(String gameName, List<String> playerNames) {
-        mPlayerNames = playerNames;
-        fetchAllPlayer(gameName);
+        mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
+        if (mGameStarted) {
+            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
+            fetchAllPlayer(mGameName); //mSpinner is being dismissed and initializeMap() is called within the method
+        } else {
+            mSpinner.dismiss();
+            initializeMap();
+        }
 
     }
 
@@ -238,9 +124,9 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     playerMap.put(snapshot.getKey(),
-                            new Player(snapshot.getKey(), "test@doWeNeedThisInfo.com", //todo:SAM: fix email
+                            new Player(snapshot.getKey(), "test@doWeNeedThisInfo.com", //no, we don't need it
                                     GameCharacter.getCharacterFrom(snapshot.child("role").getValue().toString()),
-                                    /*Boolean.parseBoolean(snapshot.child("isAlive").getValue().toString())*/false));
+                                    Boolean.parseBoolean(snapshot.child("status").getValue().toString())));
                 }
                 updateData(playerMap);
             }
@@ -255,14 +141,47 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private void updateData(Map<String, Player> playersMap) {
         mPlayersMap = playersMap;
+        mPlayerNames = playersMap.keySet();
 
         if (mIsAdminOfGame) {
             assignCharacters(mGameName, new ArrayList<>(mPlayerNames));
-            FirebaseHelper.initializeNoOfAliveCivilians(mGameName);
         }
-        initialize();
-        attachLocationListener();
+        initializeMap();
+        attachLocationListener(mPlayerNames);
         mSpinner.dismiss();
+    }
+
+    private void attachLocationListener(Set<String> playerNames) {
+        for (final String playerName : playerNames) {
+            addListenerForLocation(playerName);
+        }
+    }
+
+    private void addListenerForLocation(final String mPlayerName) {
+        String playerRef = "users/" + mPlayerName;
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference playerLocationRef = database.getReference(playerRef).getRef();
+        playerLocationRef.child("location").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //TODO:ajit: shouldn't have a listener on myself. Fix it for CP5
+                if (dataSnapshot.child("lat").getValue() != null) {
+                    Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
+                    Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
+                    if (userLat.equals(0.0) && userLng.equals(0.0)) {
+                        Log.w(PlayBoardActivity.class.getSimpleName(), "Lat Lng is 0/0 for " + mPlayerName);
+                        return;
+                    }
+                    LatLng userLocation = new LatLng(userLat, userLng);
+                    updateMarker(mPlayerName, userLocation);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("PlayBoardActivity", "playerLocationRef:onCancelled");
+            }
+        });
     }
 
 
@@ -308,6 +227,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             mPlayersMap.get(player).setGameCharacterType(GameCharacter.CITIZEN);
         }
         FirebaseHelper.updateCharactersOfPlayers(gameName, assassin, detective, doctor, playerNames);
+        Log.d("AliveP", String.valueOf(playerNames.size()));
+        FirebaseHelper.initializeNoOfAliveCivilians(mGameName, playerNames.size());
 
     }
 
@@ -402,8 +323,9 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         return loc;
     }
 
-    private void initialize() {
-        Log.d("Ajit", "Inside initialize().");
+    private void initializeMap() {
+        Log.d("Ajit", "Inside initializeMap().");
+
         if (mInitialized) return;
 
         checkForLocationServices(PlayBoardActivity.this);
@@ -412,7 +334,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mLocation = getCurrentLocation(PlayBoardActivity.this);
 
         if (mLocation == null)
-            Log.d("Ajit", "Location in null");
+            Log.d("Ajit", "Inside initializeMap(). Location in null");
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -420,7 +342,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, this);
 
 
-        Log.d("Ajit", "Inside initialize(). Calling Map fragment.");
+        Log.d("Ajit", "Inside initializeMap(). Calling Map fragment.");
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         fragment.getMapAsync(new OnMapReadyCallback() {
@@ -431,7 +353,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 if (mLocation != null) {
                     Log.d("Ajit", "Inside onMapReady(). Location is NOT null. Calling initialGoogleMapCameraUpdate()");
                     initialGoogleMapCameraUpdate();
-                    updateMarker(mMyself, new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
+//                    updateMarker(mMyself, new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
                 }
 
             }
@@ -528,31 +450,29 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         Log.d("Ajit", "I am moving....");
         mLocation = location;
 
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference locationRef = database.getReference("games/" + mGameName + "/location_monitor").getRef();
-        locationRef.setValue(Math.random());
+        if (!mGameStarted) //I am forcing it to choose the other way to initialize the Google Map before I even do any update in the next step
+            return;
 
         initialGoogleMapCameraUpdate();
 
 //        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
-//                location.getLongitude()), 12));
+//                location.getLongitude()), 17));
 
-//        if (mGameStarted) {
-           /* if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        /*if (mGameStarted) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-//            mGoogleMap.setMyLocationEnabled(false);*/
+            mGoogleMap.setMyLocationEnabled(false);*/
             updateMarker(mMyself, new LatLng(location.getLatitude(), location.getLongitude()));
             FirebaseHelper.sendLocation(mLocation, mGameName, mMyself);
-//        }
+        //}
     }
 
     private void updateMarker(String userName, LatLng latLng) {
 
-
         MarkerOptions markerOptions = mMarkerMap.get(userName);
 
-        if (markerOptions == null ) {
+        if (markerOptions == null) {
             initialGoogleMapCameraUpdate();
             addMarker(userName, latLng, mPlayersMap.get(userName));
             markerOptions = mMarkerMap.get(userName);
@@ -608,7 +528,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     @Override
     protected void onStop() {
         super.onStop();
-//        mLocationManager.removeUpdates(PlayBoardActivity.this);
+        if (mLocationManager != null) {
+            mLocationManager.removeUpdates(PlayBoardActivity.this);
+        }
+        //TODO:ajit: need to update the player status, and game status if need be
     }
 
 
@@ -708,7 +631,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("Ajit", "Inside onRequestPermissionsResult#beforeInitialize");
-//                    initialize();
+//                    initializeMap();
                 } else {
                     Toast.makeText(this, "Permissions denied. Exiting Game...", Toast.LENGTH_LONG).show();
                     // TODO: 3/16/2017 exit the game
@@ -732,36 +655,38 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 //            marker.hideInfoWindow();
 //        }
 
-        if (!mGameStarted) {
+        /*if (!mGameStarted) {
             Toast.makeText(this, "The game has not yet started", Toast.LENGTH_SHORT).show();
             return false;
-        }
+        }*/
 
         Player myself = mPlayersMap.get(mMyself);
+        MarkerOptions tappedMarker = mMarkerMap.get(marker.getTitle());
 
         switch (myself.getGameCharacterType()) {
             case ASSASSIN:
                 if (marker.getSnippet().equals(GameCharacter.CITIZEN.toString())
                         || marker.getSnippet().equals(GameCharacter.DOCTOR.toString())) {
-                    //marker.setVisible(false);
                     double distance = getDistance(marker, myself);
                     if (distance > KILL_DISTANCE) {
-                        //todo:Ajit: check if getBaseContext() works??
                         Toast.makeText(getBaseContext(), "You can't kill a civilian (doctor included) " +
-                                "if you are not within " + KILL_DISTANCE + "of his proximity. " +
+                                "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
                                 "Current distance from " + marker.getTitle() + " is "+ distance + " meters.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    mMarkerMap.get(marker.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
-                    FirebaseHelper.updatePlayerStatus(mGameName, marker.getTitle(), PlayerStatus.DEAD, true);
-                    checkIfGameIsOver(mGameName);
+                    Toast.makeText(this, "You have killed " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+//                    marker.setVisible(false);
+                    tappedMarker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    checkIfGameIsOver(mGameName, marker);
                 }
                 break;
 
             case DETECTIVE:
                 if (marker.getSnippet().equals(GameCharacter.ASSASSIN.toString())) {
-                    mMarkerMap.get(marker.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    tappedMarker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+//                    marker.setVisible(false);
+                    FirebaseHelper.updatePlayerStatus(mGameName, marker.getTitle(), PlayerStatus.DEAD, false, false);
                     gameFinished(false, "Detective arrested the Assassin.");
                 }
                 break;
@@ -769,21 +694,19 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         return false;
     }
 
-    private void checkIfGameIsOver(String gameName) {
+    private void checkIfGameIsOver(String gameName, final Marker marker) {
             String gameReference = "games/" + gameName;
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
 
-            final StringBuffer aliveCivilians = new StringBuffer();
-
             aliveRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    aliveCivilians.append(dataSnapshot.getValue());
-                    int aliveCivilans = Integer.parseInt(aliveCivilians.toString());
-                    if (aliveCivilans == 0)
+                    int aliveCivilans = Integer.parseInt(dataSnapshot.getValue().toString());
+                    if (aliveCivilans == 1)
                         gameFinished(true, "Assassin killed all Civilians & Doctor.");
-
+                    //this is patchy, but we need to do inside this call in order to make sure that there is no read of invalid count of alive players
+                    FirebaseHelper.updatePlayerStatus(mGameName, marker.getTitle(), PlayerStatus.DEAD, true, false);
                 }
 
                 @Override
@@ -793,10 +716,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             });
 
 
-
-    }
-
-    private void gameFinished(int noOfAliveCivilians) {
 
     }
 
@@ -860,8 +779,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             if (mIsAdminOfGame && action.equals(BroadcastHelper.INVITE_RESPONSE)) {
                 String playerName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
                 mPlayerNames.add(playerName);
-                final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                addListenerForLocation(playerName, database);
+                addListenerForLocation(playerName);
                 FirebaseHelper.increaseNoOfAliveCiviliansBy1(mGameName);
                 FirebaseHelper.newPlayerAddedUp(playerName, mGameName);
                 //rather than adding marker here, we will add it while receiving updated location from the user
@@ -872,10 +790,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 //                double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
                 if (FirebaseHelper.isGameStarted(mGameName)) {
                     mPlayerNames.add(userName);
-                    final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    addListenerForLocation(userName, database);
+                    addListenerForLocation(userName);
 //                    addMarker(userName, new LatLng(latlng[0], latlng[1]), mPlayersMap.get(userName));
                 }
+            } else if (action.equals(BroadcastHelper.GAME_ENDS)) {
+                //TODO:ajit: call gameFinished() in order to get the post game screen
             }
         }
     }

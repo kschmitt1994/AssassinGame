@@ -32,9 +32,7 @@ public class PostgameActivity extends AppCompatActivity {
         if (getIntent().getBooleanExtra("DID_ASSASINS_WIN", false)){
             mWinnerTextView.setText(R.string.assassins);
             mLoserTextView.setText(R.string.citizens);
-        }
-
-        else {
+        } else {
             mWinnerTextView.setText(R.string.citizens);
             mLoserTextView.setText(R.string.assassins);
         }
@@ -50,7 +48,9 @@ public class PostgameActivity extends AppCompatActivity {
 
         mReplayButton = (Button) findViewById(R.id.replay_button);
 
-        if (!getIntent().getBooleanExtra("IS_ADMIN", false)) {
+        if (getIntent().getBooleanExtra("IS_ADMIN", false)) {
+            mReplayButton.setVisibility(View.VISIBLE);
+        } else {
             mReplayButton.setVisibility(View.INVISIBLE);
         }
 

@@ -7,6 +7,7 @@ package mobileappdev.assassingame;
 
 public class BroadcastHelper {
 
+    public static final String GAME_ENDS = "mobileappdev.assassingame.GameEnds";
     public static final String GAME_START = "mobileappdev.assassingame.GameStart";
     public static final String ACCEPT_ACTION = "mobileappdev.assassingame.Accept";
     public static final String REJECT_ACTION = "mobileappdev.assassingame.Reject";

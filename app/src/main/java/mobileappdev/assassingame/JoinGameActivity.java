@@ -128,7 +128,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
         } else {
             FirebaseHelper.updatePlayerStatus(gameName, FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),
-                    PlayerStatus.ALIVE, true);
+                    PlayerStatus.ALIVE, true, true);
             Intent intent = new Intent(JoinGameActivity.this, PlayBoardActivity.class);
             intent.putExtra(BroadcastHelper.GAME_STARTED, true);
             intent.putExtra(BroadcastHelper.GAME_NAME, gameName);
