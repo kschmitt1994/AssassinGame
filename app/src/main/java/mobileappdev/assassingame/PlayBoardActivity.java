@@ -72,7 +72,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 50; // .5 sec
-    private static final double KILL_DISTANCE = 30;
+    private static final double KILL_DISTANCE = 30; //in meters
 
     private Spinner mSpinner;
     private MyReceiver mMyReceiver;
@@ -682,6 +682,22 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 }
                 break;
 
+            case DOCTOR:
+                if (marker.getSnippet().equals(GameCharacter.CITIZEN.toString())) {
+                    double distance = getDistance(marker, myself);
+                    if (distance > KILL_DISTANCE) {
+                        Toast.makeText(getBaseContext(), "You can't revive the civilian " +
+                                "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
+                                "Current distance from " + marker.getTitle() + " is " + distance + " meters.",
+                                Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                    Toast.makeText(this, "You have revived " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+                    tappedMarker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    FirebaseHelper.updatePlayerStatus(mGameName, marker.getTitle(), PlayerStatus.ALIVE, true, true);
+                }
+                break;
+
             case DETECTIVE:
                 if (marker.getSnippet().equals(GameCharacter.ASSASSIN.toString())) {
                     tappedMarker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
@@ -704,7 +720,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int aliveCivilans = Integer.parseInt(dataSnapshot.getValue().toString());
                     if (aliveCivilans == 1)
-                        gameFinished(true, "Assassin killed all Civilians & Doctor.");
+                        gameFinished(true, "Assassin killed all Civilians");
                     //this is patchy, but we need to do inside this call in order to make sure that there is no read of invalid count of alive players
                     FirebaseHelper.updatePlayerStatus(mGameName, marker.getTitle(), PlayerStatus.DEAD, true, false);
                 }
@@ -735,7 +751,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private void gameFinished(boolean assassinWon, String description) {
         FirebaseHelper.updateGameStatus(mGameName, assassinWon, description);
-        //TODO:Ajit: show dialog for replay
         /*boolean shouldReplay = false;
         if (shouldReplay) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
