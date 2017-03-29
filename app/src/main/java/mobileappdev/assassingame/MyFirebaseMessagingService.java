@@ -43,7 +43,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     gameStartIntent.putExtra(BroadcastHelper.ADMIN, payload.get("admin"));
                     gameStartIntent.putExtra(BroadcastHelper.GAME_NAME, payload.get("game"));
 //                     gameStartIntent.putExtra(BroadcastHelper.SENDER, payload.get("sender"));
-                    gameStartIntent.putExtra(BroadcastHelper.PLAYER_NAME, payload.get("player"));
+//                    gameStartIntent.putExtra(BroadcastHelper.PLAYER_NAME, payload.get("player"));
                     sendBroadcast(gameStartIntent);
                     break;
                 case "invite_response":

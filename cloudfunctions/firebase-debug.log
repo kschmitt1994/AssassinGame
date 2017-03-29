@@ -3,23 +3,15 @@
 [debug] CLI Version:  3.5.0
 [debug] Platform:     darwin
 [debug] Node Version: v6.10.1
-[debug] Time:         Wed Mar 29 2017 14:57:51 GMT-0400 (EDT)
+[debug] Time:         Wed Mar 29 2017 15:20:19 GMT-0400 (EDT)
 [debug] ----------------------------------------------------------------------
 [debug] 
 [debug] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
-[debug] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token { refresh_token: '1/bwOMSph5n1uPJHCYp4O42XqTKd9QNcS_lGcYwMbADxg',
-  client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com',
-  client_secret: 'j9iVZfS8kkCEFUPaAeJV0sAi',
-  grant_type: 'refresh_token',
-  scope: 'email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase openid' } 
- Wed Mar 29 2017 14:57:51 GMT-0400 (EDT)
-[debug] <<< HTTP RESPONSE 200
 [debug] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/assassingame-85405  
- Wed Mar 29 2017 14:57:51 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:19 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [debug] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/assassingame-85405/tokens  
- Wed Mar 29 2017 14:57:51 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:20 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [info] 
 [info] === Deploying to 'assassingame-85405'...
@@ -37,22 +29,22 @@
 [info] i  functions: ensuring necessary APIs are enabled...
 [info] i  runtimeconfig: ensuring necessary APIs are enabled...
 [debug] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/cloudfunctions.googleapis.com/projectSettings/assassingame-85405?view=CONSUMER_VIEW  
- Wed Mar 29 2017 14:57:53 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:22 GMT-0400 (EDT)
 [debug] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/assassingame-85405?view=CONSUMER_VIEW  
- Wed Mar 29 2017 14:57:53 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:22 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [info] ✔  runtimeconfig: all necessary APIs are enabled
 [debug] <<< HTTP RESPONSE 200
 [info] ✔  functions: all necessary APIs are enabled
 [debug] >>> HTTP REQUEST GET https://appengine.googleapis.com/v1/apps/assassingame-85405  
- Wed Mar 29 2017 14:57:53 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:23 GMT-0400 (EDT)
 [debug] >>> HTTP REQUEST GET https://apikeys.googleapis.com/v1/projects/assassingame-85405/apiKeys  
- Wed Mar 29 2017 14:57:53 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:23 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [info] i  functions: preparing functions directory for uploading...
 [debug] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/assassingame-85405/configs  
- Wed Mar 29 2017 14:57:55 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:25 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [debug] > [functions] runtime config materialized as: {
   "firebase": {
@@ -109,9 +101,9 @@
     "entryPoint": "gameEndAlert"
   }
 ]
-[info] i  functions: packaged functions (5.26 KB) for uploading
+[info] i  functions: packaged functions (10.47 KB) for uploading
 [debug] >>> HTTP REQUEST GET https://www.googleapis.com/storage/v1/b/staging.assassingame-85405.appspot.com  
- Wed Mar 29 2017 14:57:56 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:26 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [debug] >>> HTTP REQUEST POST https://www.googleapis.com/upload/storage/v1/b/staging.assassingame-85405.appspot.com/o?uploadType=media&name=firebase-functions-source ReadStream {
   _readableState: 
@@ -119,7 +111,7 @@
      objectMode: false,
      highWaterMark: 65536,
      buffer: BufferList { head: [Object], tail: [Object], length: 1 },
-     length: 5389,
+     length: 10723,
      pipes: null,
      pipesCount: 0,
      flowing: null,
@@ -142,7 +134,7 @@
   _events: { end: [Function] },
   _eventsCount: 1,
   _maxListeners: undefined,
-  path: '/var/folders/yg/3ds2w9752w90mnvvxxqcjj5h0000gn/T/firebase-functions-8618zaMoyLVwsxxN.zip',
+  path: '/var/folders/yg/3ds2w9752w90mnvvxxqcjj5h0000gn/T/firebase-functions-9147iW18WA882JZd.zip',
   fd: 21,
   flags: 'r',
   mode: 438,
@@ -150,13 +142,13 @@
   end: undefined,
   autoClose: true,
   pos: undefined,
-  bytesRead: 5389 } 
- Wed Mar 29 2017 14:57:56 GMT-0400 (EDT)
+  bytesRead: 10723 } 
+ Wed Mar 29 2017 15:20:26 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [info] ✔  functions: functions folder uploaded successfully
 [info] i  starting release process (may take several minutes)...
 [debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/projects/assassingame-85405/locations/us-central1/functions  
- Wed Mar 29 2017 14:57:57 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:27 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [info] i  functions: updating function helloWorld...
 [debug] Trigger is: 
@@ -174,42 +166,42 @@
   name: 'projects/assassingame-85405/locations/us-central1/functions/helloWorld',
   entryPoint: 'helloWorld',
   httpsTrigger: {} } 
- Wed Mar 29 2017 14:57:57 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:27 GMT-0400 (EDT)
 [debug] >>> HTTP REQUEST PUT https://cloudfunctions.googleapis.com/v1beta2/projects/assassingame-85405/locations/us-central1/functions/sendInvite { sourceArchiveUrl: 'gs://staging.assassingame-85405.appspot.com/firebase-functions-source',
   name: 'projects/assassingame-85405/locations/us-central1/functions/sendInvite',
   entryPoint: 'sendInvite',
   eventTrigger: 
    { resource: 'projects/_/instances/assassingame-85405/refs/users/{inviteeID}/invites/{inviterID}/{gameID}',
      eventType: 'providers/google.firebase.database/eventTypes/ref.write' } } 
- Wed Mar 29 2017 14:57:57 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:27 GMT-0400 (EDT)
 [debug] >>> HTTP REQUEST PUT https://cloudfunctions.googleapis.com/v1beta2/projects/assassingame-85405/locations/us-central1/functions/sendInviteResponse { sourceArchiveUrl: 'gs://staging.assassingame-85405.appspot.com/firebase-functions-source',
   name: 'projects/assassingame-85405/locations/us-central1/functions/sendInviteResponse',
   entryPoint: 'sendInviteResponse',
   eventTrigger: 
    { resource: 'projects/_/instances/assassingame-85405/refs/games/{gameID}/invites/{invitedID}',
      eventType: 'providers/google.firebase.database/eventTypes/ref.write' } } 
- Wed Mar 29 2017 14:57:57 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:27 GMT-0400 (EDT)
 [debug] >>> HTTP REQUEST PUT https://cloudfunctions.googleapis.com/v1beta2/projects/assassingame-85405/locations/us-central1/functions/sendGameStartMessage { sourceArchiveUrl: 'gs://staging.assassingame-85405.appspot.com/firebase-functions-source',
   name: 'projects/assassingame-85405/locations/us-central1/functions/sendGameStartMessage',
   entryPoint: 'sendGameStartMessage',
   eventTrigger: 
    { resource: 'projects/_/instances/assassingame-85405/refs/games/{gameID}/status',
      eventType: 'providers/google.firebase.database/eventTypes/ref.write' } } 
- Wed Mar 29 2017 14:57:57 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:27 GMT-0400 (EDT)
 [debug] >>> HTTP REQUEST PUT https://cloudfunctions.googleapis.com/v1beta2/projects/assassingame-85405/locations/us-central1/functions/newPlayerAddedUp { sourceArchiveUrl: 'gs://staging.assassingame-85405.appspot.com/firebase-functions-source',
   name: 'projects/assassingame-85405/locations/us-central1/functions/newPlayerAddedUp',
   entryPoint: 'newPlayerAddedUp',
   eventTrigger: 
    { resource: 'projects/_/instances/assassingame-85405/refs/games/{gameID}/players',
      eventType: 'providers/google.firebase.database/eventTypes/ref.write' } } 
- Wed Mar 29 2017 14:57:57 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:27 GMT-0400 (EDT)
 [debug] >>> HTTP REQUEST PUT https://cloudfunctions.googleapis.com/v1beta2/projects/assassingame-85405/locations/us-central1/functions/gameEndAlert { sourceArchiveUrl: 'gs://staging.assassingame-85405.appspot.com/firebase-functions-source',
   name: 'projects/assassingame-85405/locations/us-central1/functions/gameEndAlert',
   entryPoint: 'gameEndAlert',
   eventTrigger: 
    { resource: 'projects/_/instances/assassingame-85405/refs/games/{gameID}/result',
      eventType: 'providers/google.firebase.database/eventTypes/ref.write' } } 
- Wed Mar 29 2017 14:57:57 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:27 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
@@ -217,77 +209,101 @@
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/projects/assassingame-85405/locations/us-central1/functions  
- Wed Mar 29 2017 14:57:58 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvV0dNMFVOdUl6RVU  
- Wed Mar 29 2017 14:57:58 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvY2VMTE1YZ0drZWs  
- Wed Mar 29 2017 14:57:58 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9xR0kwcF9kZWdFOA  
- Wed Mar 29 2017 14:57:58 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL3lDbzVzRGw2R0tB  
- Wed Mar 29 2017 14:57:58 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvOW55NzN6VzRHdmM  
- Wed Mar 29 2017 14:57:58 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9wd1Nld0NSX1J3NA  
- Wed Mar 29 2017 14:57:58 GMT-0400 (EDT)
+ Wed Mar 29 2017 15:20:28 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk  
+ Wed Mar 29 2017 15:20:28 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc  
+ Wed Mar 29 2017 15:20:28 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw  
+ Wed Mar 29 2017 15:20:28 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0  
+ Wed Mar 29 2017 15:20:28 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0  
+ Wed Mar 29 2017 15:20:28 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ  
+ Wed Mar 29 2017 15:20:28 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
-[debug] [functions] operation poll: helloWorld: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvV0dNMFVOdUl6RVU is not done.
-[debug] [functions] operation poll: sendInvite: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvY2VMTE1YZ0drZWs is not done.
-[debug] [functions] operation poll: sendInviteResponse: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9xR0kwcF9kZWdFOA is not done.
-[debug] [functions] operation poll: sendGameStartMessage: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL3lDbzVzRGw2R0tB is not done.
-[debug] [functions] operation poll: newPlayerAddedUp: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvOW55NzN6VzRHdmM is not done.
-[debug] [functions] operation poll: gameEndAlert: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9wd1Nld0NSX1J3NA is not done.
+[debug] [functions] operation poll: helloWorld: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk is not done.
+[debug] [functions] operation poll: sendInvite: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc is not done.
+[debug] [functions] operation poll: sendInviteResponse: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw is not done.
+[debug] [functions] operation poll: sendGameStartMessage: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0 is not done.
+[debug] [functions] operation poll: newPlayerAddedUp: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0 is not done.
+[debug] [functions] operation poll: gameEndAlert: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ is not done.
 [debug] <<< HTTP RESPONSE 200
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvV0dNMFVOdUl6RVU  
- Wed Mar 29 2017 14:58:03 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvY2VMTE1YZ0drZWs  
- Wed Mar 29 2017 14:58:03 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9xR0kwcF9kZWdFOA  
- Wed Mar 29 2017 14:58:03 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL3lDbzVzRGw2R0tB  
- Wed Mar 29 2017 14:58:03 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvOW55NzN6VzRHdmM  
- Wed Mar 29 2017 14:58:03 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9wd1Nld0NSX1J3NA  
- Wed Mar 29 2017 14:58:03 GMT-0400 (EDT)
-[debug] <<< HTTP RESPONSE 200
-[debug] <<< HTTP RESPONSE 200
-[debug] <<< HTTP RESPONSE 200
-[debug] <<< HTTP RESPONSE 200
-[debug] <<< HTTP RESPONSE 200
-[debug] <<< HTTP RESPONSE 200
-[debug] [functions] operation poll: helloWorld: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvV0dNMFVOdUl6RVU is not done.
-[debug] [functions] operation poll: sendInvite: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvY2VMTE1YZ0drZWs is not done.
-[debug] [functions] operation poll: sendInviteResponse: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9xR0kwcF9kZWdFOA is not done.
-[debug] [functions] operation poll: sendGameStartMessage: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL3lDbzVzRGw2R0tB is not done.
-[debug] [functions] operation poll: newPlayerAddedUp: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvOW55NzN6VzRHdmM is not done.
-[debug] [functions] operation poll: gameEndAlert: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9wd1Nld0NSX1J3NA is not done.
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvV0dNMFVOdUl6RVU  
- Wed Mar 29 2017 14:58:08 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvY2VMTE1YZ0drZWs  
- Wed Mar 29 2017 14:58:08 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9xR0kwcF9kZWdFOA  
- Wed Mar 29 2017 14:58:08 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL3lDbzVzRGw2R0tB  
- Wed Mar 29 2017 14:58:08 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvOW55NzN6VzRHdmM  
- Wed Mar 29 2017 14:58:08 GMT-0400 (EDT)
-[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9wd1Nld0NSX1J3NA  
- Wed Mar 29 2017 14:58:08 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk  
+ Wed Mar 29 2017 15:20:33 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc  
+ Wed Mar 29 2017 15:20:33 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw  
+ Wed Mar 29 2017 15:20:33 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0  
+ Wed Mar 29 2017 15:20:33 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0  
+ Wed Mar 29 2017 15:20:33 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ  
+ Wed Mar 29 2017 15:20:33 GMT-0400 (EDT)
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
 [debug] <<< HTTP RESPONSE 200
-[debug] [functions] operation poll: helloWorld: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvV0dNMFVOdUl6RVU is not done.
-[debug] [functions] operation poll: sendInvite: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvY2VMTE1YZ0drZWs is not done.
-[debug] [functions] operation poll: sendInviteResponse: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9xR0kwcF9kZWdFOA is not done.
-[debug] [functions] operation poll: sendGameStartMessage: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL3lDbzVzRGw2R0tB is not done.
-[debug] [functions] operation poll: newPlayerAddedUp: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvOW55NzN6VzRHdmM is not done.
-[debug] [functions] operation poll: gameEndAlert: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9wd1Nld0NSX1J3NA is not done.
+[debug] [functions] operation poll: helloWorld: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk is not done.
+[debug] [functions] operation poll: sendInvite: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc is not done.
+[debug] [functions] operation poll: sendInviteResponse: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw is not done.
+[debug] [functions] operation poll: sendGameStartMessage: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0 is not done.
+[debug] [functions] operation poll: newPlayerAddedUp: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0 is not done.
+[debug] [functions] operation poll: gameEndAlert: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ is not done.
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk  
+ Wed Mar 29 2017 15:20:38 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc  
+ Wed Mar 29 2017 15:20:38 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw  
+ Wed Mar 29 2017 15:20:38 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0  
+ Wed Mar 29 2017 15:20:38 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0  
+ Wed Mar 29 2017 15:20:38 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ  
+ Wed Mar 29 2017 15:20:38 GMT-0400 (EDT)
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] [functions] operation poll: helloWorld: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk is not done.
+[debug] [functions] operation poll: sendInvite: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc is not done.
+[debug] [functions] operation poll: sendInviteResponse: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw is not done.
+[debug] [functions] operation poll: sendGameStartMessage: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0 is not done.
+[debug] [functions] operation poll: newPlayerAddedUp: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0 is not done.
+[debug] [functions] operation poll: gameEndAlert: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ is not done.
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk  
+ Wed Mar 29 2017 15:20:43 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc  
+ Wed Mar 29 2017 15:20:43 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw  
+ Wed Mar 29 2017 15:20:43 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0  
+ Wed Mar 29 2017 15:20:43 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0  
+ Wed Mar 29 2017 15:20:43 GMT-0400 (EDT)
+[debug] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1beta2/operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ  
+ Wed Mar 29 2017 15:20:43 GMT-0400 (EDT)
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] <<< HTTP RESPONSE 200
+[debug] [functions] operation poll: helloWorld: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2hlbGxvV29ybGQvNV90N2pBUHRsMkk is not done.
+[debug] [functions] operation poll: sendInvite: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGUvVWZJUGp3aEpnWHc is not done.
+[debug] [functions] operation poll: sendInviteResponse: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRJbnZpdGVSZXNwb25zZS9ZMXd0dlJfQ0g2aw is not done.
+[debug] [functions] operation poll: sendGameStartMessage: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL3NlbmRHYW1lU3RhcnRNZXNzYWdlL2ZPa0JvZXhiVVc0 is not done.
+[debug] [functions] operation poll: newPlayerAddedUp: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL25ld1BsYXllckFkZGVkVXAvdHZsUGR6OVZmMk0 is not done.
+[debug] [functions] operation poll: gameEndAlert: update operations/YXNzYXNzaW5nYW1lLTg1NDA1L3VzLWNlbnRyYWwxL2dhbWVFbmRBbGVydC9yMkZQOGVSWWZuQQ is not done.
