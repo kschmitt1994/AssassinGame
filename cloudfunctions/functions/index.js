@@ -211,6 +211,7 @@ exports.sendGameStartMessage =  functions.database
                   data: {
                     type: "game_start",
                     admin: gameAdminSnapshot.val(),
+                    player: gamePlayersSnapshot.val(),
                     game: gameID
                   }
                 };
@@ -312,10 +313,78 @@ exports.newPlayerAddedUp = functions.database
   });
 });
 
+exports.gameEndAlert = functions.database
+.ref('games/{gameID}/result').onWrite(event => {
+
+  const gameID = event.params.gameID;
+
+  if (!event.data.val()) {
+    return console.log('No result found');
+  }
+
+  const resultText = event.data.val();
+  console.log("Game result: " + resultText);
+
+  // Get device identifiers for all game players
+
+  const gamePlayers = new Array();
+  const deviceIdentifiers = new Array();
+  const gamePlayerPromise = admin.database().ref(`games/${gameID}/players`).once('value');
+
+  return Promise.resolve(gamePlayerPromise).then(results => {
+    const gamePlayersResult = results;
+    for (let player in Object.keys(gamePlayersResult)) {
+      sendGameEndNotificationToPlayer(player, gameID, resultText);
+    }
+  });
+});
+
+/*
+ * Intermediate function that handles distributing the game end message to all players of a
+ * particular game.
+ *
+ * TODO: Refactor this to be applicable to any message (game start, player joined)
+ */
+function sendGameEndNotificationToPlayer(playerName, gameName, resultText) {
+  const playerDevicePromise = admin.database().ref(`users/${playerName}/device`).once('value');
+  return Promise.resolve(playerDevicePromise).then(function(playerDeviceResult) {
+    const playerDevice = playerDeviceResult;
+    console.log("playerDeviceResult: " + playerDeviceResult);
+    console.log("playerDevice: " + playerDevice);
+
+    const payload = {
+      data: {
+        type: "game_end_message",
+        player: playerName,
+        game: gameName
+      }
+    };
+
+    console.log(playerDevice);
+    console.log(playerDevice.val());
+
+    return admin.messaging().sendToDevice(playerDevice, payload).then(response => {
+      // For each message check if there was an error.
+      const tokensToRemove = [];
+      response.results.forEach((result, index) => {
+        const error = result.error;
+        if (error) {
+          console.error('Failure sending notification to', playerDevice, error);
+          // Cleanup the tokens who are not registered anymore.
+          if (error.code === 'messaging/invalid-registration-token' ||
+            error.code === 'messaging/registration-token-not-registered') {
+            // tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
+          }
+        }
+      }); // forEach
+    });
+  });
+}
+
 /**
  * This function is sent to a game admin when a particular user is not logged
  * in and hence cannot respond to a game invitation.
  */
-exports.sendPlayerNotLoggedInResponse = functions.https.onRequest((request, response) => {
-  // Logic for sendPlayerNotLoggedInResponse goes here
-});
+// exports.sendPlayerNotLoggedInResponse = functions.https.onRequest((request, response) => {
+//   // Logic for sendPlayerNotLoggedInResponse goes here
+// });
