@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 /**
  * @author: Ajit Ku. Sahoo
  * @Date: 3/17/2017
@@ -17,10 +19,10 @@ import android.util.Log;
 public class InvitationRequestReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+//        String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
         String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
-        Log.w("IRR", "admin:" + admin + ", player:" + player);
-        if (admin.equals(player)) //patchy..fix it in the logic of sending these events
+//        Log.w("IRR", "admin:" + admin + ", player:" + player);
+        if (admin.equals(FirebaseAuth.getInstance().getCurrentUser().getDisplayName())) //patchy..fix it in the logic of sending these events
             return;
 
         String action = intent.getAction();
@@ -41,9 +43,9 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
             //if user is not logged in, then he will not receive any notification
             SharedPreferences sharedPreferences = context.getSharedPreferences(LogInActivity.MY_PREFERENCES, Context.MODE_PRIVATE);
             if (!sharedPreferences.getBoolean(LogInActivity.IS_USER_LOGGED_IN, false)) {
-                player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
-                admin = intent.getStringExtra(BroadcastHelper.ADMIN);
-                FirebaseHelper.sendPlayerNotLoggedInResponse(player, admin);
+//                player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
+//                admin = intent.getStringExtra(BroadcastHelper.ADMIN);
+//                FirebaseHelper.sendPlayerNotLoggedInResponse(player, admin);
                 return;
             }
 
