@@ -187,60 +187,104 @@ exports.sendGameStartMessage =  functions.database
     } else {
       const status = event.data.val();
       if (status == 'started' || status == 'STARTED') {
-        const gamePlayerPromise = admin.database()
-          .ref(`games/${gameID}/players`).once('value');
-        const gameAdminPromise = admin.database()
-          .ref(`games/${gameID}/admin`).once('value');
 
-          return Promise.all([gamePlayerPromise, gameAdminPromise]).then(results => {
-            const gamePlayersSnapshot = results[0];
-            const gameAdminSnapshot = results[1];
-            console.log(gameAdminSnapshot);
-            console.log(Object.keys(gameAdminSnapshot));
-            for (let player in gamePlayersSnapshot.val()) {
-              const getPlayerDeviceToken = admin.database()
-                .ref(`users/${player}/device`).once('value');
-              Promise.all([getPlayerDeviceToken]).then(results => {
-                const gameAdminDeviceToken = results[0];
+        admin.database().ref(`games/${gameID}/admin`).once('value', function(adminSnapshot) {
+          const adminName = adminSnapshot.val();
 
-                // Notification details.
-                const payload = {
-                  // notification: {
-                  //   body: `${gameID} has started!`
-                  // },
-                  data: {
-                    type: "game_start",
-                    admin: gameAdminSnapshot.val(),
-                    player: gamePlayersSnapshot.val(),
-                    game: gameID
-                  }
-                };
+          admin.database().ref(`games/${gameID}/players`).once('value', function(playersSnapshot) {
+            playersSnapshot.forEach(function(playerSnapshot) {
+              console.log(playerSnapshot.key); // returns player's username
+              const payload = {
+                data: {
+                  type: "game_start",
+                  admin: adminName,
+                  player: playerSnapshot.key,
+                  game: gameID
+                }
+              }; // payload
 
-                // Listing all tokens.
-                const tokens = Object.keys(gameAdminDeviceToken.val());
-
-                // Send notifications to all tokens.
-                return admin.messaging().sendToDevice(tokens, payload).then(response => {
-                  // For each message check if there was an error.
-                  const tokensToRemove = [];
-                  response.results.forEach((result, index) => {
-                    const error = result.error;
-                    if (error) {
-                      console.error('Failure sending notification to', tokens[index], error);
-                      // Cleanup the tokens who are not registered anymore.
-                      if (error.code === 'messaging/invalid-registration-token' ||
-                          error.code === 'messaging/registration-token-not-registered') {
-                        tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
-                      }
+              admin.messaging().sendToDevice(tokens, payload).then(response => {
+                // For each message check if there was an error.
+                const tokensToRemove = [];
+                response.results.forEach((result, index) => {
+                  const error = result.error;
+                  if (error) {
+                    console.error('Failure sending notification to', tokens[index], error);
+                    // Cleanup the tokens who are not registered anymore.
+                    if (error.code === 'messaging/invalid-registration-token' ||
+                        error.code === 'messaging/registration-token-not-registered') {
+                      tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
                     }
-                  });
-                return Promise.all(tokensToRemove);
-              });
+                  }
+                }); // response.forEach()
+              }); // admin.messaging()
+            }); // playerSnapshot.forEach()
           });
-        } // end for loop
-      });
-    }
-  }
+        });
+
+        // admin.database().ref(`games/${gameID}/players`).once('value', function(playersSnapshot) {
+        //   playersSnapshot.forEach(function(playerSnapshot) {
+        //     console.log(playerSnapshot.key); // returns player's username
+        //     const payload = {
+        //       data: {
+        //         type: "game_start",
+        //         admin: gameAdminSnapshot.val(),
+        //         player: gamePlayersSnapshot.val(),
+        //         game: gameID
+        //       }
+        //     }; // payload
+        //   });
+        // });
+        // const gameAdminPromise = admin.database()
+        //   .ref(`games/${gameID}/admin`).once('value');
+        //
+        //   return Promise.all([gamePlayerPromise, gameAdminPromise]).then(results => {
+        //     const gamePlayersSnapshot = results[0];
+        //     const gameAdminSnapshot = results[1];
+        //     console.log(gameAdminSnapshot);
+        //     console.log(Object.keys(gameAdminSnapshot));
+        //     for (let player in gamePlayersSnapshot.val()) {
+        //       const getPlayerDeviceToken = admin.database()
+        //         .ref(`users/${player}/device`).once('value');
+        //       Promise.all([getPlayerDeviceToken]).then(results => {
+        //         const gameAdminDeviceToken = results[0];
+        //
+        //         // Notification details.
+        //         const payload = {
+        //           // notification: {
+        //           //   body: `${gameID} has started!`
+        //           // },
+        //           data: {
+        //             type: "game_start",
+        //             admin: gameAdminSnapshot.val(),
+        //             player: gamePlayersSnapshot.val(),
+        //             game: gameID
+        //           }
+        //         };
+        //
+        //         // Listing all tokens.
+        //         const tokens = Object.keys(gameAdminDeviceToken.val());
+        //
+        //         // Send notifications to all tokens.
+        //         return admin.messaging().sendToDevice(tokens, payload).then(response => {
+        //           // For each message check if there was an error.
+        //           const tokensToRemove = [];
+        //           response.results.forEach((result, index) => {
+        //             const error = result.error;
+        //             if (error) {
+        //               console.error('Failure sending notification to', tokens[index], error);
+        //               // Cleanup the tokens who are not registered anymore.
+        //               if (error.code === 'messaging/invalid-registration-token' ||
+        //                   error.code === 'messaging/registration-token-not-registered') {
+        //                 tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
+        //               }
+        //             }
+        //           });
+        //         return Promise.all(tokensToRemove);
+        //       });
+        //   });
+    } // END IF GAME STARTED
+  } // end DATA VAL PRESENT
 });
 
 /**
@@ -349,7 +393,7 @@ exports.gameEndAlert = functions.database
         admin.database().ref(`games/${gameID}/assassinWon`).once('value', function(assassinWonSnapshot) {
           let result = assassinWonSnapshot.val();
           let winnerText = "";
-          
+
           if (result) {
             winnerText = "Assassin"
           } else {
