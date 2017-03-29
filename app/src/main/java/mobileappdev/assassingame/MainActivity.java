@@ -126,14 +126,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, JoinGameActivity.class));
             }
         });
-//
-//        Button myGamesButton = (Button)findViewById(R.id.my_games);
-//        myGamesButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startActivity(new Intent(MainActivity.this, MyGamesActivity.class));
-//            }
-//        });
+
+        Button myGamesButton = (Button)findViewById(R.id.my_games);
+        myGamesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, MyGamesActivity.class));
+            }
+        });
 
     }
 

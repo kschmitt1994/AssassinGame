@@ -25,6 +25,7 @@ import java.util.ArrayList;
 public class JoinGameActivity extends AppCompatActivity {
 
     ArrayList<String> mItems = new ArrayList<>();
+    private Spinner mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,9 @@ public class JoinGameActivity extends AppCompatActivity {
                 startActivity(new Intent(JoinGameActivity.this, NewGameActivity.class));
             }
         });
+
+        mProgressDialog = new Spinner(this);
+        mProgressDialog.show("Hang on!", "Fetching public games for you. Please wait...", false);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
@@ -59,6 +63,7 @@ public class JoinGameActivity extends AppCompatActivity {
                         mItems.add(gameSnapshot.getKey());
                     }
                 }
+                mProgressDialog.dismiss();
                 populateData();
             }
 
@@ -98,7 +103,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        Log.w("JoinGameActivity:", gameName + "'s status is null.");
                     }
                 });
 

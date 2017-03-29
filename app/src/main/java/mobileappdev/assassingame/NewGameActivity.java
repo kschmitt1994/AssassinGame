@@ -120,7 +120,7 @@ public class NewGameActivity extends AppCompatActivity {
         String gameName = mGameTitleET.getText().toString().trim();
 
         if (allGameNames.contains(gameName)) {
-            Toast.makeText(this, "Game already exists. Please Choose a different name..", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Game already exists. Please Choose a different name.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -129,14 +129,13 @@ public class NewGameActivity extends AppCompatActivity {
         gameInstance.setPublic(getSelectedRadioButton().getText().toString().contains("Public"));
         gameInstance.setGameAdmin(getMyUserName());
 
-        // Adding player names to our newly-created game!
+        // Adding myself as a player to this game!
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         String gameReference = "games/" + gameName;
         DatabaseReference gameAdminRef = database.getReference(gameReference + "/players/" + getMyUserName());
         gameAdminRef.child("role").setValue(GameCharacter.UNDEFINED);
         gameAdminRef.child("status").setValue(PlayerStatus.ALIVE);
         gameAdminRef.child("invite").setValue(InvitationStatus.UNDEFINED);
-
 
 
         startActivity(new Intent(NewGameActivity.this, InvitePlayersActivity.class));

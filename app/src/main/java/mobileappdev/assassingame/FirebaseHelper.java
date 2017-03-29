@@ -163,6 +163,8 @@ public class FirebaseHelper {
        FirebaseDatabase database = FirebaseDatabase.getInstance();
        String currTime = Long.toString(System.currentTimeMillis());
        for (String player : players) {
+           if (admin.equals(player)) //skip sending the invitation to the admin
+               continue;
            DatabaseReference inviteRef =
                    database.getReference("users/" + player + "/invites/" + admin + "/" + gameName);
            DatabaseReference newInviteRef = inviteRef.push();

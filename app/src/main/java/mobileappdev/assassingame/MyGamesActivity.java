@@ -31,6 +31,7 @@ import java.util.List;
 public class MyGamesActivity extends AppCompatActivity {
 
     ArrayList<String> mItems = new ArrayList<>();
+    private Spinner mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,8 @@ public class MyGamesActivity extends AppCompatActivity {
             }
         });
 
+        mProgressDialog = new Spinner(this);
+        mProgressDialog.show("Hang on!", "Fetching the games you have created. Please wait...", false);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -86,14 +89,54 @@ public class MyGamesActivity extends AppCompatActivity {
                 ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(MyGamesActivity.this,
                         android.R.layout.simple_list_item_1, mItems);
                 mListView.setAdapter(mAdapter);
+
+                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        final String gameName = mItems.get(position);
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        final String gameTypeRef = "games/" + gameName + "/type";
+                        DatabaseReference ref = database.getReference(gameTypeRef);
+
+                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Object gameTypeObj = dataSnapshot.getValue();
+                                if (gameTypeObj == null) {
+                                    Log.w(MyGamesActivity.class.getSimpleName(), gameName + "'s status is null.");
+                                    return;
+                                }
+                                String gameType = gameTypeObj.toString();
+                                proceed(gameName, gameType);
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Log.w(MyGamesActivity.class.getSimpleName(), gameName + "'s status is null.");
+                            }
+                        });
+
+                    }
+                });
+                mProgressDialog.dismiss();
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w("FirebaseHelper", "getMyGames:onCancelled");
+                Log.w(MyGamesActivity.class.getSimpleName(), "getMyGames:onCancelled");
             }
         });
 
+    }
+
+    private void proceed(String gameName, String gameType) {
+        Game gameInstance = Game.getInstance();
+        gameInstance.setGameName(gameName);
+        gameInstance.setPublic("public".equals(gameType));
+        gameInstance.setGameAdmin(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        startActivity(new Intent(MyGamesActivity.this, InvitePlayersActivity.class));
     }
 
 }
