@@ -333,11 +333,59 @@ exports.gameEndAlert = functions.database
 
   return Promise.resolve(gamePlayerPromise).then(results => {
     const gamePlayersResult = results;
-    for (let player in Object.keys(gamePlayersResult)) {
-      sendGameEndNotificationToPlayer(player, gameID, resultText);
-    }
-  });
-});
+    console.log("gamePlayersResult: " + gamePlayersResult);
+
+    gamePlayersResult.forEach(function (gamePlayerSnapshot) {
+      // console.log(gamePlayerSnapshot.key); // DEBUGGING
+
+      admin.database().ref(`users/${gamePlayerSnapshot.key}/device`).once('value', function(playerDevicesSnapshot) {
+        playerDevicesSnapshot.forEach(function(deviceSnapshot) {
+          console.log(deviceSnapshot.key);
+          deviceIdentifiers.push(deviceSnapshot.key);
+        });
+
+        // GET GAME WINNER AND GAME RESPONSE
+
+        admin.database().ref(`games/${gameID}/assassinWon`).once('value', function(assassinWonSnapshot) {
+          let result = assassinWonSnapshot.val();
+          let winnerText = "";
+          
+          if (result) {
+            winnerText = "Assassin"
+          } else {
+            winnerText = "Citizens"
+          }
+
+          const payload = {
+            data: {
+              type: "game_end_message",
+              winner: winnerText,
+              message: resultText
+            }
+          }; // payload
+
+          return admin.messaging().sendToDevice(deviceIdentifiers, payload).then(response => {
+            // For each message check if there was an error.
+            const tokensToRemove = [];
+            response.results.forEach((result, index) => {
+              const error = result.error;
+              if (error) {
+                console.error('Failure sending notification to', playerDevice, error);
+                // Cleanup the tokens who are not registered anymore.
+                if (error.code === 'messaging/invalid-registration-token' ||
+                  error.code === 'messaging/registration-token-not-registered') {
+                  // tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
+                }
+              }
+            }); // forEach
+          }); // admin.messaging()
+
+        });
+
+      }); // ref.once()
+    }); // players.forEach
+  }); // resolve gamePlayersPromise
+}); // export endGame fxn
 
 /*
  * Intermediate function that handles distributing the game end message to all players of a
@@ -346,38 +394,38 @@ exports.gameEndAlert = functions.database
  * TODO: Refactor this to be applicable to any message (game start, player joined)
  */
 function sendGameEndNotificationToPlayer(playerName, gameName, resultText) {
-  const playerDevicePromise = admin.database().ref(`users/${playerName}/device`).once('value');
-  return Promise.resolve(playerDevicePromise).then(function(playerDeviceResult) {
-    const playerDevice = playerDeviceResult;
-    console.log("playerDeviceResult: " + playerDeviceResult);
-    console.log("playerDevice: " + playerDevice);
+  admin.database().ref(`users/${playerName}/device`).once('value', function(playerDeviceSnapshot) {
+    console.log(playerDeviceSnapshot.val());
 
-    const payload = {
-      data: {
-        type: "game_end_message",
-        player: playerName,
-        game: gameName
-      }
-    };
+    // return Promise.resolve(playerDeviceSnapshot.val()).then(function(playerDeviceResult) {
+    //   const playerDevice = playerDeviceResult;
+    //   console.log("playerDeviceResult: " + playerDeviceResult);
+    //   console.log("playerDeviceResult[keys]: " + Object.keys(playerDeviceResult));
+    //
+    //   const payload = {
+    //     data: {
+    //       type: "game_end_message",
+    //       player: playerName,
+    //     }
+    //   };
 
-    console.log(playerDevice);
-    console.log(playerDevice.val());
+      // return admin.messaging().sendToDevice(playerDevice, payload).then(response => {
+      //   // For each message check if there was an error.
+      //   const tokensToRemove = [];
+      //   response.results.forEach((result, index) => {
+      //     const error = result.error;
+      //     if (error) {
+      //       console.error('Failure sending notification to', playerDevice, error);
+      //       // Cleanup the tokens who are not registered anymore.
+      //       if (error.code === 'messaging/invalid-registration-token' ||
+      //         error.code === 'messaging/registration-token-not-registered') {
+      //         // tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
+      //       }
+      //     }
+      //   }); // forEach
+      // }); // admin.messaging()
+    // }); // Promise.resolve()...
 
-    return admin.messaging().sendToDevice(playerDevice, payload).then(response => {
-      // For each message check if there was an error.
-      const tokensToRemove = [];
-      response.results.forEach((result, index) => {
-        const error = result.error;
-        if (error) {
-          console.error('Failure sending notification to', playerDevice, error);
-          // Cleanup the tokens who are not registered anymore.
-          if (error.code === 'messaging/invalid-registration-token' ||
-            error.code === 'messaging/registration-token-not-registered') {
-            // tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
-          }
-        }
-      }); // forEach
-    });
   });
 }
 
