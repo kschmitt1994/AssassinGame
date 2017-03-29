@@ -227,7 +227,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             mPlayersMap.get(player).setGameCharacterType(GameCharacter.CITIZEN);
         }
         FirebaseHelper.updateCharactersOfPlayers(gameName, assassin, detective, doctor, playerNames);
-        Log.d("AliveP", String.valueOf(playerNames.size()));
         FirebaseHelper.initializeNoOfAliveCivilians(mGameName, playerNames.size());
 
     }
@@ -372,6 +371,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         final int margin = getResources().getDimensionPixelSize(R.dimen.map_inset_margin);
         CameraUpdate update = CameraUpdateFactory.newLatLngBounds(bounds, margin);
         mGoogleMap.animateCamera(update);
+        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 17));
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -797,23 +797,44 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 addListenerForLocation(playerName);
                 FirebaseHelper.increaseNoOfAliveCiviliansBy1(mGameName);
                 FirebaseHelper.newPlayerAddedUp(playerName, mGameName);
-                //rather than adding marker here, we will add it while receiving updated location from the user
+                //rather than adding marker here, we will add it while attaching the location listener
                 //addMarker(userName, new LatLng(latlng[0], latlng[1]), GameCharacter.CITIZEN);
 
             } else if (!mIsAdminOfGame && action.equals(BroadcastHelper.NEW_PLAYER_JOINED)) {
                 String userName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
-//                double[] latlng = intent.getDoubleArrayExtra(BroadcastHelper.LOCATION);
-                if (FirebaseHelper.isGameStarted(mGameName)) {
-                    mPlayerNames.add(userName);
-                    addListenerForLocation(userName);
-//                    addMarker(userName, new LatLng(latlng[0], latlng[1]), mPlayersMap.get(userName));
-                }
+                handleNewPlayer(userName);
+
             } else if (action.equals(BroadcastHelper.GAME_ENDS)) {
-                //TODO:ajit: call gameFinished() in order to get the post game screen
+                String msg = intent.getStringExtra(BroadcastHelper.RESULT_MESSAGE);
+                boolean assassinWon = intent.getBooleanExtra(BroadcastHelper.WINNING_TEAM, false);
+                gameFinished(assassinWon, msg);
             }
         }
     }
 
+    private void handleNewPlayer(final String userName) {
+        String gameTypeReference = "games/" + mGameName + "/status";
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference(gameTypeReference);
+
+        // Listen for single value then destroy listener
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String queriedGameStatus = (String) dataSnapshot.getValue();
+                if (GameStatus.STARTED.equals(GameStatus.getGameStatusFrom(queriedGameStatus))) {
+                    mPlayerNames.add(userName);
+                    addListenerForLocation(userName);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("PlayBoardActivity", "Failed to read value.", databaseError.toException());
+            }
+        });
+
+    }
 
 
 }

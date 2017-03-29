@@ -75,19 +75,15 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="0.5"
             android:id="@+id/replay_button"
-            android:layout_margin="24dp"
-            android:layout_gravity="end"
-            android:textAlignment="viewEnd"
             android:text="@string/replay"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="0.5"
             android:id="@+id/main_menu_button"
-            android:layout_margin="24dp"
-            android:layout_gravity="end"
-            android:textAlignment="viewEnd"
             android:text="@string/main_menu"/>
 
     </LinearLayout>
