@@ -534,6 +534,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                         amIAlive = PlayerStatus.ALIVE.equals(PlayerStatus.getPlayerStatus(status));
                         Intent intent = new Intent(PlayBoardActivity.this, ChatActivity.class);
                         intent.putExtra("AM_I_ALIVE", amIAlive);
+                        intent.putExtra("GAME", mGameName);
                         startActivity(intent);
                     }
 

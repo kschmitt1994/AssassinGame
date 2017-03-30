@@ -66,7 +66,7 @@ public class ChatFragment extends Fragment {
     }
 
     private static final String TAG = "ChatFragment";
-    public static final String MESSAGES_CHILD = "messages";
+    public static String MESSAGES_CHILD = "messages";
     private static final int REQUEST_INVITE = 1;
     private static final int REQUEST_IMAGE = 2;
     private static final String LOADING_IMAGE_URL = "https://www.google.com/images/spin-32.gif";
@@ -108,6 +108,9 @@ public class ChatFragment extends Fragment {
         mProgressBar = (ProgressBar) chatView.findViewById(R.id.progressBar);
         mMessageRecyclerView = (RecyclerView) chatView.findViewById(R.id.messageRecyclerView);
 
+        ChatActivity chatFromGame = (ChatActivity) getActivity();
+        MESSAGES_CHILD = "games/" + chatFromGame.getGameName() + "/messages";
+        Log.d("MSG", "Messages child: " + MESSAGES_CHILD);
 
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mLinearLayoutManager.setStackFromEnd(true);
