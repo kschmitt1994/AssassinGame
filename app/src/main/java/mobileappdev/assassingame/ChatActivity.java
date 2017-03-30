@@ -1,5 +1,6 @@
 package mobileappdev.assassingame;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,5 +27,10 @@ public class ChatActivity extends AppCompatActivity {
                     .commit();
         }
 
+    }
+
+    public String getGameName() {
+        Intent thisIntent = getIntent();
+        return thisIntent.getStringExtra("GAME");
     }
 }
