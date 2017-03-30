@@ -253,7 +253,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                         mMarkerMap.put(playerName, null);
                         mMarkerOptionsMap.put(playerName, null);
                         updateMarker(playerName, marker.getPosition());
-                        FirebaseHelper.updatePlayerStatus(mGameName, playerName, PlayerStatus.ALIVE, true, true);
                     }
                 }
             }
