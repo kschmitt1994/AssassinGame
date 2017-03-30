@@ -95,7 +95,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         yesReceive.putExtra(BroadcastHelper.PLAYER_NAME, intent.getStringExtra(BroadcastHelper.PLAYER_NAME));
         yesReceive.putExtra(BroadcastHelper.GAME_NAME, intent.getStringExtra(BroadcastHelper.GAME_NAME));
         PendingIntent pendingIntentYes = PendingIntent.getActivity(context, 12345, yesReceive, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Accept", pendingIntentYes);
+        mBuilder.addAction(R.drawable.ic_done_black_24px, "Accept", pendingIntentYes);
 
         //Reject intent
         Intent noReceive = new Intent(context, MainActivity.class);
@@ -107,7 +107,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
 
         // NOTE: I had to change the number literal; this has to be unique for every pending activity.
         PendingIntent pendingIntentNo = PendingIntent.getActivity(context, 12346, noReceive, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.addAction(R.drawable.common_google_signin_btn_text_dark, "Decline", pendingIntentNo);
+        mBuilder.addAction(R.drawable.ic_close_black_24px, "Decline", pendingIntentNo);
 
         NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, mBuilder.build());
