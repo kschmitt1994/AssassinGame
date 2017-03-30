@@ -96,7 +96,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mIsAdminOfGame = intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false);
         if(!mIsAdminOfGame) {
             try {
-                Thread.sleep(2000); //in order to give some time to admin to assign characters and info to be updated in firebase
+                Thread.sleep(500); //in order to give some time to admin to assign characters and info to be updated in firebase
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -229,8 +229,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 //                        mMarkerMap.remove(playerName);
 //                        mMarkerOptionsMap.remove(playerName);
                         mPlayersMap.get(playerName).setAlive(false);
-
-                        Toast.makeText(PlayBoardActivity.this, "The assassin left the game.", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(PlayBoardActivity.this, "The assassin left the game.", Toast.LENGTH_LONG).show();
 
                     } else if (PlayerStatus.DEAD.equals(PlayerStatus.getPlayerStatus(status))) {
                         Toast.makeText(PlayBoardActivity.this, playerName + " is dead. ", Toast.LENGTH_SHORT).show();
@@ -254,6 +253,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                         mMarkerMap.put(playerName, null);
                         mMarkerOptionsMap.put(playerName, null);
                         updateMarker(playerName, marker.getPosition());
+                        FirebaseHelper.updatePlayerStatus(mGameName, playerName, PlayerStatus.ALIVE, true, true);
                     }
                 }
             }
