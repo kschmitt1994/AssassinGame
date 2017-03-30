@@ -651,8 +651,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         }*/
 
         Player myself = mPlayersMap.get(mMyself);
-        if (!myself.isAlive())
-            return false;
 
         String targetPlayerName = marker.getTitle();
         String targetPlayerCharType = marker.getSnippet();
@@ -693,12 +691,19 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 break;
 
             case DOCTOR:
+                if (!myself.isAlive()) {
+                    Toast.makeText(getBaseContext(), "Doctor, you are dead. So you can no more revive another dead player.",
+                            Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
                 if (GameCharacter.CITIZEN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
                     if (mPlayersMap.get(targetPlayerName).isAlive()) {
-                        Toast.makeText(getBaseContext(), targetPlayerName + " is alive. You can revive a dead player.",
+                        Toast.makeText(getBaseContext(), targetPlayerName + " is already alive. Try your magic on a dead player.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
+
                     double distance = getDistance(marker, myself);
                     if (distance > KILL_DISTANCE) {
                         Toast.makeText(getBaseContext(), "You can't revive the civilian " +
