@@ -5,12 +5,12 @@
     <item
         android:id="@+id/chat"
         android:icon="@drawable/ic_chat_white_24px"
-        android:title="@string/new_player"
+        android:title="@string/game_chat"
         app:showAsAction="ifRoom|withText"/>
 
     <item
         android:id="@+id/exit_game"
         android:icon="@drawable/ic_close_white_24px"
-        android:title="@string/new_player"
+        android:title="@string/leave"
         app:showAsAction="ifRoom|withText"/>
 </menu>
