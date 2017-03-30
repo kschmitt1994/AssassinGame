@@ -29,8 +29,4 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    public String getGameName() {
-        Intent thisIntent = getIntent();
-        return thisIntent.getStringExtra("GAME");
-    }
 }
