@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -78,7 +79,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private MyReceiver mMyReceiver;
     private Set<String> mPlayerNames = new HashSet<>();
     private Map<String, Player> mPlayersMap = new HashMap<>();
-    private Map<String, MarkerOptions> mMarkerMap = new HashMap<>();
+    private Map<String, MarkerOptions> mMarkerOptionsMap = new HashMap<>();
+    private Map<String, Marker> mMarkerMap = new HashMap<>();
 
     private GoogleMap.OnMarkerClickListener _this;
     private boolean mGoogleCameraUpdateDone;
@@ -147,14 +149,111 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             assignCharacters(mGameName, new ArrayList<>(mPlayerNames));
         }
         initializeMap();
-        attachLocationListener(mPlayerNames);
+        addLocationListener(mPlayerNames);
+        addListenerForGameStatus(mGameName);
         mSpinner.dismiss();
     }
 
-    private void attachLocationListener(Set<String> playerNames) {
+    private void addLocationListener(Set<String> playerNames) {
         for (final String playerName : playerNames) {
             addListenerForLocation(playerName);
+            addListenerForPlayerStatusChange(playerName);
         }
+    }
+
+    private void addListenerForGameStatus(final String gameName) {
+        String gameStatusUrl = "games/" + mGameName + "/status";
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference gameStatusRef = database.getReference(gameStatusUrl).getRef();
+        gameStatusRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.w("God", "Game finished notification.");
+                if (dataSnapshot.getValue() != null) {
+                    String status = dataSnapshot.getValue().toString();
+                    if (GameStatus.FINISHED.equals(GameStatus.getGameStatusFrom(status))) {
+                        Log.w("God", "Game finished!");
+                        handleFinishGameStatus(gameName);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("PlayBoardActivity", "playerLocationRef:onCancelled");
+            }
+        });
+
+    }
+
+    private void handleFinishGameStatus(String gameName) {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference gameStatusRef = database.getReference("games/" + gameName + "/assassinWon").getRef();
+        gameStatusRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    boolean assassinWon = Boolean.parseBoolean(dataSnapshot.getValue().toString());
+                    handlePostGameFinishTasks(assassinWon);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("PlayBoardActivity", "game_assassinWonStatus:onCancelled");
+            }
+        });
+
+    }
+
+    private void addListenerForPlayerStatusChange(final String playerName) {
+        String playerStatusRef = "games/" + mGameName + "/players/" + playerName + "/status";
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference playerLocationRef = database.getReference(playerStatusRef).getRef();
+        playerLocationRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    String status = dataSnapshot.getValue().toString();
+                    Log.w("God", "Got a player change status for " + playerName + ". Status=" + status);
+                    if (PlayerStatus.LEFT.equals(PlayerStatus.getPlayerStatus(status))) {
+
+                        mMarkerMap.get(playerName).setVisible(false);
+//                        mMarkerMap.remove(playerName);
+//                        mMarkerOptionsMap.remove(playerName);
+                        mPlayersMap.get(playerName).setAlive(false);
+
+                        Toast.makeText(PlayBoardActivity.this, "The assassin left the game.", Toast.LENGTH_LONG).show();
+
+                    } else if (PlayerStatus.DEAD.equals(PlayerStatus.getPlayerStatus(status))) {
+                        Toast.makeText(PlayBoardActivity.this, playerName + " is dead. ", Toast.LENGTH_SHORT).show();
+                        mPlayersMap.get(playerName).setAlive(false);
+                        Marker marker = mMarkerMap.get(playerName);
+                        marker.setVisible(false);
+                        marker.remove();
+                        mMarkerMap.put(playerName, null);
+                        mMarkerOptionsMap.put(playerName, null);
+                        updateMarker(playerName, marker.getPosition());
+
+                    } else if (PlayerStatus.ALIVE.equals(PlayerStatus.getPlayerStatus(status))) {
+                        Toast.makeText(PlayBoardActivity.this, playerName + " has been revived. ", Toast.LENGTH_SHORT).show();
+                        mPlayersMap.get(playerName).setAlive(true);
+                        Marker marker = mMarkerMap.get(playerName);
+                        marker.setVisible(false);
+                        marker.remove();
+                        mMarkerMap.put(playerName, null);
+                        mMarkerOptionsMap.put(playerName, null);
+                        updateMarker(playerName, marker.getPosition());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("PlayBoardActivity", "playerStatusRef:onCancelled");
+            }
+        });
+
     }
 
     private void addListenerForLocation(final String mPlayerName) {
@@ -246,12 +345,17 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             roleForColor = player.getGameCharacterType();
             actualCharacter = roleForColor.toString();
         }
-        MarkerOptions marker = new MarkerOptions().position(itemPoint)
+        MarkerOptions markerOption = new MarkerOptions().position(itemPoint)
                                                   .title(userName)
                                                   .snippet(actualCharacter)
                                                   .icon(getBitmapDescriptor(roleForColor));
-        mMarkerMap.put(userName, marker);
-        mGoogleMap.addMarker(marker);
+        mMarkerOptionsMap.put(userName, markerOption);
+        if (mGoogleMap == null) {
+            Log.w("Ajit", "mGoogleMap is null");
+            return;
+        }
+        Marker marker1 = mGoogleMap.addMarker(markerOption);
+        mMarkerMap.put(userName, marker1);
     }
 
     @NonNull //TODO:Ajit: need a legend info panel as a menu item to describe the colors
@@ -399,6 +503,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     protected void onDestroy() {
         super.onDestroy();
         mGoogleMap = null;
+        Player player = mPlayersMap.get(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        String gamePlayerReference = "games/" + mGameName + "/players/" + player.getName() + "/status";
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference(gamePlayerReference);
+//        ref.setValue(PlayerStatus.LEFT.toString());
         //TODO: Ajit: check if something else needs to be cleaned up, like listener
     }
 
@@ -470,12 +579,12 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private void updateMarker(String userName, LatLng latLng) {
 
-        MarkerOptions markerOptions = mMarkerMap.get(userName);
+        MarkerOptions markerOptions = mMarkerOptionsMap.get(userName);
 
         if (markerOptions == null) {
             initialGoogleMapCameraUpdate();
             addMarker(userName, latLng, mPlayersMap.get(userName));
-            markerOptions = mMarkerMap.get(userName);
+            markerOptions = mMarkerOptionsMap.get(userName);
         }
         markerOptions.position(latLng);
     }
@@ -528,6 +637,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     @Override
     protected void onStop() {
         super.onStop();
+
         if (mLocationManager != null) {
             mLocationManager.removeUpdates(PlayBoardActivity.this);
         }
@@ -655,7 +765,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         String targetPlayerName = marker.getTitle();
         String targetPlayerCharType = marker.getSnippet();
 
-        MarkerOptions targetMarkerOption = mMarkerMap.get(targetPlayerName);
+        MarkerOptions targetMarkerOption = mMarkerOptionsMap.get(targetPlayerName);
 
         switch (myself.getGameCharacterType()) {
             case ASSASSIN:
@@ -677,10 +787,13 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     Toast.makeText(this, "You have killed " + targetPlayerName, Toast.LENGTH_SHORT).show();
                     marker.setVisible(false);
                     mPlayersMap.get(targetPlayerName).setAlive(false);
+                    mMarkerOptionsMap.put(targetPlayerName, null);
                     mMarkerMap.put(targetPlayerName, null);
                     updateMarker(targetPlayerName, targetMarkerOption.getPosition());
                     //update player status is being done inside the checkIfGameIsOver() after updating the alive citizens count
-                    checkIfGameIsOver(mGameName, marker);
+//                    checkIfGameIsOver(mGameName, marker.getTitle()); //todo:ajit: undo and remove below line
+                    FirebaseHelper.updatePlayerStatus(mGameName, targetPlayerName, PlayerStatus.DEAD, true, false);
+
                 } else if (GameCharacter.DETECTIVE.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
                     double distance = getDistance(marker, myself);
                     Toast.makeText(getBaseContext(), "You can't kill the detective. The detective is " +
@@ -715,6 +828,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     Toast.makeText(this, "You have revived " + targetPlayerName, Toast.LENGTH_SHORT).show();
                     marker.setVisible(false);
                     mPlayersMap.get(targetPlayerName).setAlive(true);
+                    mMarkerOptionsMap.put(targetPlayerName, null); //resetting so that a new marker can be added in updateMarker()
                     mMarkerMap.put(targetPlayerName, null); //resetting so that a new marker can be added in updateMarker()
                     updateMarker(targetPlayerName, targetMarkerOption.getPosition());
                     FirebaseHelper.updatePlayerStatus(mGameName, targetPlayerName, PlayerStatus.ALIVE, true, true);
@@ -747,7 +861,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         return false;
     }
 
-    private void checkIfGameIsOver(String gameName, final Marker marker) {
+    private void checkIfGameIsOver(String gameName, final String userName) {
             String gameReference = "games/" + gameName;
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference aliveRef = database.getReference(gameReference + "/citizens_alive");
@@ -756,10 +870,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int aliveCivilians = Integer.parseInt(dataSnapshot.getValue().toString());
-                    if (aliveCivilians == 1)
+                    if (aliveCivilians <= 1)
                         gameFinished(true, "Assassin killed all Civilians");
                     //this is patchy, but we need to do inside this call in order to make sure that there is no read of invalid count of alive players
-                    FirebaseHelper.updatePlayerStatus(mGameName, marker.getTitle(), PlayerStatus.DEAD, true, false);
+                    FirebaseHelper.updatePlayerStatus(mGameName, userName, PlayerStatus.DEAD, true, false);
                 }
 
                 @Override
@@ -774,12 +888,12 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private double getDistance(Marker marker, Player myself) {
         Location startPoint = new Location("mySelf");
-        LatLng markerPosition1 = mMarkerMap.get(myself.getName()).getPosition();
+        LatLng markerPosition1 = mMarkerOptionsMap.get(myself.getName()).getPosition();
         startPoint.setLatitude(markerPosition1.latitude);
         startPoint.setLongitude(markerPosition1.longitude);
 
         Location endPoint = new Location("target");
-        LatLng markerPosition2 = mMarkerMap.get(marker.getTitle()).getPosition();
+        LatLng markerPosition2 = mMarkerOptionsMap.get(marker.getTitle()).getPosition();
         endPoint.setLatitude(markerPosition2.latitude);
         endPoint.setLongitude(markerPosition2.longitude);
 
@@ -788,29 +902,13 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private void gameFinished(boolean assassinWon, String description) {
         FirebaseHelper.updateGameStatus(mGameName, assassinWon, description);
-        /*boolean shouldReplay = false;
-        if (shouldReplay) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Are you sure you want to exit?")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-//                            PlayBoardActivity.this.finish();
-                            startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
-        }*/
+//        handlePostGameFinishTasks(assassinWon);
+    }
 
+    private void handlePostGameFinishTasks(boolean assassinWon) {
         Player myself = mPlayersMap.get(mMyself);
         GameCharacter role = myself.getGameCharacterType();
-        if (role.toString().equals("ASSASSIN")){
+        /*if (role.toString().equals("ASSASSIN")){
             if (assassinWon){
                 FirebaseHelper.increaseNoOfWinsBy1(mMyself);
             } else {
@@ -824,7 +922,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 FirebaseHelper.increaseNoOfLossesBy1(mMyself);
             }
         }
-
+*/
         Intent intent = new Intent(PlayBoardActivity.this, PostgameActivity.class);
         if (mIsAdminOfGame) {
             intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
@@ -859,9 +957,9 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 handleNewPlayer(userName);
 
             } else if (action.equals(BroadcastHelper.GAME_ENDS)) {
-                String msg = intent.getStringExtra(BroadcastHelper.RESULT_MESSAGE);
+                /*String msg = intent.getStringExtra(BroadcastHelper.RESULT_MESSAGE);
                 boolean assassinWon = intent.getBooleanExtra(BroadcastHelper.WINNING_TEAM, false);
-                gameFinished(assassinWon, msg);
+                gameFinished(assassinWon, msg);*/
             }
         }
     }
