@@ -651,6 +651,9 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         }*/
 
         Player myself = mPlayersMap.get(mMyself);
+        if (!myself.isAlive())
+            return false;
+
         String targetPlayerName = marker.getTitle();
         String targetPlayerCharType = marker.getSnippet();
 
@@ -699,8 +702,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     double distance = getDistance(marker, myself);
                     if (distance > KILL_DISTANCE) {
                         Toast.makeText(getBaseContext(), "You can't revive the civilian " +
-                                "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                "Current distance from " + targetPlayerName + " is " + distance + " meters.",
+                                        "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
+                                        "Current distance from " + targetPlayerName + " is " + distance + " meters.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -713,10 +716,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
                 } else if (GameCharacter.ASSASSIN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
                     double distance = getDistance(marker, myself);
-                        Toast.makeText(getBaseContext(), "Assassin is " + distance + "m away from you." +
-                                        "Maintain a distance of at least " + KILL_DISTANCE + "m from getting " +
-                                        "yourself killed.", Toast.LENGTH_SHORT).show();
-                        return false;
+                    Toast.makeText(getBaseContext(), "Assassin is " + distance + "m away from you." +
+                            "Maintain a distance of at least " + KILL_DISTANCE + "m from getting " +
+                            "yourself killed.", Toast.LENGTH_SHORT).show();
+                    return false;
                 }
                 break;
 
@@ -726,7 +729,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     if (distance > KILL_DISTANCE) {
                         Toast.makeText(getBaseContext(), "You can't arrest the assassin " +
                                         "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                        "Current distance from " + targetPlayerName + " is "+ distance + " meters.",
+                                        "Current distance from " + targetPlayerName + " is " + distance + " meters.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
