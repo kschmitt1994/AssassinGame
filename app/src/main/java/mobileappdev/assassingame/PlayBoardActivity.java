@@ -94,6 +94,13 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
         Intent intent = getIntent();
         mIsAdminOfGame = intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false);
+        if(!mIsAdminOfGame) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
 
         mMyReceiver = new MyReceiver();
@@ -236,9 +243,12 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                         updateMarker(playerName, marker.getPosition());
 
                     } else if (PlayerStatus.ALIVE.equals(PlayerStatus.getPlayerStatus(status))) {
-                        Toast.makeText(PlayBoardActivity.this, playerName + " has been revived. ", Toast.LENGTH_SHORT).show();
-                        mPlayersMap.get(playerName).setAlive(true);
+//                        Toast.makeText(PlayBoardActivity.this, playerName + " has been revived. ", Toast.LENGTH_SHORT).show();
                         Marker marker = mMarkerMap.get(playerName);
+                        if (marker ==  null) {
+                            return;
+                        }
+                        mPlayersMap.get(playerName).setAlive(true);
                         marker.setVisible(false);
                         marker.remove();
                         mMarkerMap.put(playerName, null);
@@ -791,8 +801,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     mMarkerMap.put(targetPlayerName, null);
                     updateMarker(targetPlayerName, targetMarkerOption.getPosition());
                     //update player status is being done inside the checkIfGameIsOver() after updating the alive citizens count
-//                    checkIfGameIsOver(mGameName, marker.getTitle()); //todo:ajit: undo and remove below line
-                    FirebaseHelper.updatePlayerStatus(mGameName, targetPlayerName, PlayerStatus.DEAD, true, false);
+                    checkIfGameIsOver(mGameName, marker.getTitle());
 
                 } else if (GameCharacter.DETECTIVE.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
                     double distance = getDistance(marker, myself);
@@ -908,7 +917,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private void handlePostGameFinishTasks(boolean assassinWon) {
         Player myself = mPlayersMap.get(mMyself);
         GameCharacter role = myself.getGameCharacterType();
-        /*if (role.toString().equals("ASSASSIN")){
+        if (role.toString().equals("ASSASSIN")){
             if (assassinWon){
                 FirebaseHelper.increaseNoOfWinsBy1(mMyself);
             } else {
@@ -922,7 +931,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 FirebaseHelper.increaseNoOfLossesBy1(mMyself);
             }
         }
-*/
         Intent intent = new Intent(PlayBoardActivity.this, PostgameActivity.class);
         if (mIsAdminOfGame) {
             intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
