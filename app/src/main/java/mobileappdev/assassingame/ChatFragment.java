@@ -108,8 +108,7 @@ public class ChatFragment extends Fragment {
         mProgressBar = (ProgressBar) chatView.findViewById(R.id.progressBar);
         mMessageRecyclerView = (RecyclerView) chatView.findViewById(R.id.messageRecyclerView);
 
-        ChatActivity chatFromGame = (ChatActivity) getActivity();
-        MESSAGES_CHILD = "games/" + chatFromGame.getGameName() + "/messages";
+        MESSAGES_CHILD = "games/" + getActivity().getIntent().getStringExtra("GAME")+ "/messages";
         Log.d("MSG", "Messages child: " + MESSAGES_CHILD);
 
         mLinearLayoutManager = new LinearLayoutManager(getActivity());

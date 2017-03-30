@@ -96,7 +96,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         mIsAdminOfGame = intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false);
         if(!mIsAdminOfGame) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(2000); //in order to give some time to admin to assign characters and info to be updated in firebase
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -517,7 +517,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         String gamePlayerReference = "games/" + mGameName + "/players/" + player.getName() + "/status";
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(gamePlayerReference);
-//        ref.setValue(PlayerStatus.LEFT.toString());
+        ref.setValue(PlayerStatus.LEFT.toString());
         //TODO: Ajit: check if something else needs to be cleaned up, like listener
     }
 
