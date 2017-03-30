@@ -1,5 +1,7 @@
 package mobileappdev.assassingame;
 
+import android.util.Log;
+
 /**
  * @author: Ajit Ku. Sahoo
  * @Date: 3/14/2017
@@ -8,8 +10,8 @@ package mobileappdev.assassingame;
 public enum GameCharacter {
     ASSASSIN, CITIZEN, DETECTIVE, DOCTOR, UNDEFINED;
 
-    public static GameCharacter getCharacterFrom(String string) {
-        switch (string) {
+    public static GameCharacter getCharacterFrom(String character) {
+        switch (character) {
             case "CITIZEN" :
             case "Citizen" :
             case "citizen" :
@@ -30,8 +32,11 @@ public enum GameCharacter {
             case "Undefined":
             case "undefined":
                 return UNDEFINED;
-            default:
-                throw new RuntimeException("No such GameCharacter in the game");
+            default: {
+                Log.w("Ajit11", "character found: " + character);
+                throw new RuntimeException(character + "No such GameCharacter in the game ");
+
+            }
         }
     }
 }

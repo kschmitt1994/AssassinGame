@@ -3,6 +3,7 @@ package mobileappdev.assassingame;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,7 +30,7 @@ public class PostgameActivity extends AppCompatActivity {
 
         mLoserTextView = (TextView) findViewById(R.id.losing_team);
 
-        if (getIntent().getBooleanExtra("DID_ASSASINS_WIN", false)){
+        if (getIntent().getBooleanExtra(BroadcastHelper.ASSASSIN_WON, false)){
             mWinnerTextView.setText(R.string.assassins);
             mLoserTextView.setText(R.string.citizens);
         } else {
@@ -48,7 +49,7 @@ public class PostgameActivity extends AppCompatActivity {
 
         mReplayButton = (Button) findViewById(R.id.replay_button);
 
-        if (getIntent().getBooleanExtra("IS_ADMIN", false)) {
+        if (getIntent().getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false)) {
             mReplayButton.setVisibility(View.VISIBLE);
         } else {
             mReplayButton.setVisibility(View.INVISIBLE);

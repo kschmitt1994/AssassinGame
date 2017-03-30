@@ -28,4 +28,5 @@ public class BroadcastHelper {
 
     public static final String WINNING_TEAM = "winningTeam";
     public static final String RESULT_MESSAGE = "resultMessage";
+    public static final String ASSASSIN_WON = "assassinWin";
 }
