@@ -525,6 +525,48 @@ public class FirebaseHelper {
         });
     }
 
+    public static void increaseNoOfWinsBy1(String playerName) {
+        String playerReference = "users/" + playerName + "/stats";
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference winsRef = database.getReference(playerReference + "/wins");
+
+        final StringBuffer numWins = new StringBuffer();
+
+        winsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                numWins.append(dataSnapshot.getValue());
+                winsRef.setValue(Integer.parseInt(numWins.toString()) + 1);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("FirebaseHelper", "increaseNoOfWinsBy1:onCancelled");
+            }
+        });
+    }
+
+    public static void increaseNoOfLossesBy1(String playerName) {
+        String playerReference = "users/" + playerName + "/stats";
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference lossesRef = database.getReference(playerReference + "/losses");
+
+        final StringBuffer numLosses = new StringBuffer();
+
+        lossesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                numLosses.append(dataSnapshot.getValue());
+                lossesRef.setValue(Integer.parseInt(numLosses.toString()) + 1);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("FirebaseHelper", "increaseNoOfLossesBy1:onCancelled");
+            }
+        });
+    }
+
     public static void updateGameStatus(String gameName, boolean assassinWon, String description) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference gameStatusRef = database.getReference("games/" + gameName + "/status");

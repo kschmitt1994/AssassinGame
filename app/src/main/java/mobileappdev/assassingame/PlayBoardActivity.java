@@ -808,6 +808,23 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             alert.show();
         }*/
 
+        Player myself = mPlayersMap.get(mMyself);
+        GameCharacter role = myself.getGameCharacterType();
+        if (role.toString().equals("ASSASSIN")){
+            if (assassinWon){
+                FirebaseHelper.increaseNoOfWinsBy1(mMyself);
+            } else {
+                FirebaseHelper.increaseNoOfLossesBy1(mMyself);
+            }
+
+        } else {
+            if (!assassinWon){
+                FirebaseHelper.increaseNoOfWinsBy1(mMyself);
+            } else {
+                FirebaseHelper.increaseNoOfLossesBy1(mMyself);
+            }
+        }
+
         Intent intent = new Intent(PlayBoardActivity.this, PostgameActivity.class);
         if (mIsAdminOfGame) {
             intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
