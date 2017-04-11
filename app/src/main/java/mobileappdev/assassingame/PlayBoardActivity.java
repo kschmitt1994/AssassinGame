@@ -244,9 +244,12 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 if (dataSnapshot.getValue() != null) {
                     String status = dataSnapshot.getValue().toString();
                     Log.w("God", "Got a player change status for " + playerName + ". Status=" + status);
+                    Marker marker1 = mMarkerMap.get(playerName);
+                    if (marker1 == null)
+                        return;
                     if (PlayerStatus.LEFT.equals(PlayerStatus.getPlayerStatus(status))) {
 
-                        mMarkerMap.get(playerName).setVisible(false);
+                        marker1.setVisible(false);
 //                        mMarkerMap.remove(playerName);
 //                        mMarkerOptionsMap.remove(playerName);
                         mPlayersMap.get(playerName).setAlive(false);
@@ -255,7 +258,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     } else if (PlayerStatus.DEAD.equals(PlayerStatus.getPlayerStatus(status))) {
                         Toast.makeText(PlayBoardActivity.this, playerName + " is dead. ", Toast.LENGTH_SHORT).show();
                         mPlayersMap.get(playerName).setAlive(false);
-                        Marker marker = mMarkerMap.get(playerName);
+                        Marker marker = marker1;
                         marker.setVisible(false);
                         marker.remove();
                         mMarkerMap.put(playerName, null);
@@ -264,7 +267,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
                     } else if (PlayerStatus.ALIVE.equals(PlayerStatus.getPlayerStatus(status))) {
 //                        Toast.makeText(PlayBoardActivity.this, playerName + " has been revived. ", Toast.LENGTH_SHORT).show();
-                        Marker marker = mMarkerMap.get(playerName);
+                        Marker marker = marker1;
                         if (marker ==  null) {
                             return;
                         }
@@ -324,6 +327,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     private void assignCharacters(String gameName, List<String> playerNames) {
         Random random = new Random();
+        int size = playerNames.size();
 
         int assassinIndex = random.nextInt(playerNames.size());
         String assassin = playerNames.get(assassinIndex);
@@ -347,7 +351,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             doctor = playerNames.get(doctorIndex);
             playerNames.remove(doctorIndex);
             mPlayersMap.get(doctor).setGameCharacterType(GameCharacter.DOCTOR);
-
         }
 
         for (String player : playerNames) {
@@ -356,7 +359,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
         //could be done in an AsyncTask
         FirebaseHelper.updateCharactersOfPlayers(gameName, assassin, detective, doctor, playerNames);
-        FirebaseHelper.initializeNoOfAliveCivilians(mGameName, playerNames.size());
+        FirebaseHelper.initializeNoOfAliveCivilians(mGameName, size-1);
 
     }
 
@@ -944,7 +947,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int aliveCivilians = Integer.parseInt(dataSnapshot.getValue().toString());
-                    if (aliveCivilians <= 0)
+                    if (aliveCivilians <= 1)
                         gameFinished(true, "Assassin killed all Civilians");
                     //this is patchy, but we need to do inside this call in order to make sure that there is no read of invalid count of alive players
                     FirebaseHelper.updatePlayerStatus(mGameName, userName, PlayerStatus.DEAD, true, false);
@@ -1065,7 +1068,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     }
 
     private void getTarget(){
-        String target;
+/*        String target;
         Random rand = new Random();
 
         int randomNum = rand.nextInt(mPlayerNames.size());
@@ -1076,11 +1079,32 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
             randomNum = rand.nextInt(mPlayerNames.size());
             target = mPlayerNames.toArray()[randomNum].toString();
-        }
+        }*/
 
-        mTarget = target;
+        String gamePlayerReference = "games/" + mGameName + "/players";
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference(gamePlayerReference);
 
-        Toast.makeText(getBaseContext(), "Your new target is " + mTarget + ".", Toast.LENGTH_SHORT).show();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    GameCharacter role = GameCharacter.getCharacterFrom(snapshot.child("role").getValue().toString());
+                    PlayerStatus status = PlayerStatus.getPlayerStatus(snapshot.child("status").getValue().toString());
+                    if (!role.equals(GameCharacter.ASSASSIN) && status.equals(PlayerStatus.ALIVE)) {
+                        mTarget = snapshot.getKey();
+                        Toast.makeText(getBaseContext(), "Your new target is " + mTarget + ".", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                gameFinished(true, "All civilans are dead");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("FirebaseHelper", "getAllPlayers:onCancelled");
+            }
+        });
+
     }
-
 }
