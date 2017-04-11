@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -35,6 +36,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -476,6 +478,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mGoogleMap = googleMap;
+
                 Log.d("Ajit", "Inside onMapReady(). Checking if location is null.");
                 if (mLocation != null) {
                     Log.d("Ajit", "Inside onMapReady(). Location is NOT null. Calling initialGoogleMapCameraUpdate()");

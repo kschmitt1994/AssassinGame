@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AssassinTheme" parent="android:Theme.Material">
+        <item name="colorAccent">@color/accent_material_dark_1</item>
+    </style>
+
+    <style name="AssassinThemeDark" parent="android:Theme.Material" />
+
+    <style name="AssassinsDarkTheme" parent="android:Theme.Material" />
+</resources>
