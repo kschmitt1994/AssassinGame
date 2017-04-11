@@ -28,7 +28,7 @@ import java.util.Set;
 public class SearchPlayerResultFragment extends Fragment {
 
     private InvitedPlayerListChangeListener mListener;
-    private DatabaseHandler mDatabaseHandler;
+//    private DatabaseHandler mDatabaseHandler;
     private ListView mListView;
     private ArrayAdapter<String> mAdapter;
     private ArrayList<String> mItems;
@@ -38,7 +38,7 @@ public class SearchPlayerResultFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mItems = new ArrayList<>();
-        mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
+//        mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
     }
 
     @Override
@@ -71,9 +71,8 @@ public class SearchPlayerResultFragment extends Fragment {
                 List<Player> searchedResults = Game.getInstance().getSearchedPlayer();
                 Player addedPlayer = searchedResults.get(position);
                 searchedResults.remove(position);
-                mDatabaseHandler.addPlayer(addedPlayer);
-
-//                Game.getInstance().addPlayer2Invite(addedPlayer.getName());
+//                mDatabaseHandler.addPlayer(addedPlayer);
+                Game.getInstance().addPlayer( addedPlayer);
                 mItems.remove(addedPlayer.getName());
                 mAdapter.notifyDataSetChanged();
 
@@ -116,7 +115,7 @@ public class SearchPlayerResultFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
     }
 
-    public void update1() {
+    /*public void update1() {
         Game instance = Game.getInstance();
         TextView searchResultTV = (TextView) getView().findViewById(R.id.search_result_TV);
         Button addButton = (Button) getView().findViewById(R.id.add_player_button);
@@ -129,8 +128,7 @@ public class SearchPlayerResultFragment extends Fragment {
             setComponentsVisibility(new View[]{searchResultTV, addButton}, View.INVISIBLE);
         }
 
-
-    }
+    }*/
 
     public void setComponentsVisibility(View[] components, int visibility) {
         for (View v : components) {
@@ -138,7 +136,7 @@ public class SearchPlayerResultFragment extends Fragment {
         }
     }
 
-//    public List<String> getPlayers2Invite() {
+//    public List<String> getAllPlayers() {
 //        return players2Invite;
 //    }
 //

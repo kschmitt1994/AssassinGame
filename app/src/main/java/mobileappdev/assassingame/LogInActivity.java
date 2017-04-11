@@ -86,9 +86,6 @@ public class LogInActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(LogInActivity.this, "Sign in failed.", Toast.LENGTH_SHORT).show();
                 }
-//                InvitationRequestReceiver.addNotification(getApplicationContext(), intent);
-//                signIn(email, password); //// TODO: 3/17/2017 uncomment this line and remove below line
-//                 startActivity(new Intent(LogInActivity.this, MainActivity.class));
             }
         });
     }
@@ -156,8 +153,6 @@ public class LogInActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-        Log.i(TAG, "Start method is invoked.");
-
     }
 
     @Override
@@ -166,36 +161,8 @@ public class LogInActivity extends AppCompatActivity {
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
-        Log.i(TAG, "Stop method is invoked.");
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG, "Destroy method is invoked.");
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i(TAG, "Pause method is invoked.");
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "Resume method is invoked.");
-
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i(TAG, "Restart method is invoked.");
-
-    }
 
 
 }

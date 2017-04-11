@@ -29,43 +29,32 @@ public class InvitedPlayersFragment extends Fragment {
 
     private RecyclerView mInvitedPlayersRecyclerView;
     private IPAdapter mIPAdapter;
-    private DatabaseHandler mDatabaseHandler;
-    private List<Player> mPlayers;
-    private MyReceiver mMyReceiver;
+//    private DatabaseHandler mDatabaseHandler;
+    private List<String> mPlayers;
+//    private MyReceiver mMyReceiver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_invited_players, container, false);
         mInvitedPlayersRecyclerView = (RecyclerView) view.findViewById(R.id.player_recycler_view);
         mInvitedPlayersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
-        mPlayers = mDatabaseHandler.getAllPlayers();
-        mMyReceiver = new MyReceiver();
+//        mDatabaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
+//        mPlayers = mDatabaseHandler.getAllPlayers();
+//        mMyReceiver = new MyReceiver();
         updateUI();
         return view;
     }
 
     private void updateUI() {
-        mPlayers = mDatabaseHandler.getAllPlayers();
+//        mPlayers = mDatabaseHandler.getAllPlayers();
+        mPlayers = Game.getInstance().getAllPlayerNames();
         mIPAdapter = new IPAdapter(mPlayers);
         mInvitedPlayersRecyclerView.setAdapter(mIPAdapter);
 //        updateInvitationStatusOnGUI();
     }
 
-    private void updateInvitationStatusOnGUI() {
-        Map<String, Player> map = mDatabaseHandler.getAllName2PlayerMap();
-        for (int i = 0; i < mIPAdapter.getItemCount(); i++) {
-            IPHolder viewHolder = (IPHolder)mInvitedPlayersRecyclerView.findViewHolderForLayoutPosition(i);
-            if (viewHolder == null)
-                return;
-            TextView nameTextView = viewHolder.mNameTextView;
-            InvitationStatus invitationStatus = map.get(nameTextView.getText().toString()).getInvitationStatus();
-            updateInvitationStatusOnGUI(nameTextView, invitationStatus);
-        }
-    }
-
     private void updateInvitationStatusOnGUI(TextView textView) {
-        Map<String, Player> map = mDatabaseHandler.getAllName2PlayerMap();
+        Map<String, Player> map = Game.getInstance().getName2PlayerMap();
         Player player = map.get(textView.getText().toString());
         if (player == null)
             return;
@@ -120,15 +109,20 @@ public class InvitedPlayersFragment extends Fragment {
     }
 
     private void removePlayer(int position) {
-        mDatabaseHandler.deletePlayer(mPlayers.get(position).getName());
+        String playerName = mPlayers.get(position);
+        //we don't need to handle such temporary add/remove operation to database. we will only add
+        //the players to the database when game is created. check GameBoardActivity#createGame()
+//        DatabaseHandler databaseHandler = new DatabaseHandler(this.getActivity(), Game.getInstance().getGameName());
+//        databaseHandler.deletePlayer(playerName);
         mPlayers.remove(position);
+        Game.getInstance().removePlayer(playerName);
         updateUI();
     }
 
     private class IPAdapter extends RecyclerView.Adapter<IPHolder> {
-        private List<Player> mPlayers;
+        private List<String> mPlayers;
 
-        IPAdapter(List<Player> players) {
+        IPAdapter(List<String> players) {
             mPlayers = players;
         }
 
@@ -141,8 +135,8 @@ public class InvitedPlayersFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(IPHolder holder, int position) {
-            Player player = mPlayers.get(position);
-            holder.mNameTextView.setText(player.getName());
+            String player = mPlayers.get(position);
+            holder.mNameTextView.setText(player);
             holder.mRemoveButton.setEnabled(true);
             updateInvitationStatusOnGUI(holder.mNameTextView);
 
@@ -161,13 +155,13 @@ public class InvitedPlayersFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(mMyReceiver, new IntentFilter(BroadcastHelper.INVITE_RESPONSE));
+//        getActivity().registerReceiver(mMyReceiver, new IntentFilter(BroadcastHelper.INVITE_RESPONSE));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getActivity().unregisterReceiver(mMyReceiver);
+//        getActivity().unregisterReceiver(mMyReceiver);
     }
 
     public class MyReceiver extends BroadcastReceiver {
@@ -181,8 +175,8 @@ public class InvitedPlayersFragment extends Fragment {
             if (action.equals(BroadcastHelper.INVITE_RESPONSE)) {
                 String userName = intent.getExtras().getString(BroadcastHelper.PLAYER_NAME);
                 String response = intent.getExtras().getString(BroadcastHelper.INVITATION_RESPONSE);
-                mDatabaseHandler.updatePlayerInviationStatus(userName, InvitationStatus.getStatusFrom(response));
-
+//                mDatabaseHandler.updatePlayerInviationStatus(userName, InvitationStatus.getStatusFrom(response));
+                Game.getInstance().getName2PlayerMap().get(userName).setInvitationStatus(InvitationStatus.getStatusFrom(response));
                 for (int i = 0; i < mIPAdapter.getItemCount(); i++) {
                     IPHolder viewHolder = (IPHolder)mInvitedPlayersRecyclerView.findViewHolderForLayoutPosition(i);
                     if (viewHolder.mNameTextView.getText().equals(userName)) {

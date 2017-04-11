@@ -1,13 +1,15 @@
 package mobileappdev.assassingame;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import java.util.Map;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -22,7 +24,7 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.abc);
+        setContentView(R.layout.activity_invite_players);
 
         FragmentManager fm = getSupportFragmentManager();
         SearchPlayerFragment SPFragment = (SearchPlayerFragment) fm.findFragmentById(R.id.frameLayout);
@@ -61,20 +63,33 @@ public class InvitePlayersActivity extends AppCompatActivity implements SearchOp
     }
 
     private void cancelGameCreation() {
-        FirebaseHelper.deleteGame(Game.getInstance().getGameName());
+        new AsyncTaskCancelGame().execute(this);
+
+        Game gameInstance = Game.getInstance();
+        gameInstance.removeAllPlayers();
+
         startActivity(new Intent(InvitePlayersActivity.this, MainActivity.class));
         finish();
     }
 
     private void inviteAndProceed() {
-        Game instance = Game.getInstance();
-        DatabaseHandler databaseHandler = new DatabaseHandler(this, Game.getInstance().getGameName());
-        FirebaseHelper.sendInvite(databaseHandler.getAllPlayerNames(), instance.getGameName(), instance.getGameAdmin());
+        new InvitePlayersAsyncTask().execute();
         Toast.makeText(InvitePlayersActivity.this, "Sending invites...", Toast.LENGTH_SHORT).show();
 //        mSPRFragment.resetPlayers2Invite();
         startActivity(new Intent(InvitePlayersActivity.this, GameBoardActivity.class));
         finish();
     }
+
+    private class InvitePlayersAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Game instance = Game.getInstance();
+            FirebaseHelper.sendInvite(instance.getAllPlayerNames(), instance.getGameName(), instance.getGameAdmin());
+            return null;
+        }
+    }
+
 
     @Override
     public void updateSearchResult() {

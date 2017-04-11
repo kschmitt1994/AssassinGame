@@ -47,6 +47,7 @@ public class NewGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_game);
         _this = this;
+        Game.getInstance().resetGameData(); //this is required when user creates the second game without closing the app
         mGameTitleET = (EditText)findViewById(R.id.game_title_TF);
         mGameTitleET.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
@@ -71,17 +72,11 @@ public class NewGameActivity extends AppCompatActivity {
 
     }
 
-    @NonNull
     private String getMyUserName() {
-//        SharedPreferences sharedPreferences = getSharedPreferences(LogInActivity. MY_PREFERENCES, Context.MODE_PRIVATE);
-//        return sharedPreferences.getString(LogInActivity.USER_NAME, "undefined");
-
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            // Name, email address, and profile photo Url
             return user.getDisplayName();
         }
-
         return "Error";
     }
 
@@ -95,11 +90,11 @@ public class NewGameActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
         Query gameQuery = ref.child("games");
-        final List<String> gameNames = new ArrayList<>();
 
         gameQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                List<String> gameNames = new ArrayList<>();
                 for (DataSnapshot gameSnapshot: dataSnapshot.getChildren()) {
                     gameNames.add(gameSnapshot.getKey()); // Because game names are used as keys
                 }
@@ -120,7 +115,7 @@ public class NewGameActivity extends AppCompatActivity {
         String gameName = mGameTitleET.getText().toString().trim();
 
         if (allGameNames.contains(gameName)) {
-            Toast.makeText(this, "Game already exists. Please Choose a different name.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Game already exists. Please choose a different name.", Toast.LENGTH_SHORT).show();
             return;
         }
 

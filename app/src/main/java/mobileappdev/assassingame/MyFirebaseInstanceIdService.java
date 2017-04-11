@@ -25,7 +25,7 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
         Log.d(TAG, "FCM Token: " + token);
 
         // Once a token is generated, we subscribe to topic.
-    FirebaseMessaging.getInstance()
+         FirebaseMessaging.getInstance()
                 .subscribeToTopic(CHAT_ENGAGE_TOPIC);
     }
 }

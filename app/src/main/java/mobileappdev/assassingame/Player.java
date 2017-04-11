@@ -11,7 +11,6 @@ public class Player {
     private String mEmailID;
     private boolean mAlive;
     private GameCharacter mGameCharacterType;
-    private Location mLocation;
 
     private InvitationStatus mInvitationStatus;
 
@@ -27,7 +26,6 @@ public class Player {
         mEmailID = emailID;
         mAlive = alive;
         mGameCharacterType = gameCharacter;
-        mLocation = null;
         mInvitationStatus = status;
     }
 
@@ -59,20 +57,12 @@ public class Player {
         return mGameCharacterType;
     }
 
-    public Location getLocation() {
-        return mLocation;
-    }
-
     public void setAlive(boolean alive) {
         mAlive = alive;
     }
 
     public void setGameCharacterType(GameCharacter gameCharacterType) {
         mGameCharacterType = gameCharacterType;
-    }
-
-    public void setLocation(Location location) {
-        mLocation = location;
     }
 
     private static int counter = 0;

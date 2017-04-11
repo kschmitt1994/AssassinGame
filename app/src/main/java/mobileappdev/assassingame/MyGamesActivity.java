@@ -27,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MyGamesActivity extends AppCompatActivity {
 
@@ -136,6 +137,8 @@ public class MyGamesActivity extends AppCompatActivity {
         gameInstance.setGameName(gameName);
         gameInstance.setPublic("public".equals(gameType));
         gameInstance.setGameAdmin(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        DatabaseHandler handler = new DatabaseHandler(this, gameName);
+        gameInstance.setName2PlayerMap(handler.getAllName2PlayerMap());
         startActivity(new Intent(MyGamesActivity.this, InvitePlayersActivity.class));
     }
 

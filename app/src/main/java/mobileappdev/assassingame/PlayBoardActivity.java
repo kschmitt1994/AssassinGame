@@ -1,6 +1,7 @@
 package mobileappdev.assassingame;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,9 +20,15 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,7 +61,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -64,38 +71,38 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         GoogleMap.OnMarkerClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int LOCATION_PERMISSION_REQUEST_ID = 123;
+    private static final String TAG = "PBActivity";
     private LocationManager mLocationManager;
     private Location mLocation = new Location("PlayBoard");
     private GoogleMap mGoogleMap;
-    private String mMyself = "ajitPBA"; //TODO:ajit: revert
-    private String mTarget;
+    private String mMyself = "ajitPBA";
     private String mGameName;
     private boolean mGameStarted = false;
+    private boolean mGameFinished = false;
+    private boolean mGameClosedByUser = false;
     private boolean mIsAdminOfGame = false;
     private boolean mInitialized = false;
     private boolean amIAlive = true;
-    private Random rand = new Random();
 
-    private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
-    private static final long LOCATION_REFRESH_TIME = 50; // .5 sec
-    private static final double KILL_DISTANCE = 30; //in meters
+    private static final long LOCATION_REFRESH_DISTANCE = 10; // in meters
+    private static final long LOCATION_REFRESH_TIME = 5000; // in msec
+    private static final double KILL_DISTANCE = 50; //in meters
 
     private Spinner mSpinner;
     private MyReceiver mMyReceiver;
-    private Set<String> mPlayerNames = new HashSet<>();
-    private Map<String, Player> mPlayersMap = new HashMap<>();
-    private Map<String, MarkerOptions> mMarkerOptionsMap = new HashMap<>();
-    private Map<String, Marker> mMarkerMap = new HashMap<>();
+    private Set<String> mPlayerNames;
+    private Map<String, Marker> mMarkerMap;
+    private Map<String, Player> mPlayersMap;
+    private Map<String, MarkerOptions> mMarkerOptionsMap;
 
-    private GoogleMap.OnMarkerClickListener _this;
     private boolean mGoogleCameraUpdateDone;
+    private GoogleMap.OnMarkerClickListener _this;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_board);
-
 
         Intent intent = getIntent();
         mIsAdminOfGame = intent.getBooleanExtra(BroadcastHelper.AM_I_ADMIN, false);
@@ -106,17 +113,21 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 e.printStackTrace();
             }
         }
+
+        _this = this;
+        mMyReceiver = new MyReceiver();
+        mMarkerMap = new HashMap<>();
+        mPlayersMap = new HashMap<>();
+        mPlayerNames = new HashSet<>();
+        mMarkerOptionsMap = new HashMap<>();
         mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
 
-        mMyReceiver = new MyReceiver();
-        _this = this;
         mSpinner = new Spinner(this);
         mSpinner.show("Hang On!", "Doing initial game set up for you...", false);
         updateUserName(this);
 
         mGameStarted = intent.getBooleanExtra(BroadcastHelper.GAME_STARTED, false);
         if (mGameStarted) {
-            mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
             fetchAllPlayer(mGameName); //mSpinner is being dismissed and initializeMap() is called within the method
         } else {
             mSpinner.dismiss();
@@ -139,8 +150,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     playerMap.put(snapshot.getKey(),
                             new Player(snapshot.getKey(), "test@doWeNeedThisInfo.com", //no, we don't need it
-                                    GameCharacter.getCharacterFrom(snapshot.child("role").getValue().toString()),
-                                    PlayerStatus.ALIVE.equals(PlayerStatus.getPlayerStatus(snapshot.child("status").getValue().toString()))));
+                            GameCharacter.getCharacterFrom(snapshot.child("role").getValue().toString()),
+                            PlayerStatus.ALIVE.equals(PlayerStatus.getPlayerStatus(snapshot.child("status").getValue().toString()))));
                 }
                 updateData(playerMap);
             }
@@ -277,7 +288,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         playerLocationRef.child("location").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //TODO:ajit: shouldn't have a listener on myself. Fix it for CP5
                 if (dataSnapshot.child("lat").getValue() != null) {
                     Double userLat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
                     Double userLng = Double.parseDouble(dataSnapshot.child("lng").getValue().toString());
@@ -315,10 +325,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         playerNames.remove(assassinIndex);
         mPlayersMap.get(assassin).setGameCharacterType(GameCharacter.ASSASSIN);
 
-        if (assassin.equals(mMyself)){
-            getTarget();
-        }
-
 
         String detective = "";
         String doctor = "";
@@ -343,6 +349,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         for (String player : playerNames) {
             mPlayersMap.get(player).setGameCharacterType(GameCharacter.CITIZEN);
         }
+
+        //could be done in an AsyncTask
         FirebaseHelper.updateCharactersOfPlayers(gameName, assassin, detective, doctor, playerNames);
         FirebaseHelper.initializeNoOfAliveCivilians(mGameName, playerNames.size());
 
@@ -480,12 +488,24 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
         Log.d("Ajit", "Inside initializeMap(). Calling Map fragment.");
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-
+        final PlayBoardActivity playBoardActivity = this;
         fragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mGoogleMap = googleMap;
+                try {
+                    // Customise the styling of the base map using a JSON object defined
+                    // in a raw resource file.
+                    boolean success = googleMap.setMapStyle(
+                            MapStyleOptions.loadRawResourceStyle(
+                                    playBoardActivity , R.raw.style_json));
 
+                    if (!success) {
+                        Log.e(PlayBoardActivity.class.getSimpleName(), "Style parsing failed.");
+                    }
+                } catch (Resources.NotFoundException e) {
+                    Log.e(TAG, "Can't find style. Error: ", e);
+                }
                 Log.d("Ajit", "Inside onMapReady(). Checking if location is null.");
                 if (mLocation != null) {
                     Log.d("Ajit", "Inside onMapReady(). Location is NOT null. Calling initialGoogleMapCameraUpdate()");
@@ -522,11 +542,27 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     protected void onDestroy() {
         super.onDestroy();
         mGoogleMap = null;
-        Player player = mPlayersMap.get(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        String gamePlayerReference = "games/" + mGameName + "/players/" + player.getName() + "/status";
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference(gamePlayerReference);
-        ref.setValue(PlayerStatus.LEFT.toString());
+
+        if (mLocationManager != null) {
+            mLocationManager.removeUpdates(PlayBoardActivity.this);
+        }
+
+        if (mGameFinished)
+            return;
+
+        if (mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.ASSASSIN)) {
+            gameFinished(false, "Assassin left the game");
+            return;
+        }
+
+        boolean amIDetective = mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.DETECTIVE);
+        FirebaseHelper.updatePlayerStatus(mGameName, mMyself, PlayerStatus.LEFT, !amIDetective, !amIDetective);
+
+//        Player player = mPlayersMap.get(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+//        String gamePlayerReference = "games/" + mGameName + "/players/" + player.getName() + "/status";
+//        FirebaseDatabase database = FirebaseDatabase.getInstance();
+//        DatabaseReference ref = database.getReference(gamePlayerReference);
+//        ref.setValue(PlayerStatus.LEFT.toString());
         //TODO: Ajit: check if something else needs to be cleaned up, like listener
     }
 
@@ -540,6 +576,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.info:
+                AlertDialog.Builder alertDialog = getInfoDialog();
+                alertDialog.show();
+                return true;
+
             case R.id.chat:
 
                 String statusReference = "games/" + mGameName + "/players/" + mMyself + "/status";
@@ -565,6 +606,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 return true;
 
             case R.id.exit_game:
+                mGameClosedByUser = true;
                 startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
                 finish();
                 return true;
@@ -572,6 +614,34 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @NonNull
+    private AlertDialog.Builder getInfoDialog() {
+        ContextThemeWrapper ctw = new ContextThemeWrapper(this, R.style.Theme_AppCompat_Light);
+
+        SpannableStringBuilder ssBuilderRed = new SpannableStringBuilder(   "  Red        - Assassin");
+        SpannableStringBuilder ssBuilderGreen = new SpannableStringBuilder( "  Green    - Citizen");
+        SpannableStringBuilder ssBuilderBlue = new SpannableStringBuilder(  "  Blue       - Doctor");
+        SpannableStringBuilder ssBuilderCyan = new SpannableStringBuilder(  "  Cyan      - Detective");
+        SpannableStringBuilder ssBuilderYellow = new SpannableStringBuilder("  Yellow   - Dead");
+
+        ssBuilderRed.setSpan(new ForegroundColorSpan(Color.RED), 0, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssBuilderGreen.setSpan(new ForegroundColorSpan(Color.GREEN), 0, 7, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssBuilderBlue.setSpan(new ForegroundColorSpan(Color.BLUE), 0, 6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssBuilderCyan.setSpan(new ForegroundColorSpan(Color.CYAN), 0, 6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssBuilderYellow.setSpan(new ForegroundColorSpan(Color.YELLOW), 0, 8, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ctw);
+        alertDialog.setTitle("Player's Color Info");
+        alertDialog.setMessage(ssBuilderBlue.append("\n").append(ssBuilderCyan).append("\n")
+                .append(ssBuilderGreen).append("\n").append(ssBuilderRed).append("\n").append(ssBuilderYellow));
+        alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        return alertDialog;
     }
 
     @Override
@@ -621,17 +691,18 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onProviderDisabled(String provider) {
-//        if (!mGameStarted)
-//            Toast.makeText(this, "Location services is needed for you to be part of the game.", Toast.LENGTH_SHORT).show();
-//
-//        if (mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.ASSASSIN)) {
-//            FirebaseHelper.updateGameStatus(mGameName, false, "Assassin left the game.");
-//            return;
-//        }
-//
-//        boolean amIDetective = mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.DETECTIVE);
-//        FirebaseHelper.updatePlayerStatus(mGameName, mMyself, PlayerStatus.LEFT, !amIDetective);
-//        Toast.makeText(this, "You are no more part of this game.", Toast.LENGTH_LONG).show();
+
+        Toast.makeText(this, "Location Service is disabled. You are no longer part of the game.", Toast.LENGTH_LONG).show();
+
+        if (mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.ASSASSIN)) {
+            gameFinished(false, "Assassin left the game");
+            return;
+        }
+
+        boolean amIDetective = mPlayersMap.get(mMyself).getGameCharacterType().equals(GameCharacter.DETECTIVE);
+        FirebaseHelper.updatePlayerStatus(mGameName, mMyself, PlayerStatus.LEFT, !amIDetective, !amIDetective);
+        checkIfGameIsOver(mGameName, mMyself);
+
     }
 
 
@@ -658,10 +729,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     protected void onStop() {
         super.onStop();
 
-        if (mLocationManager != null) {
-            mLocationManager.removeUpdates(PlayBoardActivity.this);
-        }
-        //TODO:ajit: need to update the player status, and game status if need be
+
     }
 
 
@@ -681,23 +749,14 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     public static void showSettingsAlert(final Context context) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-
-        // Setting Dialog Title
         alertDialog.setTitle("GPS is settings");
-
-//        alertDialog.setCancelable(false);
-        // Setting Dialog Message
         alertDialog.setMessage("Location is not enabled. Please enable location services. Press Cancel to exit the game");
-
-        // On pressing Settings button
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 context.startActivity(intent);
             }
         });
-
-        // on pressing cancel button
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -705,7 +764,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             }
         });
 
-        // Showing Alert Message
         alertDialog.show();
     }
 
@@ -789,52 +847,58 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
         switch (myself.getGameCharacterType()) {
             case ASSASSIN:
-                double assassinDistance = getDistance(marker, myself);
-                if (assassinDistance > KILL_DISTANCE) {
-                    Toast.makeText(getBaseContext(), "You can't kill a player " + "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                    "Current distance is "+ assassinDistance + " meters.",
-                            Toast.LENGTH_SHORT).show();
-                    return false;
-                }
+                if (GameCharacter.CITIZEN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))
+                        || GameCharacter.DOCTOR.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
+                    if (!mPlayersMap.get(targetPlayerName).isAlive()) {
+                        Toast.makeText(getBaseContext(), targetPlayerName + " is already dead.", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
 
-                if (!mPlayersMap.get(targetPlayerName).isAlive()) {
-                    Toast.makeText(getBaseContext(), "This player is already dead.", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                if (!mPlayersMap.get(targetPlayerName).equals(mTarget)){
-                    Toast.makeText(getBaseContext(), "This player is not your target.  Keep searching.", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                Toast.makeText(this, "You have killed " + targetPlayerName, Toast.LENGTH_SHORT).show();
-                marker.setVisible(false);
-                mPlayersMap.get(targetPlayerName).setAlive(false);
-                mMarkerOptionsMap.put(targetPlayerName, null);
-                mMarkerMap.put(targetPlayerName, null);
-                updateMarker(targetPlayerName, targetMarkerOption.getPosition());
-                //update player status is being done inside the checkIfGameIsOver() after updating the alive citizens count
-                checkIfGameIsOver(mGameName, marker.getTitle());
-                getTarget();
+                    double distance = getDistance(marker, myself);
+                    if (distance > KILL_DISTANCE) {
+                        Toast.makeText(getBaseContext(), "You can't kill a civilian (doctor included) " +
+                                "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
+                                "Current distance from " + targetPlayerName + " is "+ distance + " meters.",
+                                Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                    Toast.makeText(this, "You have killed " + targetPlayerName, Toast.LENGTH_SHORT).show();
+                    marker.setVisible(false);
+                    mPlayersMap.get(targetPlayerName).setAlive(false);
+                    mMarkerOptionsMap.put(targetPlayerName, null);
+                    mMarkerMap.put(targetPlayerName, null);
+                    updateMarker(targetPlayerName, targetMarkerOption.getPosition());
+                    //update player status is being done inside the checkIfGameIsOver() after updating the alive citizens count
+                    checkIfGameIsOver(mGameName, marker.getTitle());
 
+                } else if (GameCharacter.DETECTIVE.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
+                    double distance = getDistance(marker, myself);
+                    Toast.makeText(getBaseContext(), "You can't kill the detective. The detective is " +
+                            distance + "m away from you." + "Maintain a distance of at least " +
+                            KILL_DISTANCE + "m from getting yourself arrested.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 break;
 
             case DOCTOR:
                 if (!myself.isAlive()) {
-                    Toast.makeText(getBaseContext(), "Doctor, you are dead. So you cannot revive another dead player.",
+                    Toast.makeText(getBaseContext(), "Doctor, you are dead. So you can no more revive another dead player.",
                             Toast.LENGTH_SHORT).show();
                     return false;
                 }
 
+                if (GameCharacter.CITIZEN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
                     if (mPlayersMap.get(targetPlayerName).isAlive()) {
-                        Toast.makeText(getBaseContext(), "This player is already alive. Try your magic on a dead player.",
+                        Toast.makeText(getBaseContext(), targetPlayerName + " is already alive. Try your magic on a dead player.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
 
                     double distance = getDistance(marker, myself);
                     if (distance > KILL_DISTANCE) {
-                        Toast.makeText(getBaseContext(), "You can't revive a player " +
+                        Toast.makeText(getBaseContext(), "You can't revive the civilian " +
                                         "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                        "Current distance is " + distance + " meters.",
+                                        "Current distance from " + targetPlayerName + " is " + distance + " meters.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -846,24 +910,25 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     updateMarker(targetPlayerName, targetMarkerOption.getPosition());
                     FirebaseHelper.updatePlayerStatus(mGameName, targetPlayerName, PlayerStatus.ALIVE, true, true);
 
+                } else if (GameCharacter.ASSASSIN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
+                    double distance = getDistance(marker, myself);
+                    Toast.makeText(getBaseContext(), "Assassin is " + distance + "m away from you." +
+                            "Maintain a distance of at least " + KILL_DISTANCE + "m from getting " +
+                            "yourself killed.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 break;
 
             case DETECTIVE:
-
-                double detectiveDistance = getDistance(marker, myself);
-                if (detectiveDistance > KILL_DISTANCE) {
-                    Toast.makeText(getBaseContext(), "You can't arrest the assassin " +
-                                    "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                    "Current distance from " + targetPlayerName + " is " + detectiveDistance + " meters.",
-                            Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                if (!GameCharacter.ASSASSIN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
-
-                    Toast.makeText(getBaseContext(), "This player is not the assassin.  Keep searching.", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
                 if (GameCharacter.ASSASSIN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
+                    double distance = getDistance(marker, myself);
+                    if (distance > KILL_DISTANCE) {
+                        Toast.makeText(getBaseContext(), "You can't arrest the assassin " +
+                                        "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
+                                        "Current distance from " + targetPlayerName + " is " + distance + " meters.",
+                                Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                     FirebaseHelper.updatePlayerStatus(mGameName, targetPlayerName, PlayerStatus.DEAD, false, false);
                     gameFinished(false, "Detective arrested the Assassin.");
 
@@ -913,6 +978,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     }
 
     private void gameFinished(boolean assassinWon, String description) {
+        mGameFinished = true;
         FirebaseHelper.updateGameStatus(mGameName, assassinWon, description);
 //        handlePostGameFinishTasks(assassinWon);
     }
@@ -934,6 +1000,8 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 FirebaseHelper.increaseNoOfLossesBy1(mMyself);
             }
         }
+        if (mGameClosedByUser)
+            return;
         Intent intent = new Intent(PlayBoardActivity.this, PostgameActivity.class);
         if (mIsAdminOfGame) {
             intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
@@ -997,25 +1065,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
             }
         });
 
-    }
-
-    private void getTarget(){
-        String target;
-        Random rand = new Random();
-
-        int randomNum = rand.nextInt(mPlayerNames.size());
-        target = mPlayersMap.keySet().toArray()[randomNum].toString();
-
-        while (target.equals(mMyself) || !mPlayersMap.get(target).isAlive() ||
-                mPlayersMap.get(target).getGameCharacterType().equals(GameCharacter.getCharacterFrom("Assassin"))){
-
-            randomNum = rand.nextInt(mPlayerNames.size());
-            target = mPlayerNames.toArray()[randomNum].toString();
-        }
-
-        mTarget = target;
-
-        Toast.makeText(getBaseContext(), "Your new target is " + mTarget + ".", Toast.LENGTH_SHORT).show();
     }
 
 }

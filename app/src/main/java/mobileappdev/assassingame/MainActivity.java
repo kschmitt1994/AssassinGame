@@ -1,69 +1,49 @@
 package mobileappdev.assassingame;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import static mobileappdev.assassingame.LogInActivity.IS_USER_LOGGED_IN;
 import static mobileappdev.assassingame.LogInActivity.MY_PREFERENCES;
+import static mobileappdev.assassingame.LogInActivity.USER_NAME;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Firebase Authentication objects
-    // Required for monitoring authentication state
-
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private static final String TAG = "MainActivity";
-    private FirebaseAnalytics mFirebaseAnalytics;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        // Analytics integration
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkForInternetConnection();
+        checkForLocationServices();
 
         Intent intent = getIntent();
         String mGameName = intent.getStringExtra(BroadcastHelper.GAME_NAME);
 
         if (intent.getBooleanExtra(BroadcastHelper.ON_GAME_REQUEST, false)) {
-            String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
             String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
             String gameReqResponse = intent.getStringExtra(BroadcastHelper.INVITATION_RESPONSE);
             if (InvitationStatus.ACCEPTED.equals(InvitationStatus.getStatusFrom(gameReqResponse))) {
                 FirebaseHelper.sendAcceptResponse(player, mGameName);
             } else {
                 FirebaseHelper.sendRejectionResponse(player, mGameName);
-                //TODO:Ajit: do I need to call finish()?
-
             }
-//            startActivity(new Intent(PlayBoardActivity.this, MainActivity.class));
-//            finish();
             finishAffinity(); //app will be closed
-//            return;
-
         }
-        checkForLocationServices(this);
 
         // Track when user signs in and out
         mAuth = FirebaseAuth.getInstance();
@@ -94,19 +74,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mAuth.signOut();
-
-                SharedPreferences sharedpreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-                SharedPreferences.Editor edit = sharedpreferences.edit();
-
-                edit.putBoolean(IS_USER_LOGGED_IN, false);
-                edit.apply();
-
+                clearSharedPrefData();
                 startActivity(new Intent(MainActivity.this, LogInActivity.class));
 
             }
         });
 
-//        //Todo: For testing purposes, the settings button links to a chat activity.  Change this later.
 //        Button settingsButton = (Button)findViewById(R.id.settings);
 //        settingsButton.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -121,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, StatsActivity.class));
-
             }
         });
 
@@ -143,42 +115,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void checkForLocationServices(Context context) {
+    private void clearSharedPrefData() {
+        SharedPreferences sharedpreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sharedpreferences.edit();
 
-        LocationManager service = (LocationManager) context.getSystemService(LOCATION_SERVICE);
-        boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        edit.putBoolean(IS_USER_LOGGED_IN, false);
+        edit.putString(USER_NAME, null);
+        edit.apply();
+    }
 
-        if (!enabled) {
-            showSettingsAlert(context);
+    private void checkForInternetConnection() {
+        if (!ExternalServicesHelper.isConnected(this)) {
+            ExternalServicesHelper.buildDialog(this).show();
         }
     }
 
-    public void showSettingsAlert(final Context context) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-
-        alertDialog.setTitle("GPS is settings");
-//        alertDialog.setCancelable(false);
-        alertDialog.setMessage("Location needs to be enabled for this game. Please Press Cancel to exit the game");
-        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                context.startActivity(intent);
-            }
-        });
-
-        // on pressing cancel button
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                MainActivity.this.finish();
-                //context.startActivity(new Intent(context, LogInActivity.class));
-            }
-        });
-
-        // Showing Alert Message
-        alertDialog.show();
+    public void checkForLocationServices() {
+        if (!ExternalServicesHelper.isLocationServicesEnabled(this)) {
+            ExternalServicesHelper.showSettingsAlert(this, MainActivity.this);
+        }
     }
-
 
     private void createGame() {
         startActivity(new Intent(MainActivity.this, NewGameActivity.class));

@@ -47,4 +47,5 @@
     <string name="title_activity_join_game">Join a Public Game</string>
     <string name="title_activity_my_games">My Games</string>
     <string name="invite_proceed"><![CDATA[Invite & Proceed]]></string>
+    <string name="player_info">Info</string>
 </resources>

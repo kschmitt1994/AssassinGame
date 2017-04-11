@@ -3,6 +3,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/info"
+        android:icon="@drawable/ic_chat_white_24px"
+        android:title="@string/player_info"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item
         android:id="@+id/chat"
         android:icon="@drawable/ic_chat_white_24px"
         android:title="@string/game_chat"

@@ -1,5 +1,6 @@
 package mobileappdev.assassingame;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -110,7 +111,9 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         mBuilder.addAction(R.drawable.ic_close_black_24px, "Decline", pendingIntentNo);
 
         NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+        Notification notif = mBuilder.build();
+//        notif.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
+        mNotificationManager.notify(0, notif);
 
     }
 }

@@ -1,11 +1,10 @@
 package mobileappdev.assassingame;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -15,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -37,7 +37,7 @@ public class GameBoardActivity extends AppCompatActivity {
         publicSwitch.setChecked(Game.getInstance().isPublic());
         publicSwitch.setEnabled(false);
         publicSwitch.setClickable(false);
-        publicSwitch.setFocusable(false);
+//        publicSwitch.setFocusable(false);
 //        publicSwitch.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -72,7 +72,8 @@ public class GameBoardActivity extends AppCompatActivity {
     }
 
     private void cancelGameCreation() {
-        FirebaseHelper.deleteGame(Game.getInstance().getGameName());
+        new AsyncTaskCancelGame().execute(this);
+        Game.getInstance().removeAllPlayers();
         startActivity(new Intent(GameBoardActivity.this, MainActivity.class));
         finish();
     }
@@ -102,9 +103,18 @@ public class GameBoardActivity extends AppCompatActivity {
     }
 
     private void createGame() {
-        FirebaseHelper.createGame(Game.getInstance());
-        FirebaseHelper.sendGameStartMessage(Game.getInstance().getGameName());
+        if (!ExternalServicesHelper.isConnected(this)) {
+            Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        if (!ExternalServicesHelper.isLocationServicesEnabled(this)) {
+            Toast.makeText(this, "Plz enable location services!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        new MyAsyncTask().execute();
         Intent intent = new Intent(GameBoardActivity.this, PlayBoardActivity.class);
         intent.putExtra(BroadcastHelper.AM_I_ADMIN, true);
         intent.putExtra(BroadcastHelper.GAME_STARTED, true);
@@ -113,9 +123,30 @@ public class GameBoardActivity extends AppCompatActivity {
         finish();
     }
 
+    private class MyAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            FirebaseHelper.createGame(Game.getInstance());
+            FirebaseHelper.sendGameStartMessage(Game.getInstance().getGameName());
+            addPlayersToDatabase();
+            return null;
+        }
+    }
+
+    private void addPlayersToDatabase() {
+        Game gameInstance = Game.getInstance();
+        DatabaseHandler handler = new DatabaseHandler(this, gameInstance.getGameName());
+        for (Player player : gameInstance.getAllPlayers()) {
+            handler.addPlayer(player);
+        }
+
+    }
+
 
     public int getNoOfPlayersInGame(Context context) {
-        return new DatabaseHandler(context, Game.getInstance().getGameName()).getPlayersCount();
+//        return new DatabaseHandler(context, Game.getInstance().getGameName()).getPlayersCount();
+        return Game.getInstance().getAllPlayers().size();
     }
 
 }

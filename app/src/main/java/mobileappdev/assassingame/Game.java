@@ -1,10 +1,10 @@
 package mobileappdev.assassingame;
 
-import android.content.Context;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,24 +17,16 @@ public class Game {
     private boolean mIsPublic;
     private String mGameName;
     private String gameAdmin;
-    private Set<String> players2Invite = new HashSet<>();
-
+    private Set<String> players2Invite;
     private List<Player> mSearchedPlayer;
-
-
-    public Set<String> getPlayers2Invite() {
-        return players2Invite;
-    }
-
-    public void addPlayer2Invite(String player) {
-        players2Invite.add(player);
-    }
+    private Map<String, Player> allPlayers;
 
 
     private static Game sGame;
 
     private Game() {
-
+        players2Invite = new HashSet<>();
+        allPlayers = new HashMap<>();
     }
 
     public static Game getInstance() {
@@ -76,4 +68,47 @@ public class Game {
     public void setGameName(String gameName) {
         mGameName = gameName;
     }
+
+    public List<Player> getAllPlayers() {
+        return new ArrayList<>(allPlayers.values());
+    }
+
+    public List<String> getAllPlayerNames() {
+        return new ArrayList<>(allPlayers.keySet());
+    }
+
+    public Map<String, Player> getName2PlayerMap() {
+        return allPlayers;
+    }
+
+    public void setName2PlayerMap(Map<String, Player> map) {
+        allPlayers = map;
+    }
+
+    public void addPlayer(Player player) {
+        allPlayers.put(player.getName(), player);
+    }
+
+    public void removePlayer(String player) {
+        allPlayers.remove(player);
+    }
+
+    public void removeAllPlayers() {
+        allPlayers = new HashMap<>();
+    }
+
+    public Set<String> getPlayers2Invite() {
+        return players2Invite;
+    }
+
+    public void addPlayer2Invite(String player) {
+        players2Invite.add(player);
+    }
+
+    public void resetGameData() {
+        players2Invite = null;
+        mSearchedPlayer = null;
+        allPlayers = null;
+    }
+
 }

@@ -67,7 +67,7 @@ public class SearchPlayerFragment extends Fragment {
                     return;
                 }
 
-                Log.i("TESTING", "we are entering the getplayerlist() funciton");
+                Log.i("TESTING", "we are entering the getplayerlist() function");
                 searchPlayer(player, player.contains("@"));
                 searchBoxValue.setText("");
             }

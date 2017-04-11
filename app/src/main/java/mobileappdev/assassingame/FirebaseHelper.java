@@ -159,7 +159,7 @@ public class FirebaseHelper {
     }
 */
 
-   public static void sendInvite(Set<String> players, String gameName, String admin) {
+   public static void sendInvite(List<String> players, String gameName, String admin) {
        FirebaseDatabase database = FirebaseDatabase.getInstance();
        String currTime = Long.toString(System.currentTimeMillis());
        for (String player : players) {
@@ -177,7 +177,6 @@ public class FirebaseHelper {
      * order to protect the privacy of our users. ALSO NOTE: We are doing some silly formatting
      * of the email because Firebase keys cannot contain certain characters (like '.').
      *
-     * TODO: SAM Push formatted email to "emails/" to facilitate search. See SignUpPage.
      *
      * @param emailID: email address of player we are looking for
      * @return Newly-created Player object referring to queried user
@@ -312,14 +311,9 @@ public class FirebaseHelper {
     }
 
     public static void sendGameStartMessage(String gameName) {
-        // TODO: 3/18/2017 1. set status of game as started. use enum GameStatus
-        // TODO: 3/18/2017 2. need to send a message to all the players of this game that game is started
-
-        // On the Firebase backend we have to store the game status as a string.
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference gameStatusRef = database.getReference("games/" + gameName + "/status");
-
 
         gameStatusRef.setValue(GameStatus.STARTED.toString());
     }
@@ -383,7 +377,6 @@ public class FirebaseHelper {
      * @return a map containing all the game player info
      */
     /*public static Map<String, Player> getAllPlayers(String gameName) {
-        //TODO:Sam: return all the players (playerName --> Player object) from firebase database for the given GameName
 
         final Map<String, Player> playerMap = new HashMap<>();
 
@@ -580,7 +573,6 @@ public class FirebaseHelper {
     }
 
     public static void newPlayerAddedUp(String userName, String gameName) {
-        //TODO:Sam: send this message to everyone in the game
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference gamePlayersRef = database.getReference("games/" + gameName + "/players/" + userName);
 
@@ -590,7 +582,6 @@ public class FirebaseHelper {
     }
 
     public static void sendPlayerNotLoggedInResponse(String fromPlayer, String toAdmin) {
-        //TODO:Sam: send this message to admin with info about fromPlayer
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference msgRef = database.getReference("users/" + toAdmin + "/messages");
         DatabaseReference newMsgRef = msgRef.push();
@@ -630,6 +621,8 @@ public class FirebaseHelper {
     }
 
     public static void deleteGame(String gameName) {
-        //TODO:SAM:delete the game node from firebase database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reference = database.getReference("games/" + gameName);
+        reference.setValue(null);
     }
 }
