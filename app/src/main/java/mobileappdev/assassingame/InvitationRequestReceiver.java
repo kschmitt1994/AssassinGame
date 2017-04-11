@@ -11,6 +11,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -23,7 +24,11 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
 //        String player = intent.getStringExtra(BroadcastHelper.PLAYER_NAME);
         String admin = intent.getStringExtra(BroadcastHelper.ADMIN);
 //        Log.w("IRR", "admin:" + admin + ", player:" + player);
-        if (admin.equals(FirebaseAuth.getInstance().getCurrentUser().getDisplayName())) //patchy..fix it in the logic of sending these events
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.w("InvitationRequestR", "current user object is null");
+        }
+        if (admin.equals(currentUser.getDisplayName())) //patchy..fix it in the logic of sending these events
             return;
 
         String action = intent.getAction();

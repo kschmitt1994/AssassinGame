@@ -114,6 +114,11 @@ public class NewGameActivity extends AppCompatActivity {
     private void validateAndSetData(List<String> allGameNames) {
         String gameName = mGameTitleET.getText().toString().trim();
 
+        if (gameName.contains(".")) {
+            Toast.makeText(this, "Game name can't have a dot(.) in it.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (allGameNames.contains(gameName)) {
             Toast.makeText(this, "Game already exists. Please choose a different name.", Toast.LENGTH_SHORT).show();
             return;

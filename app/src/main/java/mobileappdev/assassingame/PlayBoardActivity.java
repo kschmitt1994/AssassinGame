@@ -848,6 +848,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         switch (myself.getGameCharacterType()) {
             case ASSASSIN:
                 double assassinDistance = getDistance(marker, myself);
+                if (!mPlayersMap.get(targetPlayerName).isAlive()) {
+                    Toast.makeText(getBaseContext(), "This player is already dead.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 if (assassinDistance > KILL_DISTANCE) {
                     Toast.makeText(getBaseContext(), "You can't kill a player " + "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
                                     "Current distance is "+ assassinDistance + " meters.",
@@ -855,11 +859,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     return false;
                 }
 
-                if (!mPlayersMap.get(targetPlayerName).isAlive()) {
-                    Toast.makeText(getBaseContext(), "This player is already dead.", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                if (!mPlayersMap.get(targetPlayerName).equals(mTarget)){
+                if (!mPlayersMap.get(targetPlayerName).getName().equals(mTarget)){
                     Toast.makeText(getBaseContext(), "This player is not your target.  Keep searching.", Toast.LENGTH_SHORT).show();
                     return false;
                 }
