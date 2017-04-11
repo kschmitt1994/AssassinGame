@@ -106,9 +106,9 @@ public class Game {
     }
 
     public void resetGameData() {
-        players2Invite = null;
-        mSearchedPlayer = null;
-        allPlayers = null;
+        players2Invite = new HashSet<>();
+        mSearchedPlayer = new ArrayList<>();
+        allPlayers = new HashMap<>();
     }
 
 }
