@@ -186,6 +186,7 @@ public class InvitedPlayersFragment extends Fragment {
                 for (int i = 0; i < mIPAdapter.getItemCount(); i++) {
                     IPHolder viewHolder = (IPHolder)mInvitedPlayersRecyclerView.findViewHolderForLayoutPosition(i);
                     if (viewHolder.mNameTextView.getText().equals(userName)) {
+                        Log.d("IPF", "Invitation response detected; updating UI");
                         updateInvitationStatusOnGUI(viewHolder.mNameTextView, InvitationStatus.getStatusFrom(response));
                         break;
                     }
