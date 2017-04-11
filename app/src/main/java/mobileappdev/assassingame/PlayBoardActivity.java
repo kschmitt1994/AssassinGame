@@ -172,8 +172,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         addLocationListener(mPlayerNames);
         addListenerForGameStatus(mGameName);
 
+
         if (GameCharacter.ASSASSIN.equals(mPlayersMap.get(mMyself).getGameCharacterType())){
             getTarget();
+        } else {
+            Toast.makeText(getBaseContext(), "Your character role is " + mPlayersMap.get(mMyself).getGameCharacterType() + ".", Toast.LENGTH_SHORT).show();
         }
 
         mSpinner.dismiss();
