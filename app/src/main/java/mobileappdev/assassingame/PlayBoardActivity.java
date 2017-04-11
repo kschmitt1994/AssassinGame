@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author: Ajit Ku. Sahoo
@@ -67,11 +68,13 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private Location mLocation = new Location("PlayBoard");
     private GoogleMap mGoogleMap;
     private String mMyself = "ajitPBA"; //TODO:ajit: revert
+    private String mTarget;
     private String mGameName;
     private boolean mGameStarted = false;
     private boolean mIsAdminOfGame = false;
     private boolean mInitialized = false;
     private boolean amIAlive = true;
+    private Random rand = new Random();
 
     private static final long LOCATION_REFRESH_DISTANCE = 1; // in meters
     private static final long LOCATION_REFRESH_TIME = 50; // .5 sec
@@ -311,6 +314,10 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         String assassin = playerNames.get(assassinIndex);
         playerNames.remove(assassinIndex);
         mPlayersMap.get(assassin).setGameCharacterType(GameCharacter.ASSASSIN);
+
+        if (assassin.equals(mMyself)){
+            getTarget();
+        }
 
 
         String detective = "";
@@ -782,58 +789,51 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
         switch (myself.getGameCharacterType()) {
             case ASSASSIN:
-                if (GameCharacter.CITIZEN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))
-                        || GameCharacter.DOCTOR.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
-                    if (!mPlayersMap.get(targetPlayerName).isAlive()) {
-                        Toast.makeText(getBaseContext(), targetPlayerName + " is already dead.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-
-                    double distance = getDistance(marker, myself);
-                    if (distance > KILL_DISTANCE) {
-                        Toast.makeText(getBaseContext(), "You can't kill a civilian (doctor included) " +
-                                "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                "Current distance from " + targetPlayerName + " is "+ distance + " meters.",
-                                Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                    Toast.makeText(this, "You have killed " + targetPlayerName, Toast.LENGTH_SHORT).show();
-                    marker.setVisible(false);
-                    mPlayersMap.get(targetPlayerName).setAlive(false);
-                    mMarkerOptionsMap.put(targetPlayerName, null);
-                    mMarkerMap.put(targetPlayerName, null);
-                    updateMarker(targetPlayerName, targetMarkerOption.getPosition());
-                    //update player status is being done inside the checkIfGameIsOver() after updating the alive citizens count
-                    checkIfGameIsOver(mGameName, marker.getTitle());
-
-                } else if (GameCharacter.DETECTIVE.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
-                    double distance = getDistance(marker, myself);
-                    Toast.makeText(getBaseContext(), "You can't kill the detective. The detective is " +
-                            distance + "m away from you." + "Maintain a distance of at least " +
-                            KILL_DISTANCE + "m from getting yourself arrested.", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                break;
-
-            case DOCTOR:
-                if (!myself.isAlive()) {
-                    Toast.makeText(getBaseContext(), "Doctor, you are dead. So you can no more revive another dead player.",
+                double assassinDistance = getDistance(marker, myself);
+                if (assassinDistance > KILL_DISTANCE) {
+                    Toast.makeText(getBaseContext(), "You can't kill a player " + "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
+                                    "Current distance is "+ assassinDistance + " meters.",
                             Toast.LENGTH_SHORT).show();
                     return false;
                 }
 
-                if (GameCharacter.CITIZEN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
+                if (!mPlayersMap.get(targetPlayerName).isAlive()) {
+                    Toast.makeText(getBaseContext(), "This player is already dead.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                if (!mPlayersMap.get(targetPlayerName).equals(mTarget)){
+                    Toast.makeText(getBaseContext(), "This player is not your target.  Keep searching.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                Toast.makeText(this, "You have killed " + targetPlayerName, Toast.LENGTH_SHORT).show();
+                marker.setVisible(false);
+                mPlayersMap.get(targetPlayerName).setAlive(false);
+                mMarkerOptionsMap.put(targetPlayerName, null);
+                mMarkerMap.put(targetPlayerName, null);
+                updateMarker(targetPlayerName, targetMarkerOption.getPosition());
+                //update player status is being done inside the checkIfGameIsOver() after updating the alive citizens count
+                checkIfGameIsOver(mGameName, marker.getTitle());
+
+                break;
+
+            case DOCTOR:
+                if (!myself.isAlive()) {
+                    Toast.makeText(getBaseContext(), "Doctor, you are dead. So you cannot revive another dead player.",
+                            Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
                     if (mPlayersMap.get(targetPlayerName).isAlive()) {
-                        Toast.makeText(getBaseContext(), targetPlayerName + " is already alive. Try your magic on a dead player.",
+                        Toast.makeText(getBaseContext(), "This player is already alive. Try your magic on a dead player.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
 
                     double distance = getDistance(marker, myself);
                     if (distance > KILL_DISTANCE) {
-                        Toast.makeText(getBaseContext(), "You can't revive the civilian " +
+                        Toast.makeText(getBaseContext(), "You can't revive a player " +
                                         "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                        "Current distance from " + targetPlayerName + " is " + distance + " meters.",
+                                        "Current distance is " + distance + " meters.",
                                 Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -845,25 +845,24 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                     updateMarker(targetPlayerName, targetMarkerOption.getPosition());
                     FirebaseHelper.updatePlayerStatus(mGameName, targetPlayerName, PlayerStatus.ALIVE, true, true);
 
-                } else if (GameCharacter.ASSASSIN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
-                    double distance = getDistance(marker, myself);
-                    Toast.makeText(getBaseContext(), "Assassin is " + distance + "m away from you." +
-                            "Maintain a distance of at least " + KILL_DISTANCE + "m from getting " +
-                            "yourself killed.", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
                 break;
 
             case DETECTIVE:
+
+                double detectiveDistance = getDistance(marker, myself);
+                if (detectiveDistance > KILL_DISTANCE) {
+                    Toast.makeText(getBaseContext(), "You can't arrest the assassin " +
+                                    "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
+                                    "Current distance from " + targetPlayerName + " is " + detectiveDistance + " meters.",
+                            Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                if (!GameCharacter.ASSASSIN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
+
+                    Toast.makeText(getBaseContext(), "This player is not the assassin.  Keep searching.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 if (GameCharacter.ASSASSIN.equals(GameCharacter.getCharacterFrom(targetPlayerCharType))) {
-                    double distance = getDistance(marker, myself);
-                    if (distance > KILL_DISTANCE) {
-                        Toast.makeText(getBaseContext(), "You can't arrest the assassin " +
-                                        "if you are not within " + KILL_DISTANCE + "m of his proximity. " +
-                                        "Current distance from " + targetPlayerName + " is " + distance + " meters.",
-                                Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
                     FirebaseHelper.updatePlayerStatus(mGameName, targetPlayerName, PlayerStatus.DEAD, false, false);
                     gameFinished(false, "Detective arrested the Assassin.");
 
@@ -999,5 +998,23 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
     }
 
+    private void getTarget(){
+        String target;
+        Random rand = new Random();
+
+        int randomNum = rand.nextInt(mPlayerNames.size());
+        target = mPlayersMap.keySet().toArray()[randomNum].toString();
+
+        while (target.equals(mMyself) || !mPlayersMap.get(target).isAlive() ||
+                mPlayersMap.get(target).getGameCharacterType().equals(GameCharacter.getCharacterFrom("Assassin"))){
+
+            randomNum = rand.nextInt(mPlayerNames.size());
+            target = mPlayerNames.toArray()[randomNum].toString();
+        }
+
+        mTarget = target;
+
+        Toast.makeText(getBaseContext(), "Your new target is " + mTarget + ".", Toast.LENGTH_SHORT).show();
+    }
 
 }
