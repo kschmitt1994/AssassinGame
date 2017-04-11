@@ -81,7 +81,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
     private boolean mInitialized = false;
     private boolean amIAlive = true;
 
-    private static final long LOCATION_REFRESH_DISTANCE = 10; // in meters
+    private static final long LOCATION_REFRESH_DISTANCE = 5; // in meters
     private static final long LOCATION_REFRESH_TIME = 5000; // in msec
     private static final double KILL_DISTANCE = 50; //in meters
 
@@ -171,6 +171,11 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         initializeMap();
         addLocationListener(mPlayerNames);
         addListenerForGameStatus(mGameName);
+
+        if (GameCharacter.ASSASSIN.equals(mPlayersMap.get(mMyself).getGameCharacterType())){
+            getTarget();
+        }
+
         mSpinner.dismiss();
     }
 
@@ -321,10 +326,6 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
         String assassin = playerNames.get(assassinIndex);
         playerNames.remove(assassinIndex);
         mPlayersMap.get(assassin).setGameCharacterType(GameCharacter.ASSASSIN);
-
-        if (assassin.equals(mMyself)){
-            getTarget();
-        }
 
         String detective = "";
         String doctor = "";
