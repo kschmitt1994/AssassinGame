@@ -944,7 +944,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int aliveCivilians = Integer.parseInt(dataSnapshot.getValue().toString());
-                    if (aliveCivilians <= 1)
+                    if (aliveCivilians <= 0)
                         gameFinished(true, "Assassin killed all Civilians");
                     //this is patchy, but we need to do inside this call in order to make sure that there is no read of invalid count of alive players
                     FirebaseHelper.updatePlayerStatus(mGameName, userName, PlayerStatus.DEAD, true, false);
