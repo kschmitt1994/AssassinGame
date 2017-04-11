@@ -813,6 +813,7 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
                 updateMarker(targetPlayerName, targetMarkerOption.getPosition());
                 //update player status is being done inside the checkIfGameIsOver() after updating the alive citizens count
                 checkIfGameIsOver(mGameName, marker.getTitle());
+                getTarget();
 
                 break;
 
