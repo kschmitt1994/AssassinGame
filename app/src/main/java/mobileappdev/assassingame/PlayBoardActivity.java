@@ -915,6 +915,12 @@ public class PlayBoardActivity extends AppCompatActivity implements LocationList
 
             case DETECTIVE:
 
+                if (!myself.isAlive()) {
+                    Toast.makeText(getBaseContext(), "Detective, you are dead. So you cannot arrest another player.",
+                            Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
                 double detectiveDistance = getDistance(marker, myself);
                 if (detectiveDistance > KILL_DISTANCE) {
                     Toast.makeText(getBaseContext(), "You can't arrest the assassin " +
