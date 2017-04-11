@@ -27,6 +27,7 @@ public class InvitationRequestReceiver extends BroadcastReceiver {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Log.w("InvitationRequestR", "current user object is null");
+            return;
         }
         if (admin.equals(currentUser.getDisplayName())) //patchy..fix it in the logic of sending these events
             return;
